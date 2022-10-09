@@ -3,3 +3,5 @@
 *.optrpt
 *.lst
 *.x
+compile.cpu*
+compile.gpu*
