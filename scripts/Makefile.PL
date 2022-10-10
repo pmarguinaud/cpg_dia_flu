@@ -6,18 +6,26 @@ use Data::Dumper;
 use FindBin qw ($Bin);
 use lib $Bin;
 use Fxtran;
+use List::MoreUtils qw (uniq);
 
 use strict;
 
 my @sys = qw (OMP_LIB CUDAFOR IEEE_ARITHMETIC ISO_C_BINDING OPENACC);
 
+my %slurp;
+
 sub slurp
 {
   my $f = shift;
-  do { local $/ = undef; my $fh = 'FileHandle'->new ("<$f"); <$fh> };
+  unless ($slurp{$f})
+    {
+      $slurp{$f} = do { local $/ = undef; my $fh = 'FileHandle'->new ("<$f"); <$fh> };
+    }
+
+  return $slurp{$f};
 }
 
-my %deps;
+my (%deps, %mod2obj);
 
 sub deps
 {
@@ -33,6 +41,18 @@ sub deps
       @use = grep { ! $sys{$_} } @use;
       my @mod = map { lc ($_) . '.mod' } @use;
       $deps{$f} = [@mod, @inc];
+
+      for (@{ $deps{$f} })
+        {
+          s/\.h$/.ok/o;
+          if (m/\.mod$/o)
+            {
+               $_ = $mod2obj{$_};
+            }
+        }
+   
+      @{ $deps{$f} } = &uniq (@{ $deps{$f} });
+
    }
 
   return @{ $deps{$f} };
@@ -47,12 +67,19 @@ sub mods
   return @mods;
 }
 
+my %kind;
+
 sub kind
 {
   my $f = shift;
-  my $code = &slurp ($f);
-  my ($kind) = ($code =~ m/^(PROGRAM|SUBROUTINE|MODULE)/igoms);
-  return uc ($kind);
+  unless ($kind{$f})
+    {
+      my $code = &slurp ($f);
+      my ($kind) = ($code =~ m/^(PROGRAM|SUBROUTINE|MODULE)/igoms);
+      $kind{$f} = uc ($kind);
+    }
+
+  return $kind{$f};
 }
 
 sub newer
@@ -83,10 +110,24 @@ EOF
 
 my (@obj, @prg);
 
+for my $F90 (@F90)
+  {
+    (my $obj = $F90) =~ s/\.F90$/.o/o;
+    my $kind = &kind ($F90);
+    if ($kind eq 'MODULE')
+      {
+        my @mod = &mods ($F90);
+        for my $mod (@mod)
+          {
+            $mod2obj{$mod} = $obj;
+          }
+      }
+  }
 
 for my $F90 (@F90)
   {
     my $kind = &kind ($F90);
+
     if ($kind eq 'SUBROUTINE')
       {
         my $intfb = &Fxtran::intfb ($F90);
@@ -97,17 +138,6 @@ $ok: $intfb @deps
 	touch $ok
 
 EOF
-      }
-    elsif ($kind eq 'MODULE')
-      {
-        my @mod = &mods ($F90);
-        (my $obj = $F90) =~ s/\.F90$/.o/o;
-        for my $mod (@mod)
-          {
-            $fh->print (<< "EOF");
-$mod: $obj
-EOF
-          }
       }
     elsif ($kind eq 'PROGRAM')
       {
@@ -131,24 +161,19 @@ for my $F90 (@F90)
     my @deps = &deps ($F90);
     my @mods = &mods ($F90);
     my $kind = &kind ($F90);
+    (my $obj = $F90) =~ s/\.F90$/.o/o;
 
     if ($kind eq 'MODULE')
       {
-        my %mods = map { ($_, 1) } @mods;
-        @deps = grep { ! $mods{$_} } @deps;
+        @deps = grep { ($_ ne $obj) } @deps;
       }
 
-    for (@deps)
-      {
-        s/\.h$/.ok/o;
-      }
-    (my $obj = $F90) =~ s/\.F90$/.o/o;
     $fh->print (<< "EOF");
 $obj: $F90 @deps
 	\$(FC) -c $F90
 
 EOF
-    
+
     push @obj, $obj if ($kind ne 'PROGRAM');
 
     push @subobj, $obj if ($kind ne 'MODULE');
