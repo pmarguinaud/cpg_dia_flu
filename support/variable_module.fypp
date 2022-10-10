@@ -69,18 +69,17 @@ TYPE, EXTENDS(VARIABLE_BASE) :: VARIABLE_${rank}$D
   REAL(KIND=JPRB), POINTER, CONTIGUOUS :: DM9(${shape}$) => NULL()  ! Meridional derivative field at t-dt
 
   ! Pointers to associated FIELD objects
-  TYPE(FIELD_${rank}$D), POINTER :: FT0 => NULL()  ! Basic field at t
-  TYPE(FIELD_${rank}$D), POINTER :: FT1 => NULL()  ! Basic field at t+dt
-  TYPE(FIELD_${rank}$D), POINTER :: FT9 => NULL()  ! Basic field at t-dt
-  TYPE(FIELD_${rank}$D), POINTER :: FPH9 => NULL() ! Basic field for physics
-  TYPE(FIELD_${rank}$D), POINTER :: FDL => NULL()  ! Zonal derivative field
-  TYPE(FIELD_${rank}$D), POINTER :: FDM => NULL()  ! Meridional derivative field
-  TYPE(FIELD_${rank}$D), POINTER :: FDL9 => NULL() ! Zonal derivative field at t-dt
-  TYPE(FIELD_${rank}$D), POINTER :: FDM9 => NULL() ! Meridional derivative field at t-dt
+  CLASS(FIELD_${rank}$D), POINTER :: FT0 => NULL()  ! Basic field at t
+  CLASS(FIELD_${rank}$D), POINTER :: FT1 => NULL()  ! Basic field at t+dt
+  CLASS(FIELD_${rank}$D), POINTER :: FT9 => NULL()  ! Basic field at t-dt
+  CLASS(FIELD_${rank}$D), POINTER :: FPH9 => NULL() ! Basic field for physics
+  CLASS(FIELD_${rank}$D), POINTER :: FDL => NULL()  ! Zonal derivative field
+  CLASS(FIELD_${rank}$D), POINTER :: FDM => NULL()  ! Meridional derivative field
+  CLASS(FIELD_${rank}$D), POINTER :: FDL9 => NULL() ! Zonal derivative field at t-dt
+  CLASS(FIELD_${rank}$D), POINTER :: FDM9 => NULL() ! Meridional derivative field at t-dt
 
 CONTAINS
   PROCEDURE :: UPDATE_VIEW => VARIABLE_${rank}$D_UPDATE_VIEW
-  PROCEDURE :: CLONE => VARIABLE_${rank}$D_CLONE
   PROCEDURE :: FINAL => VARIABLE_${rank}$D_FINAL
 END TYPE VARIABLE_${rank}$D
 #:endfor
@@ -185,29 +184,6 @@ CONTAINS
     SELF%RCP = ARGUMENT_VALUE(ARG=RCP, DEFAULT=IEEE_VALUE (RCP, IEEE_QUIET_NAN))
     SELF%R = ARGUMENT_VALUE(ARG=R, DEFAULT=IEEE_VALUE (R, IEEE_QUIET_NAN))
   END FUNCTION VARIABLE_${rank}$D_INIT
-#:endfor
-
-#:for rank in ranks
-  FUNCTION VARIABLE_${rank}$D_CLONE(SELF) RESULT(NEWOBJ)
-    ! Clone (deep-copy) this VARIABLE object to replicate associated FIELD objects
-    !
-    ! This is required create per-thread replication of the data view pointers
-    ! under the fields associated with this VARIABLE.
-    CLASS(VARIABLE_${rank}$D) :: SELF
-    TYPE(VARIABLE_${rank}$D) :: NEWOBJ
-
-    NEWOBJ = SELF
-    NEWOBJ%NAME = SELF%NAME
-    NEWOBJ%CNAME = SELF%CNAME
-    IF (ASSOCIATED(SELF%FT0))  NEWOBJ%FT0 => SELF%FT0%CLONE()
-    IF (ASSOCIATED(SELF%FT1))  NEWOBJ%FT1 => SELF%FT1%CLONE()
-    IF (ASSOCIATED(SELF%FT9))  NEWOBJ%FT9 => SELF%FT9%CLONE()
-    IF (ASSOCIATED(SELF%FPH9)) NEWOBJ%FPH9=> SELF%FPH9%CLONE()
-    IF (ASSOCIATED(SELF%FDL))  NEWOBJ%FDL => SELF%FDL%CLONE()
-    IF (ASSOCIATED(SELF%FDM))  NEWOBJ%FDM => SELF%FDM%CLONE()
-    IF (ASSOCIATED(SELF%FDL9)) NEWOBJ%FDL9=> SELF%FDL9%CLONE()
-    IF (ASSOCIATED(SELF%FDM9)) NEWOBJ%FDM9=> SELF%FDM9%CLONE()
-  END FUNCTION VARIABLE_${rank}$D_CLONE
 #:endfor
 
 #:for rank in ranks

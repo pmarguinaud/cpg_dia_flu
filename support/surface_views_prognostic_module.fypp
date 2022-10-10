@@ -25,8 +25,7 @@ MODULE SURFACE_VIEWS_PROGNOSTIC_MODULE
   ! with `F_`.
 
 USE PARKIND1, ONLY: JPIM, JPRB
-USE FIELD_MODULE, ONLY: FIELD_2D, FIELD_3D, FIELD_4D, FIELD_2D_PTR, &
- &                      FIELD_3D_PTR, FIELD_2D_VIEW, FIELD_3D_VIEW
+USE FIELD_MODULE, ONLY: FIELD_2D, FIELD_3D, FIELD_4D, FIELD_2D_PTR, FIELD_3D_PTR, FIELD_2D_VIEW, FIELD_3D_VIEW
 ! Using global imports here, since fypp notation breaks cmake's dependency analysis
 USE SURFACE_VARIABLES_MOD
 USE YOMDYN, ONLY : TDYN
@@ -58,9 +57,9 @@ TYPE SURFACE_VIEW_GROUP_${group.name}$
 
   TYPE(SURFACE_VARIABLE_GROUP_${group.name}$), POINTER :: VARIABLE_GROUP
 #:for v in group.variables
-  TYPE(FIELD_${group.dimension}$D), POINTER :: F_${v.name}$_T0=>NULL(), F_${v.name}$_T1=>NULL(), F_${v.name}$_T9=>NULL()
+  CLASS(FIELD_${group.dimension}$D), POINTER :: F_${v.name}$_T0=>NULL(), F_${v.name}$_T1=>NULL(), F_${v.name}$_T9=>NULL()
 #:endfor
-  TYPE(FIELD_${group.dimension+1}$D), POINTER :: F_GROUP => NULL ()
+  CLASS(FIELD_${group.dimension+1}$D), POINTER :: F_GROUP => NULL ()
 
 CONTAINS
   PROCEDURE :: INIT => SURFACE_VIEW_GROUP_${group.name}$_INIT

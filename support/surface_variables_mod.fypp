@@ -33,7 +33,7 @@ TYPE SURFACE_VARIABLE_GROUP_${group.name}$
 #:endfor
 
   ! Store a field encapsualting the entire group array for backward compatibility
-  TYPE(FIELD_${group.dimension+1}$D) :: F_GROUP
+  CLASS(FIELD_${group.dimension+1}$D), POINTER :: F_GROUP => NULL ()
 END TYPE SURFACE_VARIABLE_GROUP_${group.name}$
 
 #:endfor
@@ -48,7 +48,7 @@ TYPE SURFACE_VARIABLE_GROUP_${group.name}$
 #:endfor
 
   ! Store a field encapsualting the entire group array for backward compatibility
-  TYPE(FIELD_${group.dimension+1}$D) :: F_GROUP
+  CLASS(FIELD_${group.dimension+1}$D), POINTER :: F_GROUP => NULL ()
 END TYPE SURFACE_VARIABLE_GROUP_${group.name}$
 
 #:endfor

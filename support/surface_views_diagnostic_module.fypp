@@ -23,8 +23,7 @@ MODULE SURFACE_VIEWS_DIAGNOSTIC_MODULE
   ! prefixed with `F_`.
 
 USE PARKIND1, ONLY: JPIM, JPRB
-USE FIELD_MODULE, ONLY: FIELD_2D, FIELD_3D, FIELD_4D, FIELD_2D_PTR, &
- &                      FIELD_3D_PTR, FIELD_2D_VIEW, FIELD_3D_VIEW
+USE FIELD_MODULE, ONLY: FIELD_2D, FIELD_3D, FIELD_4D, FIELD_2D_PTR, FIELD_3D_PTR, FIELD_2D_VIEW, FIELD_3D_VIEW
 ! Using global imports here, since fypp notation breaks cmake's dependency analysis
 USE SURFACE_VARIABLES_MOD
 
@@ -51,16 +50,16 @@ TYPE SURFACE_VIEW_GROUP_${group.name}$
 #:endfor
   REAL(KIND=JPRB), POINTER :: PGROUP(:,${shape}$)
 
-  TYPE(SURFACE_VARIABLE_GROUP_${group.name}$), POINTER :: VARIABLE_GROUP
+  CLASS(SURFACE_VARIABLE_GROUP_${group.name}$), POINTER :: VARIABLE_GROUP
 #:for v in group.variables
 #:if v.array
 #:set array = (', ALLOCATABLE, DIMENSION(%s)' % shapes[v.array])
   TYPE(FIELD_${group.dimension}$D_PTR)${array}$ :: F_${v.name}$
 #:else
-  TYPE(FIELD_${group.dimension}$D), POINTER :: F_${v.name}$=>NULL()
+  CLASS(FIELD_${group.dimension}$D), POINTER :: F_${v.name}$=>NULL()
 #:endif
 #:endfor
-  TYPE(FIELD_${group.dimension+1}$D), POINTER :: F_GROUP
+  CLASS(FIELD_${group.dimension+1}$D), POINTER :: F_GROUP
 
 CONTAINS
   PROCEDURE :: INIT => SURFACE_VIEW_GROUP_${group.name}$_INIT
