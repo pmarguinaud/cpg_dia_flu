@@ -71,7 +71,7 @@ my @opts_s = qw (arch);
 );
 
 my @compute = map { &basename ($_) } <compute/*.F90>;
-my @support = map { &basename ($_) } <support/*>;
+my @support = grep { ! m/\.F90\.xml$/o } map { &basename ($_) } <support/*>;
 
 &mkpath ("compile.$opts{arch}");
 
