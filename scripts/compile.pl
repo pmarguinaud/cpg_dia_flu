@@ -54,6 +54,7 @@ sub preProcessIfNewer
       use Associate;
       use Inline;
       use Construct;
+      use DrHook;
 
       print "Preprocess $f1\n";
 
@@ -68,6 +69,9 @@ sub preProcessIfNewer
 
       &Inline::inlineContainedSubroutines ($d);
       &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
+
+#     &DrHook::remove ($d);
+#     &saveToFile ($d, "tmp/DrHook/$f2");
 
       'FileHandle'->new (">$f2")->print ($d->textContent ());
 
