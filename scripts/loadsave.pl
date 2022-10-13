@@ -40,8 +40,6 @@ sub process_decl
       goto RETURN;
     }
   
-  my $dbg = ($sname eq 'VARIABLE_BASE%') && ($name eq 'FINAL');
-
   my ($tspec) = &F ('./_T-spec_', $stmt);
 
   die $stmt->toString unless ($tspec);
@@ -450,6 +448,46 @@ EOF
 
 }
 
+sub registerFieldAPI
+{
+  my ($tc, $opts, $class) = @_;
+
+  my %h;
+
+  my ($type) = &F ('.//T-stmt/T-N/N/n/text()', $tc, 1);
+
+  my ($abstract) = &F ('./T-stmt/attribute[string(attribute-N)="ABSTRACT"]', $tc);
+  my ($extends) = &F ('./T-stmt/attribute[string(attribute-N)="EXTENDS"]/N/n/text()', $tc);
+
+  my @en_decl = &F ('.//EN-decl', $tc);
+  my %en_decl;
+
+  for my $en_decl (@en_decl)
+    {
+      my ($name) = &F ('.//EN-N/N/n/text()', $en_decl, 1);
+      $en_decl{$name} = $en_decl;
+    }
+
+  for my $en_decl (@en_decl)
+    {
+      my ($name) = &F ('.//EN-N/N/n/text()', $en_decl, 1);
+      my ($stmt) = &Fxtran::stmt ($en_decl);
+      my %attr = map { ($_, 1) } &F ('.//attribute/attribute-N/text()', $stmt);
+
+      my ($tspec) = &F ('./_T-spec_', $stmt);
+      if (my ($tname) = &F ('./derived-T-spec/T-N/N/n/text()', $tspec, 1))
+        {
+          $h{$name} = \$tname unless ($tname =~ m/^FIELD_/o);
+        }
+      elsif ($class && (my $fam = $class->getFieldAPIMember ($type, $name, \%attr, \%en_decl)))
+        {
+          $h{$name} = $fam;
+        }
+    }
+
+  return {comp => \%h, name => $type, super => $extends};
+}
+
 my %opts = qw (dir .);
 
 &GetOptions
@@ -459,6 +497,7 @@ my %opts = qw (dir .);
   'dir=s' => \$opts{dir}, 'out=s' => \$opts{out},
   size => \$opts{size}, save => \$opts{save}, load => \$opts{load}, copy => \$opts{copy},
   'no-allocate=s' => \$opts{'no-allocate'}, 'module-map=s' => \$opts{'module-map'},
+  'field-api' => \$opts{'field-api'}, 'field-api-class=s' => \$opts{'field-api-class'},
 );
 
 ( -d $opts{dir}) or &mkpath ($opts{dir});
@@ -488,7 +527,6 @@ sub parseListOrCodeRef
   if (-f "$Bin/$opts->{$kw}.pm")
     {
       my $class = $opts->{$kw};
-print "class=$class\n";
       eval "use $class;";
       my $c = $@;
       $c && die ($c);
@@ -551,5 +589,29 @@ my $F90 = shift;
 
 my $doc = &Fxtran::fxtran (location => $F90, fopts => [qw (-line-length 800)]);
 
-&process_types ($doc, \%opts);
+if ($opts{load} || $opts{save} || $opts{size} || $opts{copy})
+  {
+    &process_types ($doc, \%opts);
+  }
 
+if ($opts{'field-api'})
+  {
+    my $class;
+
+    if ($class = $opts{'field-api-class'})
+      {
+        eval "use $class";
+        my $c = $@;
+        $c && die ($c);
+      }
+
+    my @tc = &F ('.//T-construct', $doc);
+    
+    for my $tc (@tc)
+      {
+        my ($type) = &F ('.//T-stmt/T-N/N/n/text()', $tc, 1);
+        next if ($opts{'skip-types'}->($type));
+        my $h = &registerFieldAPI ($tc, \%opts, $class);
+        'FileHandle'->new (">types/$type.pl")->print (&Dumper ($h));
+    }
+  }

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 dir=support
 no_alloc=FIELD_2D,FIELD_3D,FIELD_4D
 module_map=UTIL_FIELD_2D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_3D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_4D_MOD,UTIL_FIELD_MOD
@@ -49,34 +51,35 @@ done
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir --skip-components info_flu --no-allocate $no_alloc \
-  --module-map $module_map \
+  --module-map $module_map --field-api --field-api-class info_flu \
   $(resolve .fypp/arpifs/module/yomxfu_type.F90)
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir --skip-components info_flu --no-allocate $no_alloc \
-  --module-map $module_map \
+  --module-map $module_map --field-api --field-api-class info_flu \
   $(resolve .fypp/arpifs/module/yomcfu_type.F90)
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir --skip-components info_var --no-allocate $no_alloc \
-  --module-map $module_map \
+  --module-map $module_map --field-api --field-api-class info_var \
   $(resolve .fypp/arpifs/module/variable_module.F90)
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir --skip-components info_cpg --no-allocate $no_alloc \
   --only-types 'CPG_MISC_TYPE,CPG_DYN_TYPE,CPG_RCP_TYPE,CPG_CTY_TYPE,CPG_HWIND_TYPE,CPG_XYB_TYPE' \
-  --module-map $module_map \
+  --module-map $module_map --field-api --field-api-class info_cpg \
   $(resolve .fypp/arpifs/module/cpg_type_mod.F90)
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir \
   --only-components 'GEOMETRY_VARIABLES%GM,FIELD_VARIABLES%Q,FIELD_VARIABLES%O3,FIELD_VARIABLES%GEOMETRY' --only-types 'GEOMETRY_VARIABLES,FIELD_VARIABLES' \
+  --field-api \
   $(resolve .fypp/arpifs/module/field_variables_mod.F90)
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir --skip-components info_cpg --no-allocate $no_alloc \
   --only-types MF_PHYS_OUT_TYPE \
-  --module-map $module_map \
+  --module-map $module_map --field-api --field-api-class info_cpg \
   $(resolve .fypp/arpifs/module/mf_phys_type_mod.F90)
 
 ./scripts/loadsave.pl \
@@ -108,7 +111,7 @@ done
   --load --save --only-types SURFACE_VIEW_GROUP_VPRECIP,SURFACE_VIEW_GROUP_VPRECIP2 \
   --dir $dir --out util_surface_views_diagnostic_module.F90 \
   --module-map $module_map --no-allocate $no_alloc \
-  --skip-components info_sfc \
+  --skip-components info_sfc --field-api --field-api-class info_sfc \
   $(resolve .fypp/arpifs/module/surface_views_diagnostic_module.F90)
 
 ./scripts/loadsave.pl \

@@ -10,10 +10,10 @@ sub  skip
   return 1 if ($comp =~ m/^P.*_T[019]$/o);
   return 1 if ($comp =~ m/^(?:F_GROUP|VARIABLE_GROUP|PGROUP)$/o);
 
-  return $class->isFieldAPI (@_);
+  return $class->getFieldAPIMember (@_);
 }
 
-sub isFieldAPI
+sub getFieldAPIMember
 {
   my $class = shift;
   my ($type, $comp, $attr, $en_decl_hash) = @_; 
@@ -25,10 +25,8 @@ sub isFieldAPI
       my $stmt = &Fxtran::stmt ($en_decl);
       my ($tspec) = &Fxtran::F ('./_T-spec_', $stmt);  
       my ($tname) = &F ('./derived-T-spec/T-N/N/n/text()', $tspec);
-      return 1 if ($tname =~ m/^FIELD_/o);
+      return "F_$comp" if ($tname =~ m/^FIELD_/o);
     }
-
-  return 0;
 }
 
 1;
