@@ -48,22 +48,22 @@ done
   $(resolve arpifs/module/type_fluxes.F90)
 
 ./scripts/loadsave.pl \
-  --load --save --dir $dir --skip-components ./scripts/skip_flu.pl --no-allocate $no_alloc \
+  --load --save --dir $dir --skip-components info_flu --no-allocate $no_alloc \
   --module-map $module_map \
   $(resolve .fypp/arpifs/module/yomxfu_type.F90)
 
 ./scripts/loadsave.pl \
-  --load --save --dir $dir --skip-components ./scripts/skip_flu.pl --no-allocate $no_alloc \
+  --load --save --dir $dir --skip-components info_flu --no-allocate $no_alloc \
   --module-map $module_map \
   $(resolve .fypp/arpifs/module/yomcfu_type.F90)
 
 ./scripts/loadsave.pl \
-  --load --save --dir $dir --skip-components ./scripts/skip_var.pl --no-allocate $no_alloc \
+  --load --save --dir $dir --skip-components info_var --no-allocate $no_alloc \
   --module-map $module_map \
   $(resolve .fypp/arpifs/module/variable_module.F90)
 
 ./scripts/loadsave.pl \
-  --load --save --dir $dir --skip-components ./scripts/skip_cpg.pl --no-allocate $no_alloc \
+  --load --save --dir $dir --skip-components info_cpg --no-allocate $no_alloc \
   --only-types 'CPG_MISC_TYPE,CPG_DYN_TYPE,CPG_RCP_TYPE,CPG_CTY_TYPE,CPG_HWIND_TYPE,CPG_XYB_TYPE' \
   --module-map $module_map \
   $(resolve .fypp/arpifs/module/cpg_type_mod.F90)
@@ -74,7 +74,7 @@ done
   $(resolve .fypp/arpifs/module/field_variables_mod.F90)
 
 ./scripts/loadsave.pl \
-  --load --save --dir $dir --skip-components ./scripts/skip_cpg.pl --no-allocate $no_alloc \
+  --load --save --dir $dir --skip-components info_cpg --no-allocate $no_alloc \
   --only-types MF_PHYS_OUT_TYPE \
   --module-map $module_map \
   $(resolve .fypp/arpifs/module/mf_phys_type_mod.F90)
@@ -101,14 +101,14 @@ done
   --load --save --only-types SURFACE_VIEW_GROUP_RESVR,SURFACE_VIEW_GROUP_SNOWG,SURFACE_VIEW_GROUP_CLS \
   --dir $dir --out util_surface_views_prognostic_module.F90 \
   --module-map $module_map --no-allocate $no_alloc \
-  --skip-components scripts/skip_sfc.pl \
+  --skip-components info_sfc \
   $(resolve .fypp/arpifs/module/surface_views_prognostic_module.F90)
 
 ./scripts/loadsave.pl \
   --load --save --only-types SURFACE_VIEW_GROUP_VPRECIP,SURFACE_VIEW_GROUP_VPRECIP2 \
   --dir $dir --out util_surface_views_diagnostic_module.F90 \
   --module-map $module_map --no-allocate $no_alloc \
-  --skip-components scripts/skip_sfc.pl \
+  --skip-components info_sfc \
   $(resolve .fypp/arpifs/module/surface_views_diagnostic_module.F90)
 
 ./scripts/loadsave.pl \

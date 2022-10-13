@@ -1,8 +1,22 @@
-sub 
+package info_sfc;
+
+use strict;
+use Fxtran;
+
+sub  skip
 { 
+  my $class = shift;
   my ($type, $comp, $attr, $en_decl_hash) = @_; 
   return 1 if ($comp =~ m/^P.*_T[019]$/o);
   return 1 if ($comp =~ m/^(?:F_GROUP|VARIABLE_GROUP|PGROUP)$/o);
+
+  return $class->isFieldAPI (@_);
+}
+
+sub isFieldAPI
+{
+  my $class = shift;
+  my ($type, $comp, $attr, $en_decl_hash) = @_; 
 
   return unless ($attr->{POINTER});
 
@@ -16,3 +30,5 @@ sub
 
   return 0;
 }
+
+1;

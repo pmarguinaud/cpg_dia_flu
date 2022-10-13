@@ -485,11 +485,14 @@ sub parseListOrCodeRef
 {
   my ($opts, $kw) = @_;
 
-  if ($opts->{$kw} =~ m/\.pl$/o)
+  if (-f "$Bin/$opts->{$kw}.pm")
     {
-      $opts->{$kw} = do ('File::Spec'->rel2abs ($opts->{$kw}));
+      my $class = $opts->{$kw};
+print "class=$class\n";
+      eval "use $class;";
       my $c = $@;
-      die $c if ($c);
+      $c && die ($c);
+      $opts->{$kw} = sub { $class->skip (@_) };
     }
   elsif ($opts->{$kw} =~ m/^sub /o)
     {

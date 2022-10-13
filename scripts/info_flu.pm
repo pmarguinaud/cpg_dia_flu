@@ -1,12 +1,25 @@
-sub
+package info_flu;
+
+use strict;
+use Fxtran;
+
+sub skip
 {
-  use strict;
+  my $class = shift;
   my ($type, $comp, $attr, $en_decl_hash) = @_;
   
   if ($comp =~ m/^(?:\w+_B|TYPE_XFU|YXFUPT|TYPE_CFU|YCFUPT)$/o)
     {
       return 1;
     }
+
+  return $class->isFieldAPI (@_);
+}
+
+sub isFieldAPI
+{
+  my $class = shift;
+  my ($type, $comp, $attr, $en_decl_hash) = @_;
 
   return unless ($attr->{POINTER});
 
@@ -20,3 +33,5 @@ sub
 
   return 0;
 }
+
+1;

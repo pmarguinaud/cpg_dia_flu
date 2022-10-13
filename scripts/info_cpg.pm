@@ -1,12 +1,26 @@
-sub
+package info_cpg;
+
+use strict;
+use Fxtran;
+
+sub skip
 {
-  use strict;
+  my $class = shift;
   my ($type, $comp, $attr, $en_decl_hash) = @_;
   
   return unless ($attr->{POINTER});
 
   return 1 if ($comp =~ m/^(?:ZVIEW|F_DATA|ZDATA)$/o);
 
+  return $class->isFieldAPI (@_);
+}
+
+sub isFieldAPI
+{
+  my $class = shift;
+  my ($type, $comp, $attr, $en_decl_hash) = @_;
+
+  return unless ($attr->{POINTER});
 
   if (my $en_decl = $en_decl_hash->{"F_$comp"})
     {
@@ -18,3 +32,5 @@ sub
 
   return 0;
 }
+
+1;
