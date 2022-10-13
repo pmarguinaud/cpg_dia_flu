@@ -9,6 +9,7 @@ use File::Basename;
 use File::stat;
 use File::Path;
 use Getopt::Long;
+use Fxtran;
 
 my %opts;
 
@@ -50,10 +51,23 @@ sub preProcessIfNewer
 
   if (&newer ($f1, $f2))
     {
+      use Associate;
+      use Inline;
+      use Construct;
+
       print "Preprocess $f1\n";
 
-      my $d = &Fxtran::fxtran (location => $f1);
+      my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500)]);
       &saveToFile ($d, "tmp/$f2");
+
+      &Associate::resolveAssociates ($d);
+      &saveToFile ($d, "tmp/resolveAssociates/$f2");
+
+      &Construct::changeIfStatementsInIfConstructs ($d);
+      &saveToFile ($d, "tmp/changeIfStatementsInIfConstructs/$f2");
+
+      &Inline::inlineContainedSubroutines ($d);
+      &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
 
       'FileHandle'->new (">$f2")->print ($d->textContent ());
 
@@ -95,7 +109,8 @@ if ($opts{update})
      {
         for my $f (@compute)
           {
-            &copyIfNewer ("../compute/$f", $f);
+#           &copyIfNewer ("../compute/$f", $f);
+            &preProcessIfNewer ("../compute/$f", $f);
           }
      }
 
