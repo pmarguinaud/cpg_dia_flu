@@ -43,6 +43,8 @@ sub resolveArrayRef
 {
   my ($ra, $re) = @_;
 
+# print &Dumper ([$ra->textContent, $ra->toString, $re->textContent, $re->toString]);
+
   $ra = $ra->cloneNode (1);
 
   my $ee = sub
@@ -50,11 +52,20 @@ sub resolveArrayRef
     my $r = shift;
     if ($r->nodeName eq 'parens-R')
       {
-        return &F ('./element-LT/element/ANY-E', $r);
+        my ($elt) = &F ('./element-LT', $r);
+        $r->setNodeName ('array-R');
+        $elt->setNodeName ('section-subscript-LT');
+        for my $i (&F ('./element', $elt))
+          {
+            $i->setNodeName ('section-subscript');
+            my ($lb) = &n ('lower-bound');
+            $lb->appendChild ($_) for ($i->childNodes ());
+            $i->appendChild ($lb);
+          }
       }
-    elsif ($r->nodeName eq 'array-R')
+    if ($r->nodeName eq 'array-R')
       {
-        return &F ('./section-subscript-LT/section-subscript/node()', $r);
+        return &F ('./section-subscript-LT/section-subscript', $r);
       }
     else
       {
@@ -62,8 +73,8 @@ sub resolveArrayRef
       }
   };
 
-  my @ele = $ee->($re);
-  my @ssa = $ee->($ra);
+  my @ele = $ee->($re); #print &Dumper ([map { $_->toString } @ele]);
+  my @ssa = $ee->($ra); #print &Dumper ([map { $_->toString } @ssa]);
 
   for (my ($ia, $ie) = (0, 0); $ia < @ssa; $ia++)
     {
@@ -74,6 +85,10 @@ sub resolveArrayRef
         }
     }
     
+  
+
+# print &Dumper ([$ra->textContent]);
+
   $re->replaceNode ($ra);
 }
 
