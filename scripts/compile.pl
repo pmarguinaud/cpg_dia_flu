@@ -67,8 +67,8 @@ sub preProcessIfNewer
       &Construct::changeIfStatementsInIfConstructs ($d);
       &saveToFile ($d, "tmp/changeIfStatementsInIfConstructs/$f2");
 
-      &Inline::inlineContainedSubroutines ($d);
-      &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
+#     &Inline::inlineContainedSubroutines ($d);
+#     &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
 
 #     &DrHook::remove ($d);
 #     &saveToFile ($d, "tmp/DrHook/$f2");
