@@ -45,9 +45,29 @@ sub saveToFile
   'FileHandle'->new (">$f.xml")->print ($x->toString ());
 }
 
+sub apply
+{
+  my ($method, $doc, $file) = @_;
+  my ($module, $routine) = split (m/::/o, $method);
+
+  eval "use $module;";
+
+  my $c = $@; 
+  $c && die ($c);
+
+  {
+    no strict 'refs';
+    &{$method} ($doc);
+  }
+
+  &saveToFile ($doc, "tmp/$routine/$file");
+}
+
 sub preProcessIfNewer
 {
   my ($f1, $f2, $opts) = @_;
+
+  my @list = @{ $opts->{list} };
 
   if (&newer ($f1, $f2))
     {
@@ -61,17 +81,10 @@ sub preProcessIfNewer
       my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500)]);
       &saveToFile ($d, "tmp/$f2");
 
-      &Associate::resolveAssociates ($d);
-      &saveToFile ($d, "tmp/resolveAssociates/$f2");
-
-      &Construct::changeIfStatementsInIfConstructs ($d);
-      &saveToFile ($d, "tmp/changeIfStatementsInIfConstructs/$f2");
-
-      &Inline::inlineContainedSubroutines ($d);
-      &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
-
-      &DrHook::remove ($d);
-      &saveToFile ($d, "tmp/DrHook/$f2");
+      for my $l (@list)
+        {
+          &apply ($l, $d, $f2);
+        }
 
       'FileHandle'->new (">$f2")->print ($d->textContent ());
 
@@ -80,13 +93,15 @@ sub preProcessIfNewer
 }
 
 my @opts_f = qw (update compile);
-my @opts_s = qw (arch);
+my @opts_s = qw (arch list);
 
 &GetOptions
 (
   map ({ ($_,     \$opts{$_}) } @opts_f),
   map ({ ("$_=s", \$opts{$_}) } @opts_s),
 );
+
+$opts{list} = [split (m/,/o, $opts{list})];
 
 my @compute = map { &basename ($_) } <compute/*.F90>;
 my @support = grep { ! m/\.F90\.xml$/o } map { &basename ($_) } <support/*>;

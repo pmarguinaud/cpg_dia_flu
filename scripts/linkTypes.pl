@@ -62,4 +62,4 @@ while (my ($t, $h) = each (%T))
 
 print &Dumper (\%TT);
 
-&Storable::nstore (\%TT, 'types.dat');
+&Storable::nstore (\%TT, "$Bin/types.dat");

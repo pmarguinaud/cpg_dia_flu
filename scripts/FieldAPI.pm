@@ -45,7 +45,8 @@ sub pointers2FieldAPIPtr
 {
   my $d = shift;
 
-  my $TI = &Storable::retrieve ('types.dat');
+  use FindBin qw ($Bin);
+  my $TI = &Storable::retrieve ("$Bin/types.dat");
   
   my @T = sort keys (%$TI);
   
