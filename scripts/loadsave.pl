@@ -485,7 +485,7 @@ sub registerFieldAPI
         }
     }
 
-  return {comp => \%h, name => $type, super => $extends};
+  return {comp => \%h, name => $type, super => ($extends && $extends->textContent)};
 }
 
 my %opts = qw (dir .);

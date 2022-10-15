@@ -23,7 +23,7 @@ set -x
 export PATH=/opt/softs/anaconda3/bin:$PATH
 
 mkdir -p tmp
-rm tmp/*
+rm -f tmp/*
 
 for F90 in \
   .fypp/arpifs/module/mf_phys_surface_type_mod.F90  \
