@@ -481,7 +481,8 @@ sub registerFieldAPI
         }
       elsif ($class && (my $fam = $class->getFieldAPIMember ($type, $name, \%attr, \%en_decl)))
         {
-          $h{$name} = $fam;
+          my @ss = &F ('./array-spec/shape-spec-LT/shape-spec', $en_decl);
+          $h{$name} = [$fam, scalar (@ss)];
         }
     }
 

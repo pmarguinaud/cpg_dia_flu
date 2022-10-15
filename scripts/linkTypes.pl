@@ -24,12 +24,13 @@ for my $T (keys (%T))
       {
         $T{$T}{super} = $T{$super};
       }
-    for (values (%{ $T{$T}{comp} }))
+    for my $v (values (%{ $T{$T}{comp} }))
       {
-        if (ref ($_))
+        next unless (my $ref = ref ($v));
+        if ($ref eq 'SCALAR')
           {
-            my $t = $$_;
-            $_ = $T{$t};
+            my $t = $$v;
+            $v = $T{$t};
           }
       }
   }
@@ -43,12 +44,13 @@ while (my ($t, $h) = each (%T))
       {
         while (my ($k, $v) = each (%{ $hh->{comp} }))
           {
-            if (ref ($v) && ref ($v) eq 'HASH')
+            next unless (my $ref = ref ($v));
+            if ($ref eq 'HASH')
               {
                 $TT{$v->{name}} ||= {};
                 $h{$k} = $TT{$v->{name}};
               }
-            else
+            elsif ($ref eq 'ARRAY')
               {
                 $h{$k} = $v;
               }

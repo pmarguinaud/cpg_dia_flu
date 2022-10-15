@@ -1,37 +1,118 @@
 $VAR1 = {
-          'comp' => {
-                      'PHIF' => 'F_PHIF',
-                      'WRL' => 'F_WRL',
-                      'RTM' => 'F_RTM',
-                      'DBBC' => 'F_DBBC',
-                      'NHX' => 'F_NHX',
-                      'OROGL' => 'F_OROGL',
-                      'GWT' => 'F_GWT',
-                      'GWFL' => 'F_GWFL',
-                      'NHPREH' => 'F_NHPREH',
-                      'PREM' => 'F_PREM',
-                      'QCHAM' => 'F_QCHAM',
-                      'GWFT' => 'F_GWFT',
-                      'PHIFL' => 'F_PHIFL',
-                      'KENE' => 'F_KENE',
-                      'PRE' => 'F_PRE',
-                      'NHPREF' => 'F_NHPREF',
-                      'RCP' => \'CPG_RCP_TYPE',
-                      'XYB' => \'CPG_XYB_TYPE',
-                      'CTY' => \'CPG_CTY_TYPE',
-                      'QCHAL' => 'F_QCHAL',
-                      'UVH' => \'CPG_HWIND_TYPE',
-                      'PHI' => 'F_PHI',
-                      'PHIFM' => 'F_PHIFM',
-                      'PREL' => 'F_PREL',
-                      'GWFM' => 'F_GWFM',
-                      'PREF' => 'F_PREF',
-                      'RDPHI' => 'F_RDPHI',
-                      'NHY' => 'F_NHY',
-                      'OROGM' => 'F_OROGM',
-                      'RTL' => 'F_RTL',
-                      'GWS' => 'F_GWS'
-                    },
           'super' => undef,
-          'name' => 'CPG_DYN_TYPE'
+          'name' => 'CPG_DYN_TYPE',
+          'comp' => {
+                      'PREM' => [
+                                  'F_PREM',
+                                  1
+                                ],
+                      'PHIFL' => [
+                                   'F_PHIFL',
+                                   2
+                                 ],
+                      'PHI' => [
+                                 'F_PHI',
+                                 2
+                               ],
+                      'NHY' => [
+                                 'F_NHY',
+                                 2
+                               ],
+                      'KENE' => [
+                                  'F_KENE',
+                                  2
+                                ],
+                      'PRE' => [
+                                 'F_PRE',
+                                 2
+                               ],
+                      'GWS' => [
+                                 'F_GWS',
+                                 1
+                               ],
+                      'PREL' => [
+                                  'F_PREL',
+                                  1
+                                ],
+                      'RCP' => \'CPG_RCP_TYPE',
+                      'OROGL' => [
+                                   'F_OROGL',
+                                   1
+                                 ],
+                      'QCHAL' => [
+                                   'F_QCHAL',
+                                   2
+                                 ],
+                      'RDPHI' => [
+                                   'F_RDPHI',
+                                   2
+                                 ],
+                      'GWFL' => [
+                                  'F_GWFL',
+                                  2
+                                ],
+                      'CTY' => \'CPG_CTY_TYPE',
+                      'GWFM' => [
+                                  'F_GWFM',
+                                  2
+                                ],
+                      'GWT' => [
+                                 'F_GWT',
+                                 2
+                               ],
+                      'PHIFM' => [
+                                   'F_PHIFM',
+                                   2
+                                 ],
+                      'RTL' => [
+                                 'F_RTL',
+                                 2
+                               ],
+                      'DBBC' => [
+                                  'F_DBBC',
+                                  1
+                                ],
+                      'NHPREF' => [
+                                    'F_NHPREF',
+                                    2
+                                  ],
+                      'NHX' => [
+                                 'F_NHX',
+                                 2
+                               ],
+                      'GWFT' => [
+                                  'F_GWFT',
+                                  2
+                                ],
+                      'QCHAM' => [
+                                   'F_QCHAM',
+                                   2
+                                 ],
+                      'NHPREH' => [
+                                    'F_NHPREH',
+                                    2
+                                  ],
+                      'OROGM' => [
+                                   'F_OROGM',
+                                   1
+                                 ],
+                      'UVH' => \'CPG_HWIND_TYPE',
+                      'XYB' => \'CPG_XYB_TYPE',
+                      'RTM' => [
+                                 'F_RTM',
+                                 2
+                               ],
+                      'WRL' => [
+                                 'F_WRL',
+                                 2
+                               ],
+                      'PHIF' => [
+                                  'F_PHIF',
+                                  2
+                                ],
+                      'PREF' => [
+                                  'F_PREF',
+                                  2
+                                ]
+                    }
         };

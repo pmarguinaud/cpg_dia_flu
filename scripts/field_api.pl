@@ -49,7 +49,7 @@ sub getFieldAPIMember
             {
               $t = $t->{$x};
             }
-          elsif (! $ref)
+          elsif ($ref && ($ref eq 'ARRAY'))
            {
              $t = $t->{$x};
            }
@@ -77,34 +77,44 @@ for my $T (@T)
         for my $expr (@expr)
           {
             my @ct = &F ('./R-LT/component-R/ct', $expr);
-            my $f = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
-            next unless ($f);
+            my $fd = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
+            next unless ($fd);
+
+            my ($f, $d) = @$fd;
 
             $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
             my ($rlt) = &F ('./R-LT', $expr);
             $rlt->insertAfter (my $ptr = &n ("<component-R>%<ct>PTR</ct></component-R>"), $ct->parentNode);
-            if (my ($ar) = &F ('following-sibling::ANY-R', $ptr))
+
+            my ($ar) = &F ('following-sibling::ANY-R', $ptr);
+
+            unless ($ar)
               {
-                if ($ar->nodeName eq 'parens-R')
-                  {
-                    my ($lt) = &F ('./element-LT', $ar);
-                    $lt->appendChild (&t (','));
-                    $lt->appendChild (&n ('<element><named-E><N><n>YDCPG_BNDS</n></N><R-LT>' 
-                                        . '<component-R>%<ct>KBL</ct></component-R></R-LT></named-E>' 
-                                        . '</element>'))
-                  }
-                elsif ($ar->nodeName eq 'array-R')
-                  {
-                    my ($lt) = &F ('./section-subscript-LT', $ar);
-                    $lt->appendChild (&t (','));
-                    $lt->appendChild (&n ('<section-subscript><lower-bound><named-E><N><n>YDCPG_BNDS</n></N><R-LT>' 
-                                        . '<component-R>%<ct>KBL</ct></component-R></R-LT></named-E></lower-bound>' 
-                                        . '</section-subscript>'))
-                  }
-                else
-                  {
-                    die $expr->textContent;
-                  }
+                # Add array reference
+                $ar = &n ('<array-R>(<section-subscript-LT><section-subscript>:</section-subscript></section-subscript-LT>)</array-R>');
+                $ptr->parentNode->insertAfter ($ar, $ptr);
+              }
+
+            # Add block number as last index
+            if ($ar->nodeName eq 'parens-R')
+              {
+                my ($lt) = &F ('./element-LT', $ar);
+                $lt->appendChild (&t (','));
+                $lt->appendChild (&n ('<element><named-E><N><n>YDCPG_BNDS</n></N><R-LT>' 
+                                    . '<component-R>%<ct>KBL</ct></component-R></R-LT></named-E>' 
+                                    . '</element>'))
+              }
+            elsif ($ar->nodeName eq 'array-R')
+              {
+                my ($lt) = &F ('./section-subscript-LT', $ar);
+                $lt->appendChild (&t (','));
+                $lt->appendChild (&n ('<section-subscript><lower-bound><named-E><N><n>YDCPG_BNDS</n></N><R-LT>' 
+                                    . '<component-R>%<ct>KBL</ct></component-R></R-LT></named-E></lower-bound>' 
+                                    . '</section-subscript>'))
+              }
+            else
+              {
+                die $expr->textContent;
               }
             
           }

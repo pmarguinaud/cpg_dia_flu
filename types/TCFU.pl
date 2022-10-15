@@ -1,144 +1,348 @@
 $VAR1 = {
-          'name' => 'TCFU',
           'comp' => {
-                      'FPLCG' => 'F_FPLCG',
-                      'OZONT' => 'F_OZONT',
-                      'FRSOLU' => 'F_FRSOLU',
-                      'YFEVL' => \'FLUXES_DESCRIPTOR',
-                      'FRSOC1' => 'F_FRSOC1',
-                      'YFTOPH' => \'FLUXES_DESCRIPTOR',
-                      'YQTOT' => \'FLUXES_DESCRIPTOR',
-                      'STRDV' => 'F_STRDV',
-                      'QTOT' => 'F_QTOT',
-                      'YSTRDU' => \'FLUXES_DESCRIPTOR',
-                      'FTOPH' => 'F_FTOPH',
-                      'YFCSQL' => \'FLUXES_DESCRIPTOR',
-                      'FCHSP' => 'F_FCHSP',
-                      'FDISH' => 'F_FDISH',
-                      'YFRSOLU' => \'FLUXES_DESCRIPTOR',
-                      'YRUISL' => \'FLUXES_DESCRIPTOR',
-                      'YFDICS' => \'FLUXES_DESCRIPTOR',
-                      'STRTU' => 'F_STRTU',
-                      'FLWSP' => 'F_FLWSP',
-                      'YFCS' => \'FLUXES_DESCRIPTOR',
-                      'YFPLSN' => \'FLUXES_DESCRIPTOR',
-                      'YFPLSG' => \'FLUXES_DESCRIPTOR',
-                      'FCL' => 'F_FCL',
-                      'YSTRCU' => \'FLUXES_DESCRIPTOR',
-                      'FPLSG' => 'F_FPLSG',
-                      'FRSOPT' => 'F_FRSOPT',
-                      'QLI' => 'F_QLI',
-                      'YSTRTV' => \'FLUXES_DESCRIPTOR',
-                      'RUISP' => 'F_RUISP',
-                      'YFCCQL' => \'FLUXES_DESCRIPTOR',
-                      'YSNS' => \'FLUXES_DESCRIPTOR',
-                      'FGEL' => 'F_FGEL',
-                      'FNEBT' => 'F_FNEBT',
-                      'YNEBBAS' => \'FLUXES_DESCRIPTOR',
-                      'YCFUPT' => \'TCFUPTR',
-                      'YFTR' => \'FLUXES_DESCRIPTOR',
-                      'YFCLL' => \'FLUXES_DESCRIPTOR',
-                      'NEBBAS' => 'F_NEBBAS',
-                      'YFDICQ' => \'FLUXES_DESCRIPTOR',
-                      'FNEB' => 'F_FNEB',
-                      'FEVN' => 'F_FEVN',
-                      'YFLWSP' => \'FLUXES_DESCRIPTOR',
-                      'FRTHC0' => 'F_FRTHC0',
-                      'STRCU' => 'F_STRCU',
-                      'FCCQN' => 'F_FCCQN',
-                      'YFONTE' => \'FLUXES_DESCRIPTOR',
-                      'YFRSO' => \'FLUXES_DESCRIPTOR',
-                      'FPLCL' => 'F_FPLCL',
-                      'YFDITQ' => \'FLUXES_DESCRIPTOR',
-                      'YFEVV' => \'FLUXES_DESCRIPTOR',
+                      'RUISS' => [
+                                   'F_RUISS',
+                                   1
+                                 ],
+                      'FRSOLU' => [
+                                    'F_FRSOLU',
+                                    1
+                                  ],
+                      'FRSDNI' => [
+                                    'F_FRSDNI',
+                                    1
+                                  ],
+                      'FPLSH' => [
+                                   'F_FPLSH',
+                                   2
+                                 ],
                       'YFPLCH' => \'FLUXES_DESCRIPTOR',
-                      'YFNEB' => \'FLUXES_DESCRIPTOR',
-                      'YSTRCV' => \'FLUXES_DESCRIPTOR',
-                      'YFCHSP' => \'FLUXES_DESCRIPTOR',
-                      'YSTRTU' => \'FLUXES_DESCRIPTOR',
-                      'RUISL' => 'F_RUISL',
-                      'FCSQL' => 'F_FCSQL',
-                      'SNS' => 'F_SNS',
-                      'FDUTP' => 'F_FDUTP',
-                      'YRUISS' => \'FLUXES_DESCRIPTOR',
-                      'FRSOPS' => 'F_FRSOPS',
-                      'YFDITS' => \'FLUXES_DESCRIPTOR',
-                      'NEBCON' => 'F_NEBCON',
-                      'YFGELS' => \'FLUXES_DESCRIPTOR',
-                      'FPLSL' => 'F_FPLSL',
-                      'YFRTH' => \'FLUXES_DESCRIPTOR',
-                      'FRTHDS' => 'F_FRTHDS',
-                      'YFRSDNI' => \'FLUXES_DESCRIPTOR',
-                      'RUISS' => 'F_RUISS',
-                      'YNEBHAU' => \'FLUXES_DESCRIPTOR',
-                      'FEVL' => 'F_FEVL',
-                      'YFPLCL' => \'FLUXES_DESCRIPTOR',
-                      'YFDUTP' => \'FLUXES_DESCRIPTOR',
-                      'FRSO' => 'F_FRSO',
-                      'YSTRDV' => \'FLUXES_DESCRIPTOR',
-                      'YRUISP' => \'FLUXES_DESCRIPTOR',
-                      'YFRSGNI' => \'FLUXES_DESCRIPTOR',
-                      'FDICS' => 'F_FDICS',
-                      'NEBMOY' => 'F_NEBMOY',
-                      'YFRSOC1' => \'FLUXES_DESCRIPTOR',
-                      'YFNEBT' => \'FLUXES_DESCRIPTOR',
-                      'YFEVN' => \'FLUXES_DESCRIPTOR',
-                      'YFRSODS' => \'FLUXES_DESCRIPTOR',
-                      'FCLL' => 'F_FCLL',
-                      'YFRTHC0' => \'FLUXES_DESCRIPTOR',
-                      'FRSOC0' => 'F_FRSOC0',
-                      'YFLASH' => \'FLUXES_DESCRIPTOR',
-                      'YFCLN' => \'FLUXES_DESCRIPTOR',
-                      'NEBHAU' => 'F_NEBHAU',
-                      'FRTH' => 'F_FRTH',
-                      'SPRES' => 'F_SPRES',
-                      'YOZONT' => \'FLUXES_DESCRIPTOR',
-                      'STRTV' => 'F_STRTV',
-                      'FDICQ' => 'F_FDICQ',
-                      'YFRTHC1' => \'FLUXES_DESCRIPTOR',
-                      'YNEBMOY' => \'FLUXES_DESCRIPTOR',
-                      'YFRSOPT' => \'FLUXES_DESCRIPTOR',
-                      'YFRTHDS' => \'FLUXES_DESCRIPTOR',
-                      'FRSODS' => 'F_FRSODS',
-                      'QICE' => 'F_QICE',
-                      'FONTE' => 'F_FONTE',
-                      'YFRSOC0' => \'FLUXES_DESCRIPTOR',
-                      'FEVV' => 'F_FEVV',
-                      'STRDU' => 'F_STRDU',
-                      'YFPLCN' => \'FLUXES_DESCRIPTOR',
-                      'YFPLCG' => \'FLUXES_DESCRIPTOR',
-                      'YFCL' => \'FLUXES_DESCRIPTOR',
-                      'YWS' => \'FLUXES_DESCRIPTOR',
-                      'YFCSQN' => \'FLUXES_DESCRIPTOR',
-                      'FRSDNI' => 'F_FRSDNI',
-                      'FCSQN' => 'F_FCSQN',
-                      'YNEBCON' => \'FLUXES_DESCRIPTOR',
-                      'WS' => 'F_WS',
-                      'FDITS' => 'F_FDITS',
-                      'FRTHC1' => 'F_FRTHC1',
-                      'FRSGNI' => 'F_FRSGNI',
-                      'YFPLSL' => \'FLUXES_DESCRIPTOR',
-                      'FCCQL' => 'F_FCCQL',
-                      'FPLCH' => 'F_FPLCH',
-                      'FCLN' => 'F_FCLN',
-                      'YQICE' => \'FLUXES_DESCRIPTOR',
-                      'FPLCN' => 'F_FPLCN',
-                      'FCS' => 'F_FCS',
-                      'YFCCQN' => \'FLUXES_DESCRIPTOR',
-                      'FLASH' => 'F_FLASH',
-                      'FTR' => 'F_FTR',
-                      'FGELS' => 'F_FGELS',
-                      'YFPLSH' => \'FLUXES_DESCRIPTOR',
-                      'YFGEL' => \'FLUXES_DESCRIPTOR',
-                      'TYPE_CFU' => \'FLUXES_DESCRIPTOR',
                       'YSPRES' => \'FLUXES_DESCRIPTOR',
-                      'FDITQ' => 'F_FDITQ',
-                      'STRCV' => 'F_STRCV',
+                      'STRDV' => [
+                                   'F_STRDV',
+                                   2
+                                 ],
+                      'YFPLSL' => \'FLUXES_DESCRIPTOR',
+                      'YFDITS' => \'FLUXES_DESCRIPTOR',
+                      'YFDICQ' => \'FLUXES_DESCRIPTOR',
+                      'WS' => [
+                                'F_WS',
+                                1
+                              ],
+                      'YFCHSP' => \'FLUXES_DESCRIPTOR',
+                      'FEVL' => [
+                                  'F_FEVL',
+                                  1
+                                ],
+                      'YSTRCU' => \'FLUXES_DESCRIPTOR',
+                      'FCS' => [
+                                 'F_FCS',
+                                 1
+                               ],
+                      'FPLSN' => [
+                                   'F_FPLSN',
+                                   2
+                                 ],
+                      'YFPLSN' => \'FLUXES_DESCRIPTOR',
+                      'YFDISH' => \'FLUXES_DESCRIPTOR',
+                      'FLASH' => [
+                                   'F_FLASH',
+                                   1
+                                 ],
+                      'YFRSOC0' => \'FLUXES_DESCRIPTOR',
+                      'RUISP' => [
+                                   'F_RUISP',
+                                   1
+                                 ],
+                      'YFRSDNI' => \'FLUXES_DESCRIPTOR',
+                      'SNS' => [
+                                 'F_SNS',
+                                 1
+                               ],
+                      'FRSOC0' => [
+                                    'F_FRSOC0',
+                                    1
+                                  ],
+                      'YFCS' => \'FLUXES_DESCRIPTOR',
+                      'FCSQL' => [
+                                   'F_FCSQL',
+                                   2
+                                 ],
+                      'YRUISS' => \'FLUXES_DESCRIPTOR',
+                      'YNEBMOY' => \'FLUXES_DESCRIPTOR',
+                      'YFPLSG' => \'FLUXES_DESCRIPTOR',
+                      'YFCLL' => \'FLUXES_DESCRIPTOR',
+                      'FRTHC0' => [
+                                    'F_FRTHC0',
+                                    1
+                                  ],
+                      'FPLCN' => [
+                                   'F_FPLCN',
+                                   2
+                                 ],
+                      'YFEVV' => \'FLUXES_DESCRIPTOR',
+                      'TYPE_CFU' => \'FLUXES_DESCRIPTOR',
+                      'YFRTHC1' => \'FLUXES_DESCRIPTOR',
                       'YQLI' => \'FLUXES_DESCRIPTOR',
-                      'FPLSH' => 'F_FPLSH',
+                      'STRDU' => [
+                                   'F_STRDU',
+                                   2
+                                 ],
+                      'YNEBHAU' => \'FLUXES_DESCRIPTOR',
+                      'YQTOT' => \'FLUXES_DESCRIPTOR',
+                      'YFRSODS' => \'FLUXES_DESCRIPTOR',
+                      'YSNS' => \'FLUXES_DESCRIPTOR',
+                      'QICE' => [
+                                  'F_QICE',
+                                  1
+                                ],
+                      'YSTRDV' => \'FLUXES_DESCRIPTOR',
+                      'FCHSP' => [
+                                   'F_FCHSP',
+                                   1
+                                 ],
+                      'FTOPH' => [
+                                   'F_FTOPH',
+                                   1
+                                 ],
+                      'FLWSP' => [
+                                   'F_FLWSP',
+                                   1
+                                 ],
+                      'FDUTP' => [
+                                   'F_FDUTP',
+                                   1
+                                 ],
+                      'YFLWSP' => \'FLUXES_DESCRIPTOR',
+                      'FPLCH' => [
+                                   'F_FPLCH',
+                                   2
+                                 ],
+                      'YCFUPT' => \'TCFUPTR',
+                      'FEVV' => [
+                                  'F_FEVV',
+                                  1
+                                ],
+                      'YFEVL' => \'FLUXES_DESCRIPTOR',
+                      'FEVN' => [
+                                  'F_FEVN',
+                                  1
+                                ],
+                      'QTOT' => [
+                                  'F_QTOT',
+                                  1
+                                ],
+                      'FCCQL' => [
+                                   'F_FCCQL',
+                                   2
+                                 ],
+                      'NEBBAS' => [
+                                    'F_NEBBAS',
+                                    1
+                                  ],
+                      'YFRTH' => \'FLUXES_DESCRIPTOR',
+                      'YSTRTV' => \'FLUXES_DESCRIPTOR',
+                      'YFDUTP' => \'FLUXES_DESCRIPTOR',
+                      'YFCLN' => \'FLUXES_DESCRIPTOR',
+                      'FDISH' => [
+                                   'F_FDISH',
+                                   1
+                                 ],
+                      'YQICE' => \'FLUXES_DESCRIPTOR',
+                      'FRSOPS' => [
+                                    'F_FRSOPS',
+                                    1
+                                  ],
+                      'FONTE' => [
+                                   'F_FONTE',
+                                   1
+                                 ],
+                      'FPLCL' => [
+                                   'F_FPLCL',
+                                   2
+                                 ],
+                      'YFONTE' => \'FLUXES_DESCRIPTOR',
+                      'FRTHDS' => [
+                                    'F_FRTHDS',
+                                    1
+                                  ],
+                      'FNEBT' => [
+                                   'F_FNEBT',
+                                   1
+                                 ],
+                      'YNEBCON' => \'FLUXES_DESCRIPTOR',
+                      'YFRSOLU' => \'FLUXES_DESCRIPTOR',
+                      'YFNEB' => \'FLUXES_DESCRIPTOR',
+                      'YFCCQL' => \'FLUXES_DESCRIPTOR',
+                      'FRSOC1' => [
+                                    'F_FRSOC1',
+                                    1
+                                  ],
+                      'FNEB' => [
+                                  'F_FNEB',
+                                  2
+                                ],
+                      'YFPLCL' => \'FLUXES_DESCRIPTOR',
+                      'YWS' => \'FLUXES_DESCRIPTOR',
+                      'YFGEL' => \'FLUXES_DESCRIPTOR',
+                      'NEBCON' => [
+                                    'F_NEBCON',
+                                    1
+                                  ],
+                      'YFPLSH' => \'FLUXES_DESCRIPTOR',
+                      'YFGELS' => \'FLUXES_DESCRIPTOR',
+                      'NEBMOY' => [
+                                    'F_NEBMOY',
+                                    1
+                                  ],
+                      'YFLASH' => \'FLUXES_DESCRIPTOR',
+                      'YFTOPH' => \'FLUXES_DESCRIPTOR',
+                      'FPLCG' => [
+                                   'F_FPLCG',
+                                   2
+                                 ],
+                      'FRSGNI' => [
+                                    'F_FRSGNI',
+                                    1
+                                  ],
+                      'YFPLCG' => \'FLUXES_DESCRIPTOR',
+                      'YSTRCV' => \'FLUXES_DESCRIPTOR',
+                      'YFRTHC0' => \'FLUXES_DESCRIPTOR',
+                      'YOZONT' => \'FLUXES_DESCRIPTOR',
+                      'YFPLCN' => \'FLUXES_DESCRIPTOR',
+                      'FDITQ' => [
+                                   'F_FDITQ',
+                                   2
+                                 ],
+                      'YFEVN' => \'FLUXES_DESCRIPTOR',
+                      'FDICQ' => [
+                                   'F_FDICQ',
+                                   2
+                                 ],
+                      'STRCU' => [
+                                   'F_STRCU',
+                                   2
+                                 ],
+                      'STRTU' => [
+                                   'F_STRTU',
+                                   2
+                                 ],
+                      'QLI' => [
+                                 'F_QLI',
+                                 1
+                               ],
+                      'FCCQN' => [
+                                   'F_FCCQN',
+                                   2
+                                 ],
+                      'FRTH' => [
+                                  'F_FRTH',
+                                  2
+                                ],
+                      'YFRSGNI' => \'FLUXES_DESCRIPTOR',
+                      'FCLN' => [
+                                  'F_FCLN',
+                                  1
+                                ],
+                      'FGELS' => [
+                                   'F_FGELS',
+                                   1
+                                 ],
+                      'YFCCQN' => \'FLUXES_DESCRIPTOR',
+                      'FRSOPT' => [
+                                    'F_FRSOPT',
+                                    1
+                                  ],
+                      'YFDITQ' => \'FLUXES_DESCRIPTOR',
+                      'YFDICS' => \'FLUXES_DESCRIPTOR',
+                      'FRSO' => [
+                                  'F_FRSO',
+                                  2
+                                ],
+                      'SPRES' => [
+                                   'F_SPRES',
+                                   1
+                                 ],
+                      'FPLSG' => [
+                                   'F_FPLSG',
+                                   2
+                                 ],
+                      'YFRSOC1' => \'FLUXES_DESCRIPTOR',
+                      'YNEBBAS' => \'FLUXES_DESCRIPTOR',
+                      'YRUISL' => \'FLUXES_DESCRIPTOR',
+                      'YFCSQN' => \'FLUXES_DESCRIPTOR',
+                      'YFRTHDS' => \'FLUXES_DESCRIPTOR',
+                      'FCLL' => [
+                                  'F_FCLL',
+                                  1
+                                ],
+                      'NEBHAU' => [
+                                    'F_NEBHAU',
+                                    1
+                                  ],
+                      'YFRSOPT' => \'FLUXES_DESCRIPTOR',
+                      'FTR' => [
+                                 'F_FTR',
+                                 1
+                               ],
                       'YFRSOPS' => \'FLUXES_DESCRIPTOR',
-                      'FPLSN' => 'F_FPLSN',
-                      'YFDISH' => \'FLUXES_DESCRIPTOR'
+                      'YRUISP' => \'FLUXES_DESCRIPTOR',
+                      'YFNEBT' => \'FLUXES_DESCRIPTOR',
+                      'FPLSL' => [
+                                   'F_FPLSL',
+                                   2
+                                 ],
+                      'YFTR' => \'FLUXES_DESCRIPTOR',
+                      'FRTHC1' => [
+                                    'F_FRTHC1',
+                                    1
+                                  ],
+                      'FGEL' => [
+                                  'F_FGEL',
+                                  1
+                                ],
+                      'STRTV' => [
+                                   'F_STRTV',
+                                   2
+                                 ],
+                      'STRCV' => [
+                                   'F_STRCV',
+                                   2
+                                 ],
+                      'YFCL' => \'FLUXES_DESCRIPTOR',
+                      'YSTRDU' => \'FLUXES_DESCRIPTOR',
+                      'YSTRTU' => \'FLUXES_DESCRIPTOR',
+                      'FDITS' => [
+                                   'F_FDITS',
+                                   2
+                                 ],
+                      'FDICS' => [
+                                   'F_FDICS',
+                                   2
+                                 ],
+                      'OZONT' => [
+                                   'F_OZONT',
+                                   1
+                                 ],
+                      'FCL' => [
+                                 'F_FCL',
+                                 1
+                               ],
+                      'FRSODS' => [
+                                    'F_FRSODS',
+                                    1
+                                  ],
+                      'YFCSQL' => \'FLUXES_DESCRIPTOR',
+                      'YFRSO' => \'FLUXES_DESCRIPTOR',
+                      'RUISL' => [
+                                   'F_RUISL',
+                                   1
+                                 ],
+                      'FCSQN' => [
+                                   'F_FCSQN',
+                                   2
+                                 ]
                     },
-          'super' => 'TCFU_KEYS'
+          'super' => 'TCFU_KEYS',
+          'name' => 'TCFU'
         };
