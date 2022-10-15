@@ -1,51 +1,33 @@
 $VAR1 = {
-          'super' => undef,
-          'name' => 'CPG_MISC_TYPE',
           'comp' => {
-                      'QSOL' => [
-                                  'F_QSOL',
+                      'CLCT' => [
+                                  'F_CLCT',
                                   1
                                 ],
-                      'KOZO' => [
-                                  'F_KOZO',
-                                  3
-                                ],
-                      'QRAIN' => [
-                                   'F_QRAIN',
-                                   2
-                                 ],
-                      'RH' => [
-                                'F_RH',
-                                2
-                              ],
-                      'QGRAUPEL' => [
-                                      'F_QGRAUPEL',
-                                      2
-                                    ],
-                      'LSM' => [
-                                 'F_LSM',
-                                 1
-                               ],
-                      'QS' => [
-                                'F_QS',
-                                1
-                              ],
-                      'TSOL' => [
-                                  'F_TSOL',
+                      'DHSF' => [
+                                  'F_DHSF',
                                   1
                                 ],
-                      'NEB' => [
-                                 'F_NEB',
-                                 2
-                               ],
                       'FTCNS' => [
                                    'F_FTCNS',
                                    3
                                  ],
-                      'QSNOW' => [
-                                   'F_QSNOW',
-                                   2
-                                 ],
+                      'KOZO' => [
+                                  'F_KOZO',
+                                  3
+                                ],
+                      'LSM' => [
+                                 'F_LSM',
+                                 1
+                               ],
+                      'NEB' => [
+                                 'F_NEB',
+                                 2
+                               ],
+                      'QGRAUPEL' => [
+                                      'F_QGRAUPEL',
+                                      2
+                                    ],
                       'QICE' => [
                                   'F_QICE',
                                   2
@@ -54,13 +36,31 @@ $VAR1 = {
                                  'F_QLI',
                                  2
                                ],
-                      'DHSF' => [
-                                  'F_DHSF',
+                      'QRAIN' => [
+                                   'F_QRAIN',
+                                   2
+                                 ],
+                      'QS' => [
+                                'F_QS',
+                                1
+                              ],
+                      'QSNOW' => [
+                                   'F_QSNOW',
+                                   2
+                                 ],
+                      'QSOL' => [
+                                  'F_QSOL',
                                   1
                                 ],
-                      'CLCT' => [
-                                  'F_CLCT',
+                      'RH' => [
+                                'F_RH',
+                                2
+                              ],
+                      'TSOL' => [
+                                  'F_TSOL',
                                   1
                                 ]
-                    }
+                    },
+          'name' => 'CPG_MISC_TYPE',
+          'super' => undef
         };

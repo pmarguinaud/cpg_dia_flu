@@ -1,25 +1,25 @@
 $VAR1 = {
           'comp' => {
-                      'PSDIV' => [
-                                   'F_PSDIV',
+                      'DIVDP' => [
+                                   'F_DIVDP',
                                    2
                                  ],
                       'EVEL' => [
                                   'F_EVEL',
                                   2
                                 ],
-                      'DIVDP' => [
-                                   'F_DIVDP',
+                      'PSDIV' => [
+                                   'F_PSDIV',
                                    2
                                  ],
-                      'VVEL' => [
-                                  'F_VVEL',
-                                  2
-                                ],
                       'PSDVBC' => [
                                     'F_PSDVBC',
                                     2
-                                  ]
+                                  ],
+                      'VVEL' => [
+                                  'F_VVEL',
+                                  2
+                                ]
                     },
           'name' => 'CPG_CTY_TYPE',
           'super' => undef

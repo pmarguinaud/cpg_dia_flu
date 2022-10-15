@@ -1,10 +1,5 @@
 $VAR1 = {
-          'super' => undef,
           'comp' => {
-                      'WWI' => [
-                                 'F_WWI',
-                                 2
-                               ],
                       'UH' => [
                                 'F_UH',
                                 2
@@ -12,7 +7,12 @@ $VAR1 = {
                       'VH' => [
                                 'F_VH',
                                 2
-                              ]
+                              ],
+                      'WWI' => [
+                                 'F_WWI',
+                                 2
+                               ]
                     },
-          'name' => 'CPG_HWIND_TYPE'
+          'name' => 'CPG_HWIND_TYPE',
+          'super' => undef
         };

@@ -1,5 +1,5 @@
 $VAR1 = {
-          'super' => undef,
+          'comp' => {},
           'name' => 'TXFU_KEYS',
-          'comp' => {}
+          'super' => undef
         };

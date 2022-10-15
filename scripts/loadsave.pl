@@ -613,6 +613,7 @@ if ($opts{'field-api'})
         my ($type) = &F ('.//T-stmt/T-N/N/n/text()', $tc, 1);
         next if ($opts{'skip-types'}->($type));
         my $h = &registerFieldAPI ($tc, \%opts, $class);
+        local $Data::Dumper::Sortkeys = 1;
         'FileHandle'->new (">types/$type.pl")->print (&Dumper ($h));
     }
   }

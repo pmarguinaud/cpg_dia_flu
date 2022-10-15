@@ -1,5 +1,5 @@
 $VAR1 = {
-          'super' => undef,
           'comp' => {},
-          'name' => 'VARIABLE_BASE'
+          'name' => 'VARIABLE_BASE',
+          'super' => undef
         };
