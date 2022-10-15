@@ -4,6 +4,7 @@ use strict;
 use FileHandle;
 use Data::Dumper;
 use Storable;
+use Memoize;
 
 use FindBin qw ($Bin);
 use lib $Bin;
@@ -64,6 +65,8 @@ NOTFOUND:
   return;
 }
 
+&memoize ('getFieldAPIMember');
+
 
 for my $T (@T)
   {
@@ -73,15 +76,40 @@ for my $T (@T)
         my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $d);
         for my $expr (@expr)
           {
-            my @ct = &F ('./R-LT/component-R/ct', $expr, 1);
-            my $f = &getFieldAPIMember ($T, @ct);
-            print &Dumper ([$expr->textContent, $f]);
+            my @ct = &F ('./R-LT/component-R/ct', $expr);
+            my $f = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
+            next unless ($f);
+
+            $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
+            my ($rlt) = &F ('./R-LT', $expr);
+            $rlt->insertAfter (my $ptr = &n ("<component-R>%<ct>PTR</ct></component-R>"), $ct->parentNode);
+            if (my ($ar) = &F ('following-sibling::ANY-R', $ptr))
+              {
+                if ($ar->nodeName eq 'parens-R')
+                  {
+                    my ($lt) = &F ('./element-LT', $ar);
+                    $lt->appendChild (&t (','));
+                    $lt->appendChild (&n ('<element><named-E><N><n>YDCPG_BNDS</n></N><R-LT>' 
+                                        . '<component-R>%<ct>KBL</ct></component-R></R-LT></named-E>' 
+                                        . '</element>'))
+                  }
+                elsif ($ar->nodeName eq 'array-R')
+                  {
+                    my ($lt) = &F ('./section-subscript-LT', $ar);
+                    $lt->appendChild (&t (','));
+                    $lt->appendChild (&n ('<section-subscript><lower-bound><named-E><N><n>YDCPG_BNDS</n></N><R-LT>' 
+                                        . '<component-R>%<ct>KBL</ct></component-R></R-LT></named-E></lower-bound>' 
+                                        . '</section-subscript>'))
+                  }
+                else
+                  {
+                    die $expr->textContent;
+                  }
+              }
+            
           }
       }
   }
-
-
-__END__
 
 
 
