@@ -1,5 +1,5 @@
 #!/bin/bash
 
 ./scripts/compile.pl \
-  --arch cpu_intel --update --list \
+  --arch cpu_intel --update --compile --list \
   Associate::resolveAssociates,Construct::changeIfStatementsInIfConstructs,Inline::inlineContainedSubroutines,DrHook::remove,FieldAPI::pointers2FieldAPIPtr

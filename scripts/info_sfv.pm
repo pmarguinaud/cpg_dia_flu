@@ -1,4 +1,4 @@
-package info_sfc;
+package info_sfv;
 
 use strict;
 use Fxtran;
@@ -21,6 +21,8 @@ sub getFieldAPIMember
 
   return unless ($attr->{POINTER});
  
+  substr ($comp, 0, 1, ''); 
+
   if (my $en_decl = $en_decl_hash->{"F_$comp"})
     {
       my $stmt = &Fxtran::stmt ($en_decl);

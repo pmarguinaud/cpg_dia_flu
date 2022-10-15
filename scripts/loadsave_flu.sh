@@ -96,7 +96,7 @@ done
   $(resolve arpifs/module/surface_fields_mix.F90)
 
 ./scripts/loadsave.pl \
-  --load --save --dir $dir --out util_surface_variables_mod.F90 \
+  --load --save --dir $dir --out util_surface_variables_mod.F90 --field-api --field-api-class info_sfc \
   --only-types SURFACE_VARIABLE_GROUP_RESVR --skip-components SURFACE_VARIABLE_GROUP_RESVR%F_GROUP \
   $(resolve .fypp/arpifs/module/surface_variables_mod.F90)
 
@@ -104,19 +104,19 @@ done
   --load --save --only-types SURFACE_VIEW_GROUP_RESVR,SURFACE_VIEW_GROUP_SNOWG,SURFACE_VIEW_GROUP_CLS \
   --dir $dir --out util_surface_views_prognostic_module.F90 \
   --module-map $module_map --no-allocate $no_alloc \
-  --skip-components info_sfc \
+  --skip-components info_sfv --field-api --field-api-class info_sfv \
   $(resolve .fypp/arpifs/module/surface_views_prognostic_module.F90)
 
 ./scripts/loadsave.pl \
   --load --save --only-types SURFACE_VIEW_GROUP_VPRECIP,SURFACE_VIEW_GROUP_VPRECIP2 \
   --dir $dir --out util_surface_views_diagnostic_module.F90 \
   --module-map $module_map --no-allocate $no_alloc \
-  --skip-components info_sfc --field-api --field-api-class info_sfc \
+  --skip-components info_sfv --field-api --field-api-class info_sfv \
   $(resolve .fypp/arpifs/module/surface_views_diagnostic_module.F90)
 
 ./scripts/loadsave.pl \
   --load --save --dir $dir \
-  --module-map $module_map --no-allocate $no_alloc \
+  --module-map $module_map --no-allocate $no_alloc --field-api --field-api-class info_sfc \
   --only-components 'MF_PHYS_SURF_TYPE%GSP_RR,MF_PHYS_SURF_TYPE%GSP_SG,MF_PHYS_SURF_TYPE%GSD_XP,MF_PHYS_SURF_TYPE%GSD_XP2,MF_PHYS_SURF_TYPE%GSP_CL' \
   $(resolve .fypp/arpifs/module/mf_phys_surface_type_mod.F90)
   
