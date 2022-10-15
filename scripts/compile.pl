@@ -67,14 +67,11 @@ sub preProcessIfNewer
       &Construct::changeIfStatementsInIfConstructs ($d);
       &saveToFile ($d, "tmp/changeIfStatementsInIfConstructs/$f2");
 
-      if ($opts->{inline})
-        {
-          &Inline::inlineContainedSubroutines ($d);
-          &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
-        }
+      &Inline::inlineContainedSubroutines ($d);
+      &saveToFile ($d, "tmp/inlineContainedSubroutines/$f2");
 
-#     &DrHook::remove ($d);
-#     &saveToFile ($d, "tmp/DrHook/$f2");
+      &DrHook::remove ($d);
+      &saveToFile ($d, "tmp/DrHook/$f2");
 
       'FileHandle'->new (">$f2")->print ($d->textContent ());
 
@@ -82,7 +79,7 @@ sub preProcessIfNewer
     }
 }
 
-my @opts_f = qw (update compile inline);
+my @opts_f = qw (update compile);
 my @opts_s = qw (arch);
 
 &GetOptions
@@ -91,12 +88,10 @@ my @opts_s = qw (arch);
   map ({ ("$_=s", \$opts{$_}) } @opts_s),
 );
 
-$opts{inline} ||= 0;
-
 my @compute = map { &basename ($_) } <compute/*.F90>;
 my @support = grep { ! m/\.F90\.xml$/o } map { &basename ($_) } <support/*>;
 
-my $dir = "compile.$opts{arch}.$opts{inline}";
+my $dir = "compile.$opts{arch}";
 
 &mkpath ($dir);
 chdir ($dir);
