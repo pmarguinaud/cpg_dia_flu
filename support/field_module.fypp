@@ -31,9 +31,33 @@ TYPE GPU_STATS
   PROCEDURE :: INC_GPU_TO_CPU_TRANSFER
 END TYPE GPU_STATS
 
+TYPE, ABSTRACT :: FIELD_BASIC
+  ! Flag indicating the use a single block-buffer per thread
+  LOGICAL :: THREAD_BUFFER = .FALSE.
+
+  INTEGER(KIND=JPIM) :: ISTATUS = 0
+  INTEGER(KIND=JPIM) :: LAST_CONTIGUOUS_DIMENSION = 0
+
+  TYPE(GPU_STATS) :: STATS
+
+CONTAINS
+  PROCEDURE (SYNC), DEFERRED :: SYNC_HOST_RDWR
+  PROCEDURE (SYNC), DEFERRED :: SYNC_HOST_RDONLY
+  PROCEDURE (SYNC), DEFERRED :: SYNC_DEVICE_RDWR
+  PROCEDURE (SYNC), DEFERRED :: SYNC_DEVICE_RDONLY
+END TYPE FIELD_BASIC
+
+ABSTRACT INTERFACE
+  SUBROUTINE SYNC (SELF)
+    IMPORT FIELD_BASIC
+    CLASS(FIELD_BASIC), INTENT (INOUT) :: SELF
+  END SUBROUTINE 
+END INTERFACE
+
+
 #:for dtype, suffix, rank, default in field_descriptors
 #:set field_type_name = 'FIELD_%s%sD' % (suffix, rank)
-TYPE, ABSTRACT :: ${field_type_name}$
+TYPE, ABSTRACT, EXTENDS (FIELD_BASIC) :: ${field_type_name}$
   ! A FIELD encapsulates a single multi-dimensional array and can
   ! provide block-indexed "views" of the data for automating the
   ! allocation and parallel iterration of NPROMA blocks.
@@ -54,14 +78,6 @@ TYPE, ABSTRACT :: ${field_type_name}$
   ! device, should the %DATA pointer be discontiguous.
   ${dtype}$, POINTER, CONTIGUOUS :: DEVPTR(${shapes[rank]}$) => NULL()
 
-  ! Flag indicating the use a single block-buffer per thread
-  LOGICAL :: THREAD_BUFFER = .FALSE.
-
-  INTEGER(KIND=JPIM) :: ISTATUS = 0
-  INTEGER(KIND=JPIM) :: LAST_CONTIGUOUS_DIMENSION = 0
-
-  TYPE(GPU_STATS) :: STATS
-
 CONTAINS
 
   PROCEDURE :: FINAL => ${field_type_name}$_FINAL
@@ -72,6 +88,10 @@ CONTAINS
   PROCEDURE :: GET_DEVICE_DATA_RDWR => ${field_type_name}$_GET_DEVICE_DATA_RDWR
   PROCEDURE :: GET_HOST_DATA_RDONLY => ${field_type_name}$_GET_HOST_DATA_RDONLY
   PROCEDURE :: GET_HOST_DATA_RDWR => ${field_type_name}$_GET_HOST_DATA_RDWR
+  PROCEDURE :: SYNC_HOST_RDWR => ${field_type_name}$_SYNC_HOST_RDWR 
+  PROCEDURE :: SYNC_HOST_RDONLY => ${field_type_name}$_SYNC_HOST_RDONLY
+  PROCEDURE :: SYNC_DEVICE_RDWR => ${field_type_name}$_SYNC_DEVICE_RDWR
+  PROCEDURE :: SYNC_DEVICE_RDONLY => ${field_type_name}$_SYNC_DEVICE_RDONLY
 
   PROCEDURE, PRIVATE :: GET_DEVICE_DATA => ${field_type_name}$_GET_DEVICE_DATA
   PROCEDURE, PRIVATE :: GET_HOST_DATA => ${field_type_name}$_GET_HOST_DATA
@@ -302,21 +322,37 @@ CONTAINS
 
   END SUBROUTINE ${field_type_name}$_GET_HOST_DATA
 
-  SUBROUTINE ${field_type_name}$_GET_HOST_DATA_RDONLY (SELF, PTR)
+  SUBROUTINE ${field_type_name}$_GET_HOST_DATA_RDONLY (SELF, PPTR)
     CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
-    ${dtype}$, POINTER, INTENT(INOUT) :: PTR(${shapes[rank]}$)
+    ${dtype}$, POINTER, INTENT(INOUT) :: PPTR(${shapes[rank]}$)
 
-    CALL ${field_type_name}$_GET_HOST_DATA (SELF, NRD, PTR)
+    CALL ${field_type_name}$_GET_HOST_DATA (SELF, NRD, PPTR)
 
   END SUBROUTINE ${field_type_name}$_GET_HOST_DATA_RDONLY
 
-  SUBROUTINE ${field_type_name}$_GET_HOST_DATA_RDWR (SELF, PTR)
+  SUBROUTINE ${field_type_name}$_SYNC_HOST_RDONLY (SELF)
     CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
-    ${dtype}$, POINTER, INTENT(INOUT) :: PTR(${shapes[rank]}$)
+    ${dtype}$, POINTER :: ZPTR(${shapes[rank]}$)
 
-    CALL ${field_type_name}$_GET_HOST_DATA (SELF, IOR (NRD, NWR), PTR)
+    CALL SELF%GET_HOST_DATA_RDONLY (ZPTR)
+
+  END SUBROUTINE ${field_type_name}$_SYNC_HOST_RDONLY
+
+  SUBROUTINE ${field_type_name}$_GET_HOST_DATA_RDWR (SELF, PPTR)
+    CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
+    ${dtype}$, POINTER, INTENT(INOUT) :: PPTR(${shapes[rank]}$)
+
+    CALL ${field_type_name}$_GET_HOST_DATA (SELF, IOR (NRD, NWR), PPTR) 
 
   END SUBROUTINE ${field_type_name}$_GET_HOST_DATA_RDWR
+
+  SUBROUTINE ${field_type_name}$_SYNC_HOST_RDWR (SELF)
+    CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
+    ${dtype}$, POINTER :: ZPTR(${shapes[rank]}$)
+
+    CALL SELF%GET_HOST_DATA_RDWR (ZPTR) 
+
+  END SUBROUTINE ${field_type_name}$_SYNC_HOST_RDWR
 
   SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA (SELF, MODE, PTR)
     CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
@@ -344,21 +380,37 @@ CONTAINS
 
   END SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA
 
-  SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA_RDONLY (SELF, PTR)
+  SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA_RDONLY (SELF, PPTR)
     CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
-    ${dtype}$, POINTER, INTENT(INOUT) :: PTR(${shapes[rank]}$)
+    ${dtype}$, POINTER, INTENT(INOUT) :: PPTR(${shapes[rank]}$)
 
-    CALL ${field_type_name}$_GET_DEVICE_DATA (SELF, NRD, PTR)
+    CALL ${field_type_name}$_GET_DEVICE_DATA (SELF, NRD, PPTR)
 
   END SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA_RDONLY
 
-  SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA_RDWR (SELF, PTR)
+  SUBROUTINE ${field_type_name}$_SYNC_DEVICE_RDONLY (SELF)
     CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
-    ${dtype}$, POINTER, INTENT(INOUT) :: PTR(${shapes[rank]}$)
+    ${dtype}$, POINTER :: ZPTR(${shapes[rank]}$)
 
-    CALL ${field_type_name}$_GET_DEVICE_DATA (SELF, IOR (NRD, NWR), PTR)
+    CALL SELF%GET_DEVICE_DATA_RDONLY (ZPTR)
+
+  END SUBROUTINE ${field_type_name}$_SYNC_DEVICE_RDONLY
+
+  SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA_RDWR (SELF, PPTR)
+    CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
+    ${dtype}$, POINTER, INTENT(INOUT) :: PPTR(${shapes[rank]}$)
+
+    CALL ${field_type_name}$_GET_DEVICE_DATA (SELF, IOR (NRD, NWR), PPTR)
 
   END SUBROUTINE ${field_type_name}$_GET_DEVICE_DATA_RDWR
+
+  SUBROUTINE ${field_type_name}$_SYNC_DEVICE_RDWR (SELF)
+    CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
+    ${dtype}$, POINTER :: ZPTR(${shapes[rank]}$)
+
+    CALL SELF%GET_DEVICE_DATA_RDWR (ZPTR)
+
+  END SUBROUTINE ${field_type_name}$_SYNC_DEVICE_RDWR
 
 #:endfor
 
