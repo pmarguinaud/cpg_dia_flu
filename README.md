@@ -1,2 +1,2 @@
 
-![](./images/images/CPG_DIA_FLU.svg)
+![](./images/images/CPG_DIA_FLU.png)
