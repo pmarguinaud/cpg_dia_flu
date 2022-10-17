@@ -173,15 +173,6 @@ sub fieldify
     }
   my @F = sort keys (%T);
 
-  my %FIELD;
-
-  for my $F (@F)
-    {
-      my @expr = &F ('.//named-E[string(N)="?"]', $F, $d);
-      my @ct = &F ('./R-LT/component-R/ct', $expr);
-      
-    }
-
   # This anonymous sub tests whether and expression contains NPROMA data (field API or local/argument array)
   my $isNproma = sub
   {
