@@ -10,12 +10,12 @@ TYPE ${name}$
   LOGICAL :: LOWNED = .FALSE.
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ZVIEW (:,:) => NULL ()
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ZDATA (:,:,:) => NULL ()
-  CLASS (FIELD_3D), POINTER :: F_DATA => NULL ()
+  CLASS (FIELD_RB3D), POINTER :: F_DATA => NULL ()
 #:for var in vars
   #:set ndim = 1 + len (vars[var][NDIMS])
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ${var}$ (${", ".join ([":"] * ndim)}$) => NULL ()
 !>REAL (KIND=JPRB)                      :: ${var}$ (${', '.join (['NPROMA'] + list (map (lambda d: d[0] + ':' + d[1], vars[var][NDIMS])))}$)
-  CLASS (FIELD_${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
+  CLASS (FIELD_RB${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
 #:endfor
 
 CONTAINS
@@ -29,13 +29,13 @@ TYPE ${name}$
   LOGICAL :: LOWNED = .FALSE.
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ZVIEW (:,:,:) => NULL ()
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ZDATA (:,:,:,:) => NULL ()
-  CLASS (FIELD_4D), POINTER :: F_DATA => NULL ()
+  CLASS (FIELD_RB4D), POINTER :: F_DATA => NULL ()
 #:for var in vars
   #:set ndim = 1 + len (vars[var][NDIMS])
   INTEGER (KIND=JPIM) :: IP_${var}$ = -1
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ${var}$ (${", ".join ([":"] * ndim)}$) => NULL ()
 !>REAL (KIND=JPRB)                      :: ${var}$ (${', '.join (['NPROMA'] + list (map (lambda d: d[0] + ':' + d[1], vars[var][NDIMS])))}$)
-  CLASS (FIELD_${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
+  CLASS (FIELD_RB${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
 #:endfor
 
 CONTAINS
@@ -57,11 +57,11 @@ TYPE ${name}$
   #:if elt[NTYPE] is None
   REAL (KIND=JPRB), POINTER, CONTIGUOUS :: ${var}$ (${", ".join ([":"] * ndim)}$) => NULL ()
 !>REAL (KIND=JPRB)                      :: ${var}$ (${', '.join (['NPROMA'] + list (map (lambda d: d[0] + ':' + d[1], elt[NDIMS])))}$)
-  CLASS (FIELD_${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
+  CLASS (FIELD_RB${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
   #:elif elt[NTYPE] == 'INTEGER'
   INTEGER (KIND=JPIM), POINTER, CONTIGUOUS :: ${var}$ (${", ".join ([":"] * ndim)}$) => NULL ()
 !>INTEGER (KIND=JPIM)                      :: ${var}$ (${', '.join (['NPROMA'] + list (map (lambda d: d[0] + ':' + d[1], elt[NDIMS])))}$)
-  CLASS (FIELD_INT${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
+  CLASS (FIELD_IM${ndim+1}$D), POINTER :: F_${var}$ => NULL ()
   #:else
   TYPE (${elt[NTYPE]}$) :: ${var}$
   #:endif

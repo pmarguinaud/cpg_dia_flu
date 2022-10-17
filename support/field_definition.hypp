@@ -1,14 +1,15 @@
 #:set ranks  = [2,3,4,5]
 #:set shapes = ['',':',':,:',':,:,:',':,:,:,:',':,:,:,:,:',':,:,:,:,:,:']
-#:set dtypes  = ['REAL(KIND=JPRB)', 'INTEGER(KIND=JPIM)', 'LOGICAL']
-#:set defaults = ['0.0_JPRB', '0.0_JPIM', '.FALSE.']
-#:set suffixes  = ['', 'INT', 'LOG']
+#:set kinds = ['IM', 'IB', 'RM', 'RD', 'LM']
+#:set k2t = {'I': 'INTEGER', 'R': 'REAL', 'L': 'LOGICAL'}
+#:set k2d = {'I': '0', 'R': '0.0', 'L': '.FALSE.'}
+#:set dtypes  = [k2t[k[0]] + '(JP' + k + ')' for k in kinds]
+#:set defaults = [k2d[k[0]] + '_JP' + k for k in kinds]
+#:set suffixes  = kinds
 #:set field_descriptors = [(dtype, suffix, rank, default) &
   &                        for (dtype, suffix, default) in zip(dtypes, suffixes, defaults) &
   &                        for rank in ranks]
 #:set data_management_type = ['WRAPPER', 'OWNER']
-#:set dumsize = '1'
-
 #:def lbptr (rank)
   #:set lb = ", ".join (list (map (lambda i: "LBOUNDS(" + str (i+1) + "):", range (0, rank))))
 $:lb

@@ -76,7 +76,7 @@ REAL (KIND=JPRB), POINTER :: CFUBUF_B (:,:,:)   => NULL () ! Buffer for cumulati
 #:for var in cfu_list 
 ! ${var[COMM]}$
 REAL (KIND=JPRB), POINTER :: ${var[NAME]}$ (${','.join ([':'] * var[DIMS])}$) => NULL ()
-CLASS (FIELD_${var[DIMS]+1}$D), POINTER :: F_${var[NAME]}$ => NULL ()
+CLASS (FIELD_RB${var[DIMS]+1}$D), POINTER :: F_${var[NAME]}$ => NULL ()
 TYPE (FLUXES_DESCRIPTOR) :: Y${var[NAME]}$
 
 #:endfor

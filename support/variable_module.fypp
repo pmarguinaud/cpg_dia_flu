@@ -8,7 +8,7 @@ MODULE VARIABLE_MODULE
   ! respective FIELDS objects that store the data.
 
 USE PARKIND1, ONLY: JPIM, JPRB
-USE FIELD_MODULE, ONLY: FIELD_2D, FIELD_3D, FIELD_4D
+USE FIELD_MODULE, ONLY: FIELD_RB2D, FIELD_RB3D, FIELD_RB4D
 
 IMPLICIT NONE
 
@@ -69,14 +69,14 @@ TYPE, EXTENDS(VARIABLE_BASE) :: VARIABLE_${rank}$D
   REAL(KIND=JPRB), POINTER, CONTIGUOUS :: DM9(${shape}$) => NULL()  ! Meridional derivative field at t-dt
 
   ! Pointers to associated FIELD objects
-  CLASS(FIELD_${rank}$D), POINTER :: FT0 => NULL()  ! Basic field at t
-  CLASS(FIELD_${rank}$D), POINTER :: FT1 => NULL()  ! Basic field at t+dt
-  CLASS(FIELD_${rank}$D), POINTER :: FT9 => NULL()  ! Basic field at t-dt
-  CLASS(FIELD_${rank}$D), POINTER :: FPH9 => NULL() ! Basic field for physics
-  CLASS(FIELD_${rank}$D), POINTER :: FDL => NULL()  ! Zonal derivative field
-  CLASS(FIELD_${rank}$D), POINTER :: FDM => NULL()  ! Meridional derivative field
-  CLASS(FIELD_${rank}$D), POINTER :: FDL9 => NULL() ! Zonal derivative field at t-dt
-  CLASS(FIELD_${rank}$D), POINTER :: FDM9 => NULL() ! Meridional derivative field at t-dt
+  CLASS(FIELD_RB${rank}$D), POINTER :: FT0 => NULL()  ! Basic field at t
+  CLASS(FIELD_RB${rank}$D), POINTER :: FT1 => NULL()  ! Basic field at t+dt
+  CLASS(FIELD_RB${rank}$D), POINTER :: FT9 => NULL()  ! Basic field at t-dt
+  CLASS(FIELD_RB${rank}$D), POINTER :: FPH9 => NULL() ! Basic field for physics
+  CLASS(FIELD_RB${rank}$D), POINTER :: FDL => NULL()  ! Zonal derivative field
+  CLASS(FIELD_RB${rank}$D), POINTER :: FDM => NULL()  ! Meridional derivative field
+  CLASS(FIELD_RB${rank}$D), POINTER :: FDL9 => NULL() ! Zonal derivative field at t-dt
+  CLASS(FIELD_RB${rank}$D), POINTER :: FDM9 => NULL() ! Meridional derivative field at t-dt
 
 CONTAINS
   PROCEDURE :: UPDATE_VIEW => VARIABLE_${rank}$D_UPDATE_VIEW

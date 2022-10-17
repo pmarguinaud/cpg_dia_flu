@@ -74,11 +74,11 @@ TYPE(FLUXES_DESCRIPTOR), ALLOCATABLE :: TYPE_XFU(:) ! contains the fluxes descri
 
 REAL(KIND=JPRB), POINTER :: RMWINDCALC_B(:,:)  => NULL ()  ! needed for mean wind calculation
 REAL(KIND=JPRB), POINTER :: RMWINDCALC(:)  => NULL () 
-CLASS (FIELD_2D), POINTER :: F_RMWINDCALC => NULL ()
+CLASS (FIELD_RB2D), POINTER :: F_RMWINDCALC => NULL ()
 
 REAL(KIND=JPRB), POINTER :: RMNWINDCALC_B(:,:)  => NULL ()  ! needed for mean neutral wind calculation
 REAL(KIND=JPRB), POINTER :: RMNWINDCALC(:)  => NULL () 
-CLASS (FIELD_2D), POINTER :: F_RMNWINDCALC => NULL ()
+CLASS (FIELD_RB2D), POINTER :: F_RMNWINDCALC => NULL ()
 
 
 INTEGER(KIND=JPIM) :: MEANPERIOD             ! period (in seconds) for the mean calculation
@@ -113,7 +113,7 @@ REAL (KIND=JPRB), POINTER :: XFUBUF_B(:,:,:)  => NULL () ! Buffer for instantane
 #:for var in xfu_list 
 ! ${var[COMM]}$
 REAL (KIND=JPRB), POINTER :: ${var[NAME]}$ (${','.join ([':'] * var[DIMS])}$) => NULL ()
-CLASS (FIELD_${var[DIMS]+1}$D), POINTER :: F_${var[NAME]}$ => NULL ()
+CLASS (FIELD_RB${var[DIMS]+1}$D), POINTER :: F_${var[NAME]}$ => NULL ()
 TYPE (FLUXES_DESCRIPTOR) :: Y${var[NAME]}$
 
 #:endfor
