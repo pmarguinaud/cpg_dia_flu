@@ -109,8 +109,11 @@ sub fieldify
 {
   my $d = shift;
 
-  my @en_decl = &F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="YDCPG_OPTS%KLON"]]', $d);
+  my @en_decl = (&F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="YDCPG_OPTS%KLON"]]', $d),
+                 &F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="KLON"]]', $d));
+
   my @NPROMA = map { &F ('./EN-N', $_, 1) } @en_decl;
+
   my %LOCAL;
 
   # Convert NPROMA arrays into field API objects
@@ -131,7 +134,7 @@ sub fieldify
         {
           my @ss = &F ('./shape-spec-LT/shape-spec', $as);
           my $d = scalar (@ss) + 1;
-          $ts->replaceNode (&n ("<derived-T-spec>CLASS(<T-N><N><n>FIELD_${d}D</n></N></T-N>)</derived-T-spec>"));
+          $ts->replaceNode (&n ("<derived-T-spec>CLASS(<T-N><N><n>FIELD_BASIC</n></N></T-N>)</derived-T-spec>"));
           # Set to NULL
           $en_decl->appendChild (&t (' => '));
           $en_decl->appendChild (&e ('NULL ()'));
@@ -185,12 +188,39 @@ sub fieldify
     return $fd;
   };
   
+  my @call = &F ('.//call-stmt', $d);
+  my %proc;
+  
+
+  for my $call (@call)
+    {
+      my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
+      my @expr = &F ('./arg-spec/arg/named-E', $call);
+      for my $expr (@expr)
+        {
+          next unless ($isNproma->($expr));
+          push @{ $proc{$proc->textContent} }, $proc;
+          last;
+        }
+    }
+
+  while (my ($name, $list) = each (%proc))
+    {
+      for my $proc (@$list)
+        {
+          $proc->setData ($name . '_PLAN');
+        }
+      next unless (my ($filename) = &F ('.//include/filename[string(.)="?"]/text()', lc ($name) . '.intfb.h', $d));
+      $filename->setData (lc ($name) . '_plan.intfb.h');
+    }
+
+
   # Remove if construct where conditions involve NPROMA expressions (local arrays of field API pointers)
 
   for my $ifc (&F ('.//if-construct', $d))
     {
       my $found = 0;
-      for my $expr (&F ('./if-block/condition-E//named-E', $ifc))
+      for my $expr (&F ('./if-block/ANY-stmt/condition-E//named-E', $ifc))
         {
           if ($isNproma->($expr))
             {
@@ -198,6 +228,7 @@ sub fieldify
               last;
             }
         }
+
       next unless ($found);
       my @block = &F ('./if-block', $ifc);
       for (@block)
@@ -237,7 +268,10 @@ sub fieldify
       $n && $stmt->unbindNode ();
     }
  
+
   # Use the field API object
+
+  my %YLFLDPTR;
 
   for my $F (@F)
     {
@@ -245,18 +279,51 @@ sub fieldify
       my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $d);
       for my $expr (@expr)
         {
+
           my @ct = &F ('./R-LT/component-R/ct', $expr);
           my $fd = &getFieldAPIMember ($TI, $T, map ({ $_->textContent } @ct));
           next unless ($fd);
   
+          # Remove last reference if it is an array reference
+          my @r = &F ('./R-LT/ANY-R', $expr);
+          my $ar = $r[-1];
+          if (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R'))
+            {
+              $ar && $ar->unbindNode ();
+            }
           my ($f, $d) = @$fd;
-  
           $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
 
-          my $cr = $ct->parentNode;
-          my ($ar) = &F ('following-sibling::ANY-R', $cr);
-          $ar && $ar->unbindNode ();
+          my $stmt = &Fxtran::stmt ($expr);
+
+          if ($stmt->nodeName eq 'call-stmt')
+            {
+              my $target = $expr->cloneNode (1);
+              my %basic = map { m/^YLFLDPTR/o ? ($_, 1) : () } &F ('./arg-spec/arg/named-E/N', $stmt, 1);
+              my $basic;
+              for (my $i = 0; ; $i++)
+                {
+                  $basic = "YLFLDPTR" . $i;
+                  last unless ($basic{$basic});
+                }
+              $YLFLDPTR{$basic}++;
+              $expr->replaceNode (&e ($basic));
+              my $assoc = &s ("$basic => " . $target->textContent);
+              my $indent = "\n" . (' ' x &Fxtran::getIndent ($stmt));
+              $stmt->parentNode->insertBefore ($assoc, $stmt);
+              $stmt->parentNode->insertBefore (&t ($indent), $stmt);
+            }
+          
         }
+    }
+ 
+  my ($drhook) = &F ('.//if-stmt[.//call-stmt[string(procedure-designator)="DR_HOOK"]]', $d);
+  my $indent = "\n" . (' ' x &Fxtran::getIndent ($drhook));
+
+  for my $var (sort keys (%YLFLDPTR))
+    {
+      $drhook->parentNode->insertBefore (&s ("CLASS (FIELD_BASIC), POINTER :: $var"), $drhook);
+      $drhook->parentNode->insertBefore (&t ($indent), $drhook);
     }
 
   # Remove loops on JLEV or JLON
@@ -343,6 +410,16 @@ sub fieldify
           $stmt->unbindNode ();
         }
     }
+
+  
+  my @sn = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()|./object/file/program-unit/end-subroutine-stmt/subroutine-N/N/n/text()', $d);
+
+  for my $sn (@sn) 
+    {
+      $sn->setData ($sn->data . '_PLAN');
+    }
+
+
 
 }
 
