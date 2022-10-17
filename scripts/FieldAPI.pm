@@ -111,11 +111,13 @@ sub fieldify
 
   my @en_decl = &F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="YDCPG_OPTS%KLON"]]', $d);
   my @NPROMA = map { &F ('./EN-N', $_, 1) } @en_decl;
+  my %LOCAL;
 
   # Convert NPROMA arrays into field API objects
 
   for my $en_decl (@en_decl)
     {
+      my ($N) = &F ('./EN-N', $en_decl, 1);
       my ($stmt) = &Fxtran::stmt ($en_decl);
       my ($as) = &F ('./array-spec', $en_decl);
       $as->unbindNode ();
@@ -130,6 +132,10 @@ sub fieldify
           my @ss = &F ('./shape-spec-LT/shape-spec', $as);
           my $d = scalar (@ss) + 1;
           $ts->replaceNode (&n ("<derived-T-spec>CLASS(<T-N><N><n>FIELD_${d}D</n></N></T-N>)</derived-T-spec>"));
+          # Set to NULL
+          $en_decl->appendChild (&t (' => '));
+          $en_decl->appendChild (&e ('NULL ()'));
+          $LOCAL{$N} = 1;
         }
 
       my ($dd) = &F ('./text()[contains(.,"::")]', $stmt);
@@ -166,6 +172,15 @@ sub fieldify
         }
     }
   my @F = sort keys (%T);
+
+  my %FIELD;
+
+  for my $F (@F)
+    {
+      my @expr = &F ('.//named-E[string(N)="?"]', $F, $d);
+      my @ct = &F ('./R-LT/component-R/ct', $expr);
+      
+    }
 
   # This anonymous sub tests whether and expression contains NPROMA data (field API or local/argument array)
   my $isNproma = sub
@@ -272,6 +287,71 @@ sub fieldify
        }   
    }
 
+  $d->normalize ();
+
+  my @stmt = &F ('.//ANY-stmt', $d);
+
+  my (@g, @G);
+
+  for my $i (0 .. $#stmt)
+    {
+      my $stmt = $stmt[$i];
+      if (($stmt->nodeName eq 'a-stmt') && (&F ('./E-1[string(.)="ZDUM"]|./E-2[string(.)="ZDUM"]', $stmt)))
+        {
+          push @g, $stmt;
+        }
+      elsif (@g)
+        {
+          push @G, [@g];
+          @g = ();
+        }
+    }
+
+  for my $g (@G)
+    {
+      my (%rd, %rw);
+      for my $stmt (@$g)
+        {
+          (my ($E1) = &F ('./E-1', $stmt, 1)) =~ s/\s+//go;
+          (my ($E2) = &F ('./E-2', $stmt, 1)) =~ s/\s+//go;
+
+          $rw{$E1}++ unless ($E1 eq 'ZDUM');
+          $rd{$E2}++ unless ($E2 eq 'ZDUM');
+
+        }
+      
+      delete $rd{$_} for (keys (%rw));
+
+      for (keys (%LOCAL))
+        {
+          delete $rd{$_};
+          delete $rw{$_};
+        }
+      
+      my ($stmt) = @$g;
+      my $indent = "\n" . (' ' x &Fxtran::getIndent ($stmt));
+
+      for (sort keys (%rw))
+        {
+          my $if = m/%/o ? "" : "IF (ASSOCIATED ($_)) ";
+          $stmt->parentNode->insertBefore (&s ("${if}CALL $_%SYNC_HOST_RDWR"), $stmt);
+          $stmt->parentNode->insertBefore (&t ($indent), $stmt);
+        }
+
+      for (sort keys (%rd))
+        {
+          my $if = m/%/o ? "" : "IF (ASSOCIATED ($_)) ";
+          $stmt->parentNode->insertBefore (&s ("${if}CALL $_%SYNC_HOST_RDONLY"), $stmt);
+          $stmt->parentNode->insertBefore (&t ($indent), $stmt);
+        }
+
+      for my $stmt (reverse @$g)
+        {
+          my $prev = $stmt->previousSibling;
+          $prev->unbindNode ();
+          $stmt->unbindNode ();
+        }
+    }
 
 }
 
