@@ -3,13 +3,14 @@
 use strict;
 use FileHandle;
 use Data::Dumper;
-use Storable;
-use Memoize;
 
 use FindBin qw ($Bin);
 use lib $Bin;
-use FieldAPI;
 use Fxtran;
+use FieldAPI;
+use Inline;
+use Decl;
+use Construct;
 
 sub bt
 { 
@@ -28,11 +29,15 @@ local $SIG{__WARN__} = \&bt;
 local $SIG{__DIE__} = \&bt;
 
 
+
 my ($f) = @ARGV;
 
-my $d = &Fxtran::fxtran (location => $f);
+my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 
-&FieldAPI::pointers2FieldAPIPtr ($d);
+&Decl::forceSingleDecl ($d);
+&Construct::changeIfStatementsInIfConstructs ($d);
+&Inline::inlineContainedSubroutines ($d);
+&FieldAPI::fieldify ($d);
 
 print ($d->textContent ());
 #'FileHandle'->new (">$f.new")->print ($d->textContent ());

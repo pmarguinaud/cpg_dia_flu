@@ -23,6 +23,8 @@ sub changeIfStatementsInIfConstructs
       my ($action) = &F ('./action-stmt', $if_stmt);
       my ($stmt) = &F ('./ANY-stmt', $action);
 
+      die $if_stmt->textContent unless ($stmt);
+
       next if ($stmt->nodeName eq 'call-stmt' && $stmt->textContent =~ m/DR_HOOK/o);
 
       $action->unbindNode ();

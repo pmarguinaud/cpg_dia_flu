@@ -105,4 +105,175 @@ sub pointers2FieldAPIPtr
 }
 
 
+sub fieldify
+{
+  my $d = shift;
+
+  my @en_decl = &F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="YDCPG_OPTS%KLON"]]', $d);
+  my @NPROMA = map { &F ('./EN-N', $_, 1) } @en_decl;
+
+  # Convert NPROMA arrays into field API objects
+
+  for my $en_decl (@en_decl)
+    {
+      my ($stmt) = &Fxtran::stmt ($en_decl);
+      my ($as) = &F ('./array-spec', $en_decl);
+      $as->unbindNode ();
+      my ($ts) = &F ('./_T-spec_/node()', $stmt);
+      
+      if (my ($intent) = &F ('./attribute[string(attribute-N)="INTENT"]', $stmt))
+        {
+          $ts->replaceNode (&n ('<derived-T-spec>CLASS(<T-N><N><n>FIELD_BASIC</n></N></T-N>)</derived-T-spec>'));
+        }
+      else
+        {
+          my @ss = &F ('./shape-spec-LT/shape-spec', $as);
+          my $d = scalar (@ss) + 1;
+          $ts->replaceNode (&n ("<derived-T-spec>CLASS(<T-N><N><n>FIELD_${d}D</n></N></T-N>)</derived-T-spec>"));
+        }
+
+      my ($dd) = &F ('./text()[contains(.,"::")]', $stmt);
+      $stmt->insertBefore (&t (', '), $dd);
+      $stmt->insertBefore (&n ('<attribute><attribute-N>POINTER</attribute-N></attribute>'), $dd);
+    }
+  
+  # Remove array reference of NPROMA arrays
+
+  for my $NPROMA (@NPROMA)
+    {
+      my @expr = &F ('.//named-E[string(N)="?"]', $NPROMA, $d);
+      for my $expr (@expr)
+        {
+          my ($rlt) = &F ('./R-LT', $expr);
+          $rlt && $rlt->unbindNode ();
+        }
+    }
+
+
+  use FindBin qw ($Bin);
+  my $TI = &Storable::retrieve ("$Bin/types.dat");
+  my @T = sort keys (%$TI);
+
+  # Find objects containing field API pointers and map them to their types
+
+  my %T;
+  for my $T (@T)
+    {
+      my @F = &F ('.//T-decl-stmt[./_T-spec_/derived-T-spec[string(T-N)="?"]]//EN-decl/EN-N/N/n/text()', $T, $d, 1);
+      for my $F (@F)
+        {
+          $T{$F} = $T;
+        }
+    }
+  my @F = sort keys (%T);
+
+  # This anonymous sub tests whether and expression contains NPROMA data (field API or local/argument array)
+  my $isNproma = sub
+  {
+    my $expr = shift;
+    my ($N) = &F ('./N', $expr, 1);
+    return 1 if (grep { $N eq $_ } @NPROMA);
+    return 0 unless (my $T = $T{$N});
+    my @ct = &F ('./R-LT/component-R/ct', $expr);
+    my $fd = &getFieldAPIMember ($TI, $T, map ({ $_->textContent } @ct));
+    return $fd;
+  };
+  
+  # Remove if construct where conditions involve NPROMA expressions (local arrays of field API pointers)
+
+  for my $ifc (&F ('.//if-construct', $d))
+    {
+      my $found = 0;
+      for my $expr (&F ('./if-block/condition-E//named-E', $ifc))
+        {
+          if ($isNproma->($expr))
+            {
+              $found = 1;
+              last;
+            }
+        }
+      next unless ($found);
+      my @block = &F ('./if-block', $ifc);
+      for (@block)
+        {
+          $_->firstChild->unbindNode;
+        }
+      $block[-1]->unbindNode ();
+      for my $node (&F ('./if-block/node()', $ifc))
+        {
+          $ifc->parentNode->insertBefore ($node, $ifc);
+        }
+      $ifc->unbindNode ();
+    }
+
+  # Find where field data is modified
+
+  for my $stmt (&F ('.//a-stmt', $d))
+    {
+      my $indent = ' ' x &Fxtran::getIndent ($stmt);
+      my $n = 0;
+      for my $expr (&F ('./E-1//named-E', $stmt))
+        {
+          next unless ($isNproma->($expr));
+          my $dum = &s ($expr->textContent . " = ZDUM");
+          $stmt->parentNode->insertBefore ($dum, $stmt);
+          $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
+          $n++;
+        }
+      for my $expr (&F ('./E-2//named-E', $stmt))
+        {
+          next unless ($isNproma->($expr));
+          my $dum = &s ("ZDUM = " . $expr->textContent);
+          $stmt->parentNode->insertBefore ($dum, $stmt);
+          $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
+          $n++;
+        }
+      $n && $stmt->unbindNode ();
+    }
+ 
+  # Use the field API object
+
+  for my $F (@F)
+    {
+      my $T = $T{$F};
+      my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $d);
+      for my $expr (@expr)
+        {
+          my @ct = &F ('./R-LT/component-R/ct', $expr);
+          my $fd = &getFieldAPIMember ($TI, $T, map ({ $_->textContent } @ct));
+          next unless ($fd);
+  
+          my ($f, $d) = @$fd;
+  
+          $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
+
+          my $cr = $ct->parentNode;
+          my ($ar) = &F ('following-sibling::ANY-R', $cr);
+          $ar && $ar->unbindNode ();
+        }
+    }
+
+  # Remove loops on JLEV or JLON
+
+  for my $ind (qw (JLON JLEV))
+   {
+     my @do = &F ('.//do-construct[./do-stmt[string(do-V)="?"]]', $ind, $d);
+     
+     for my $do (@do)
+       {   
+         $do->firstChild->unbindNode;
+         $do->lastChild->unbindNode;
+         my @nodes = &F ('./node()', $do);
+         for (@nodes)
+           {
+             $do->parentNode->insertBefore ($_, $do);
+           }
+         $do->unbindNode (); 
+       }   
+   }
+
+
+}
+
+
 1;
