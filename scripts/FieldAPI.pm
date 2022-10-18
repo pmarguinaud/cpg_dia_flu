@@ -432,6 +432,12 @@ sub fieldify
     }
 
 
+  unless (my ($use) = &F ('.//use-stmt[string(use-N)="FIELD_MODULE"][./rename-LT/rename/use-N[string(.)="FIELD_BASIC"]]', $d))
+    {
+      ($use) = &F ('.//use-stmt', $d);
+      $use->parentNode->insertBefore (&s ("USE FIELD_MODULE, ONLY : FIELD_BASIC"), $use);
+      $use->parentNode->insertBefore (&t ("\n"), $use);
+    }
 
 }
 

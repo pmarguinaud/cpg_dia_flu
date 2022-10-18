@@ -289,9 +289,6 @@ sub removeEmptyIfConstructs
 
       # Non final blocks have a single statement, final block has two statements
       next unless (scalar (@stmt) == (scalar (@if_block) + 1));
-
-print $if_construct->textContent, "\n";
-
       $if_construct->unbindNode ();
     }
 }

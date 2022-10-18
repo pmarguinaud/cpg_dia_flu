@@ -3,6 +3,7 @@
 use strict;
 use FileHandle;
 use Data::Dumper;
+use File::Basename;
 
 use FindBin qw ($Bin);
 use lib $Bin;
@@ -40,7 +41,8 @@ my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 &FieldAPI::fieldify ($d);
 &Construct::removeEmptyConstructs ($d);
 
-print ($d->textContent ());
-#'FileHandle'->new (">$f.new")->print ($d->textContent ());
+($f = &basename ($f)) =~ s/\.F90$/_plan.F90/o;
+
+'FileHandle'->new (">$f")->print ($d->textContent ());
 
 
