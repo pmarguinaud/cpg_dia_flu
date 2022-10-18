@@ -63,6 +63,30 @@ sub apply
   &saveToFile ($doc, "tmp/$routine/$file");
 }
 
+sub generatePlan
+{
+  use Decl;
+  use Construct;
+  use Inline;
+  use FieldAPI;
+  use Construct;
+
+  my $f = shift;
+  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+
+  &Decl::forceSingleDecl ($d);
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
+  &FieldAPI::fieldify ($d);
+  &Construct::removeEmptyConstructs ($d);
+
+  ($f = &basename ($f)) =~ s/\.F90$/_plan.F90/o;
+
+  'FileHandle'->new (">$f")->print ($d->textContent ());
+
+   &Fxtran::intfb ($f);
+}
+
 sub preProcessIfNewer
 {
   my ($f1, $f2, $opts) = @_;
@@ -89,6 +113,8 @@ sub preProcessIfNewer
       'FileHandle'->new (">$f2")->print ($d->textContent ());
 
       &Fxtran::intfb ($f2);
+
+      &generatePlan ($f1);
     }
 }
 
