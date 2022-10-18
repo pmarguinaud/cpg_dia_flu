@@ -248,8 +248,6 @@ sub inlineContainedSubroutine
         {
           my $aa = $da2aa{$da};
 
-my $dbg = $da eq 'LDNORESET';
-
           my @present = &F ('.//named-E[translate(string(.)," ","")="PRESENT(?)"]', $da, $d2);
 
           for my $present (@present)

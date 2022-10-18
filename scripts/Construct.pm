@@ -177,6 +177,13 @@ sub apply
         }
     }
 
+  &simplifyIfConstructs ($d);
+}
+
+sub simplifyIfConstructs
+{
+  my $d = shift;
+
   my @if_construct = &F ('.//if-construct[./if-block/ANY-stmt/condition-E[string(.)=".TRUE." or string(.)=".FALSE."]]', $d);
 
   for my $i (0 .. $#if_construct)
@@ -200,6 +207,7 @@ sub apply
             }
         }
   
+
       if (my @if_block = &F ('./if-block[./ANY-stmt/condition-E[string(.)=".FALSE."]]', $if_construct))
         {
           for my $if_block (@if_block)
@@ -235,23 +243,64 @@ sub apply
   
       if (scalar (@if_block) == 1)
         {
-          my $if_block = $if_block[0];
-  
+          my ($if_block) = @if_block;
           if (&F ('./ANY-stmt/condition-E[string(.)=".TRUE."]', $if_block))
             {
               $if_block->firstChild->unbindNode ();
               $if_block->lastChild->unbindNode ();
+ 
+              for my $node (&F ('./if-block/node()', $if_construct))
+                {
+                  $if_construct->parentNode->insertBefore ($node, $if_construct);
+                }
             }
-          elsif (&F ('./ANY-stmt/condition-E[string(.)=".FALSE."]', $if_block))
-            {
-              $if_construct->replaceNode (&t (''));
-            }
+
+          $if_construct->unbindNode ();
         }
   
   
     }
 
 
+}
+
+sub removeEmptyDoConstructs
+{
+  my $d = shift;
+
+  for my $do_construct (reverse (&F ('.//do-construct', $d)))
+    {
+      &removeEmptyIfConstructs ($do_construct);
+      my @stmt = &F ('.//ANY-stmt', $do_construct);
+      next unless (scalar (@stmt) == 2);
+      $do_construct->unbindNode ();
+    }
+}
+
+sub removeEmptyIfConstructs
+{
+  my $d = shift;
+
+  for my $if_construct (reverse (&F ('.//if-construct', $d)))
+    {
+#     &removeEmptyDoConstructs ($if_construct);
+      my @if_block = &F ('./if-block', $if_construct);
+      my @stmt = &F ('.//ANY-stmt', $if_construct);
+
+      # Non final blocks have a single statement, final block has two statements
+      next unless (scalar (@stmt) == (scalar (@if_block) + 1));
+
+print $if_construct->textContent, "\n";
+
+      $if_construct->unbindNode ();
+    }
+}
+
+sub removeEmptyConstructs
+{
+  my $d = shift;
+  &removeEmptyIfConstructs ($d);
+  &removeEmptyDoConstructs ($d);
 }
 
 1;

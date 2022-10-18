@@ -38,7 +38,9 @@ my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 &Construct::changeIfStatementsInIfConstructs ($d);
 &Inline::inlineContainedSubroutines ($d);
 &FieldAPI::fieldify ($d);
+&Construct::removeEmptyConstructs ($d);
 
 print ($d->textContent ());
 #'FileHandle'->new (">$f.new")->print ($d->textContent ());
+
 

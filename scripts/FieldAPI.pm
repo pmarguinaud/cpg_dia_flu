@@ -145,7 +145,7 @@ sub fieldify
       $stmt->insertBefore (&t (', '), $dd);
       $stmt->insertBefore (&n ('<attribute><attribute-N>POINTER</attribute-N></attribute>'), $dd);
     }
-  
+
   # Remove array reference of NPROMA arrays
 
   for my $NPROMA (@NPROMA)
@@ -188,9 +188,11 @@ sub fieldify
     return $fd;
   };
   
+
+  # Handle call statements
+
   my @call = &F ('.//call-stmt', $d);
   my %proc;
-  
 
   for my $call (@call)
     {
@@ -235,7 +237,7 @@ sub fieldify
         {
           $_->firstChild->unbindNode;
         }
-      $block[-1]->unbindNode ();
+      $block[-1]->lastChild->unbindNode ();
       for my $node (&F ('./if-block/node()', $ifc))
         {
           $ifc->parentNode->insertBefore ($node, $ifc);
@@ -336,6 +338,16 @@ sub fieldify
        {   
          $do->firstChild->unbindNode;
          $do->lastChild->unbindNode;
+ 
+         # Remove calculations involving non-NPROMA data
+
+         for (&F ('.//a-stmt[string(E-1)!="ZDUM" and string(E-2)!="ZDUM"]', $do))
+           {
+             $_->unbindNode ();
+           }
+
+         # Remove construct
+
          my @nodes = &F ('./node()', $do);
          for (@nodes)
            {
