@@ -10,7 +10,7 @@ use Fxtran;
 
 sub getFieldAPIMember
 {
-  my $TI = shift;
+  my $TI = &getTypeInfo ();
 
   my $t = $TI;
 
@@ -39,14 +39,79 @@ NOTFOUND:
   return;
 }
 
-&memoize ('getFieldAPIMember');
+sub isFieldAPIMember
+{
+  my $TI = &getTypeInfo ();
 
+  my $t = $TI;
+
+  my $X = pop (@_);
+
+  for my $x (@_)
+    {
+      if (exists ($t->{$x}))
+        {
+          my $ref = ref ($t->{$x});
+          if ($ref && ($ref eq 'HASH'))
+            {
+              $t = $t->{$x};
+            }
+          else
+           {
+             goto NOTFOUND;
+           }
+        }
+      else
+        {
+          goto NOTFOUND;
+        }
+    }
+
+  my $ref = ref ($t);
+  if ($ref && ($ref eq 'HASH'))
+    {
+      my %t = %$t;
+      for my $k (sort keys (%$t))
+        {
+          next unless (ref (my $v = $t->{$k}) eq 'ARRAY');
+          return $v if ($v->[0] eq $X);
+        }
+    }
+  
+NOTFOUND:
+  return;
+}
+
+&memoize ('getFieldAPIMember');
+&memoize ('isFieldAPIMember');
+
+
+{
+
+use FindBin qw ($Bin);
+my $TI;
+
+sub getTypeInfo
+{
+  $TI = &Storable::retrieve ("$Bin/types.dat") unless ($TI);
+  return $TI;
+}
+
+}
+
+sub getExprFieldAPIMember
+{
+  my ($expr, $type, $TI) = @_;
+  return unless ($type);
+  my @ct = &F ('./R-LT/component-R/ct', $expr, 1);
+  return &getFieldAPIMember ($type, @ct);
+}
+  
 sub pointers2FieldAPIPtr
 {
   my $d = shift;
 
-  use FindBin qw ($Bin);
-  my $TI = &Storable::retrieve ("$Bin/types.dat");
+  my $TI = &getTypeInfo ();
   
   my @T = sort keys (%$TI);
   
@@ -59,7 +124,7 @@ sub pointers2FieldAPIPtr
           for my $expr (@expr)
             {
               my @ct = &F ('./R-LT/component-R/ct', $expr);
-              my $fd = &getFieldAPIMember ($TI, $T, map ({ $_->textContent } @ct));
+              my $fd = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
               next unless ($fd);
   
               my ($f, $d) = @$fd;
@@ -73,7 +138,7 @@ sub pointers2FieldAPIPtr
               unless ($ar)
                 {
                   # Add array reference
-                  $ar = &n ('<array-R>(<section-subscript-LT><section-subscript>:</section-subscript></section-subscript-LT>)</array-R>');
+                  $ar = &n ('<array-R>(<section-subscript-LT>' . join (',', ('<section-subscript>:</section-subscript>') x $fd->[1]) . '</section-subscript-LT>)</array-R>');
                   $ptr->parentNode->insertAfter ($ar, $ptr);
                 }
   
@@ -159,8 +224,7 @@ sub fieldify
     }
 
 
-  use FindBin qw ($Bin);
-  my $TI = &Storable::retrieve ("$Bin/types.dat");
+  my $TI = &getTypeInfo ();
   my @T = sort keys (%$TI);
 
   # Find objects containing field API pointers and map them to their types
@@ -182,10 +246,7 @@ sub fieldify
     my $expr = shift;
     my ($N) = &F ('./N', $expr, 1);
     return 1 if (grep { $N eq $_ } @NPROMA);
-    return 0 unless (my $T = $T{$N});
-    my @ct = &F ('./R-LT/component-R/ct', $expr);
-    my $fd = &getFieldAPIMember ($TI, $T, map ({ $_->textContent } @ct));
-    return $fd;
+    return &getExprFieldAPIMember ($expr, $T{$N}, $TI);
   };
   
 
@@ -283,7 +344,7 @@ sub fieldify
         {
 
           my @ct = &F ('./R-LT/component-R/ct', $expr);
-          my $fd = &getFieldAPIMember ($TI, $T, map ({ $_->textContent } @ct));
+          my $fd = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
           next unless ($fd);
   
           # Remove last reference if it is an array reference

@@ -4,6 +4,7 @@ use strict;
 use FileHandle;
 use Data::Dumper;
 use Fxtran;
+use Ref;
 
 sub replaceDummyArgumentByActual
 {
@@ -52,16 +53,7 @@ sub resolveArrayRef
     my $r = shift;
     if ($r->nodeName eq 'parens-R')
       {
-        my ($elt) = &F ('./element-LT', $r);
-        $r->setNodeName ('array-R');
-        $elt->setNodeName ('section-subscript-LT');
-        for my $i (&F ('./element', $elt))
-          {
-            $i->setNodeName ('section-subscript');
-            my ($lb) = &n ('lower-bound');
-            $lb->appendChild ($_) for ($i->childNodes ());
-            $i->appendChild ($lb);
-          }
+        &Ref::parensToArrayRef ($r);
       }
     if ($r->nodeName eq 'array-R')
       {
