@@ -122,7 +122,7 @@ sub preProcessIfNewer
     }
 }
 
-my @opts_f = qw (update compile);
+my @opts_f = qw (update compile external-drhook);
 my @opts_s = qw (arch transform-list);
 
 &GetOptions
@@ -150,6 +150,11 @@ else
 
 my @compute = map { &basename ($_) } <compute/*.F90>;
 my @support = grep { ! m/\.F90\.xml$/o } map { &basename ($_) } <support/*>;
+
+if ($opts{'external-drhook'})
+  {
+    @support = grep { $_ !~ m/^(?:abor1|yomhook)\.F90$/o } @support; 
+  }
 
 my $dir = "compile.$opts{arch}";
 

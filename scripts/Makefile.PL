@@ -14,6 +14,11 @@ use Fxtran;
 
 my @sys = qw (OMP_LIB CUDAFOR IEEE_ARITHMETIC ISO_C_BINDING OPENACC);
 
+unless (-f 'yomhook.F90')
+  {
+    push @sys, 'YOMHOOK';
+  }
+
 my %slurp;
 
 sub slurp

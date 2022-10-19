@@ -13,6 +13,8 @@ sub addStack
 
   for my $call (@call)
     {
+      my ($proc) = &F ('./procedure-designator', $call, 1);
+      next if ($proc eq 'DR_HOOK');
       my ($argspec) = &F ('./arg-spec', $call);
       $argspec->appendChild (&t (', '));
       $argspec->appendChild (&n ("<named-E><N><n>YLSTACK</n></N></named-E>"));
