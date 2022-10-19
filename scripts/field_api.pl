@@ -12,24 +12,7 @@ use FieldAPI;
 use Inline;
 use Decl;
 use Construct;
-
-sub bt
-{ 
-  print @_; 
-
-  print "\n";
-  for (my $i = 0; ; $i++)
-    {   
-      last unless (my @call = caller ($i));
-      print " $i ", $call[1], ':', $call[2], "\n";
-    }   
-  die "\n";
-}
-
-local $SIG{__WARN__} = \&bt;
-local $SIG{__DIE__} = \&bt;
-
-
+use Bt;
 
 my ($f) = @ARGV;
 

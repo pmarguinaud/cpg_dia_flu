@@ -9,39 +9,14 @@ use lib $Bin;
 use Fxtran;
 use FieldAPI;
 use Ref;
+use Scope;
 
 
 sub removeJlonLoops
 {
   my $d = shift;
   
-  my ($noexec) = do  
-  {
-    my ($exec) = grep { &Fxtran::stmt_is_executable ($_) } &F ('.//ANY-stmt', $d);
-    my @prev = &F ('preceding::*', $exec);
-  
-    my $prev;
-    for my $p (reverse (@prev))
-      {   
-        next if ($p->nodeName eq '#text');
-        next if ($p->nodeName eq 'C');
-        $prev = $p; 
-        last;
-      }   
-  
-    my @anc = &F ('ancestor::*', $prev);
-  
-    for my $anc (reverse (@anc))
-      {   
-        if (($anc->nodeName =~ m/-(?:construct|stmt)$/o) || ($anc->nodeName eq 'include'))
-          {
-            $prev = $anc;
-          }
-      }   
-  
-    $prev
-  };  
-  
+  my $noexec = &Scope::getNoExec ($d);
 
   unless (&F ('.//T-decl-stmt[.//EN-decl[string(EN-N)="JLON"]]', $d))
     {

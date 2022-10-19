@@ -10,6 +10,7 @@ use File::stat;
 use File::Path;
 use Getopt::Long;
 use Fxtran;
+use Bt;
 
 my %opts;
 
@@ -91,7 +92,7 @@ sub preProcessIfNewer
 {
   my ($f1, $f2, $opts) = @_;
 
-  my @list = @{ $opts->{list} };
+  my @list = @{ $opts->{'transform-list'} };
 
   if (&newer ($f1, $f2))
     {
@@ -119,7 +120,7 @@ sub preProcessIfNewer
 }
 
 my @opts_f = qw (update compile);
-my @opts_s = qw (arch list);
+my @opts_s = qw (arch transform-list);
 
 &GetOptions
 (
@@ -127,7 +128,22 @@ my @opts_s = qw (arch list);
   map ({ ("$_=s", \$opts{$_}) } @opts_s),
 );
 
-$opts{list} = [split (m/,/o, $opts{list})];
+
+if ($opts{'transform-list'} =~ s,^file://,,o)
+  {
+    my @list = do { my $fh = 'FileHandle'->new ("<$opts{'transform-list'}"); <$fh> };
+    for (@list)
+      {
+        chomp;
+        s/^\s*//o;
+        s/\s*$//o;
+      }
+    $opts{'transform-list'} = \@list;
+  }
+else
+  {
+    $opts{'transform-list'} = [split (m/,/o, $opts{'transform-list'})];
+  }
 
 my @compute = map { &basename ($_) } <compute/*.F90>;
 my @support = grep { ! m/\.F90\.xml$/o } map { &basename ($_) } <support/*>;
