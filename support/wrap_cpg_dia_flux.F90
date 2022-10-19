@@ -24,6 +24,8 @@ USE UTIL_MF_PHYS_OUT_TYPE_MOD
 USE UTIL_MF_PHYS_SURF_TYPE_MOD
 USE UTIL_MODEL_MOD
 
+USE STACK_MOD
+
 !     ------------------------------------------------------------------
 
 IMPLICIT NONE
@@ -38,6 +40,7 @@ TYPE(FIELD_VARIABLES)     :: YLVARS
 TYPE(TCFU)                :: YLCFU, YLCFU_REF
 TYPE(TXFU)                :: YLXFU, YLXFU_REF
 TYPE(MODEL)               :: YLMODEL
+TYPE(STACK)               :: YLSTACK
 
 #include "cpg_dia_flu.intfb.h"
 #include "cpg_dia_flu_plan.intfb.h"
@@ -159,11 +162,11 @@ DO IBL = 1, NGPBLKS
       YLCPG_BNDS1%KIDIA = JLON
       YLCPG_BNDS1%KFDIA = JLON
       CALL CPG_DIA_FLU (YLCPG_BNDS1, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
-                      & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL)
+                      & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL, YLSTACK)
     ENDDO
   ELSE
     CALL CPG_DIA_FLU (YLCPG_BNDS, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
-                    & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL)
+                    & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL, YLSTACK)
   ENDIF
 
 ENDDO
