@@ -10,7 +10,7 @@ use List::MoreUtils qw (uniq);
 
 use strict;
 
-my @sys = qw (OMP_LIB CUDAFOR IEEE_ARITHMETIC ISO_C_BINDING OPENACC);
+my @sys = qw (OMP_LIB CUDAFOR IEEE_ARITHMETIC ISO_C_BINDING OPENACC YOMHOOK);
 
 my %slurp;
 

@@ -439,6 +439,17 @@ sub fieldify
       $use->parentNode->insertBefore (&t ("\n"), $use);
     }
 
+    
+  my @drhook_name = &F ('.//call-stmt[string(procedure-designator)="DR_HOOK"]/arg-spec/arg/string-E/S/text()', $d);
+
+  for (@drhook_name)
+    {
+      (my $str = $_->data) =~ s/(["'])$/_PLAN$1/go;
+      $_->setData ($str);
+    }
+
+
+
 }
 
 
