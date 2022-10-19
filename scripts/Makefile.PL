@@ -1,15 +1,16 @@
-#!/home/gmap/mrpm/marguina/install/perl-5.32.0/bin/perl -w
-#
+#!/usr/bin/perl -w
+
+use strict;
 
 use FileHandle;
+use List::MoreUtils qw (uniq);
 use Data::Dumper;
 use FindBin qw ($Bin);
 use lib $Bin;
-use Fxtran;
-use List::MoreUtils qw (uniq);
-use Bt;
 
-use strict;
+use Common;
+
+use Fxtran;
 
 my @sys = qw (OMP_LIB CUDAFOR IEEE_ARITHMETIC ISO_C_BINDING OPENACC);
 

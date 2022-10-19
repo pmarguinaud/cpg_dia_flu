@@ -4,6 +4,12 @@ use strict;
 
 sub bt
 { 
+  for (my $i = 0; ; $i++)
+    {   
+      last unless (my @call = caller ($i));
+      return if ($call[3] eq '(eval)');
+    }   
+
   print @_; 
 
   print "\n";

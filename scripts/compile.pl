@@ -1,16 +1,19 @@
-#!/home/gmap/mrpm/marguina/install/perl-5.32.0/bin/perl -w
+#!/usr/bin/perl -w
 
 use strict;
-use FindBin qw ($Bin);
-use lib $Bin;
+
 use FileHandle;
 use File::Copy;
 use File::Basename;
 use File::stat;
 use File::Path;
 use Getopt::Long;
+use FindBin qw ($Bin);
+use lib $Bin;
+
+use Common;
+
 use Fxtran;
-use Bt;
 
 my %opts;
 

@@ -1,13 +1,17 @@
-#!/home/gmap/mrpm/marguina/install/perl-5.32.0/bin/perl -w
-#
+#!/usr/bin/perl -w
+
 use strict;
-use FindBin qw ($Bin);
+
 use Data::Dumper;
-use lib $Bin;
-use Fxtran;
 use Getopt::Long;
 use File::Path;
 use File::Spec;
+use FindBin qw ($Bin);
+use lib $Bin;
+
+use Common;
+
+use Fxtran;
 
 
 sub process_decl
