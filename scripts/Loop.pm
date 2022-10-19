@@ -42,8 +42,17 @@ sub removeJlonLoops
     $prev
   };  
   
-  
-  my ($YDCPG_BNDS) = &F ('./object/file/program-unit/subroutine-stmt//arg[string(arg-N)="YDCPG_BNDS"]', $d);
+
+  unless (&F ('.//T-decl-stmt[.//EN-decl[string(EN-N)="JLON"]]', $d))
+    {
+      my $indent = "\n" . (' ' x &Fxtran::getIndent ($noexec));
+      $noexec->parentNode->insertAfter (my $decl = &s ("INTEGER (KIND=JPIM) :: JLON"), $noexec);
+      $noexec->parentNode->insertAfter (&t ($indent), $noexec);
+      $noexec = $decl;
+    }
+
+
+  my ($YDCPG_BNDS) = &F ('./object/file/program-unit/subroutine-stmt/dummy-arg-LT/arg-N[string(.)="YDCPG_BNDS"]', $d);
 
   $noexec->parentNode->insertAfter ($YDCPG_BNDS ? &s ("JLON = YDCPG_BNDS%KIDIA") : &s ("JLON = KIDIA"), $noexec);
   $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
