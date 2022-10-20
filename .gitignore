@@ -7,3 +7,4 @@ compile.cpu*
 compile.gpu*
 *.F90.xml
 tmp/
+drhook.prof.*
