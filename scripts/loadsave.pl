@@ -305,10 +305,14 @@ sub process_types
         }
       if (%L)
         {
-          $DECL_SAVE .= "LOGICAL :: " . join (', ', map { "L$_" } sort keys (%L)) . "\n";
-          $DECL_LOAD .= "LOGICAL :: " . join (', ', map { "L$_" } sort keys (%L)) . "\n";
-          $DECL_COPY .= "LOGICAL :: " . join (', ', map { "L$_" } sort keys (%L)) . "\n";
-          $DECL_SIZE .= "LOGICAL :: " . join (', ', map { "L$_" } sort keys (%L)) . "\n";
+          my @L = sort keys (%L);
+          while (my @l = splice (@L, 0, 10))
+            {
+              $DECL_SAVE .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
+              $DECL_LOAD .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
+              $DECL_COPY .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
+              $DECL_SIZE .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
+            }
         }
   
       my @U = map { "UTIL_${_}_MOD" } sort keys (%U);

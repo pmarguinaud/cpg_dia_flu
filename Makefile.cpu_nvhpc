@@ -1,0 +1,7 @@
+
+#pack=/home/gmap/mrpa/suzat/pack/cy48t1_op0.01.PGI225.cpu0
+#FC=/home/gmap/mrpm/marguina/install/gmkpack_support/wrapper/PGI225/mpif90 \
+#  -I. -I$(pack)/src/local/ifsaux/module -O0 -g
+#LIBS=-L$(pack)/lib -lifsaux.local -lstdc++
+
+FC=/home/gmap/mrpm/marguina/install/gmkpack_support/wrapper/PGI227/mpif90 -O0 -byteswapio -Mlarge_arrays

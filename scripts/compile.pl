@@ -132,6 +132,8 @@ my @opts_s = qw (arch transform-list);
 );
 
 
+$opts{'transform-list'} ||= '';
+
 if ($opts{'transform-list'} =~ s,^file://,,o)
   {
     my @list = do { my $fh = 'FileHandle'->new ("<$opts{'transform-list'}"); <$fh> };
@@ -147,6 +149,7 @@ else
   {
     $opts{'transform-list'} = [split (m/,/o, $opts{'transform-list'})];
   }
+
 
 my @compute = map { &basename ($_) } <compute/*.F90>;
 my @support = grep { ! m/\.F90\.xml$/o } map { &basename ($_) } <support/*>;
