@@ -4,4 +4,4 @@
 #  -I. -I$(pack)/src/local/ifsaux/module -O0 -g
 #LIBS=-L$(pack)/lib -lifsaux.local -lstdc++
 
-FC=/home/gmap/mrpm/marguina/install/gmkpack_support/wrapper/PGI227/mpif90 -O0 -byteswapio -Mlarge_arrays
+FC=/home/gmap/mrpm/marguina/install/gmkpack_support/wrapper/PGI227/mpif90 -O0 -byteswapio -Mlarge_arrays -mp
