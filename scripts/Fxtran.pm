@@ -1400,12 +1400,10 @@ sub save_to_file
   'FileHandle'->new (">$file")->print ($data);
 } 
 
-use lib "/home/gmap/mrpm/marguina/fxtran/master/perl/blib/lib"; 
-use lib "/home/gmap/mrpm/marguina/fxtran/master/perl/blib/arch/auto/fxtran";
-use fxtran;
 
 sub fxtran
 {
+  use fxtran;
   my %args = @_;
 
   my @fopts = @{ $args{fopts} || [] };
@@ -1549,20 +1547,16 @@ sub add_associates
 
 }
 
-sub intfb
+sub intfb_body
 {
-  my ($F90, $dir) = @_;
+  my $doc = shift;
   
-  $dir ||= '.';
-
-  my $doc = &Fxtran::fxtran (location => $F90, fopts => ['-line-length' => 300]);
-  
-  my @pu = &f ('./f:object/f:file/f:program-unit', $doc);
+  my @pu = &F ('./object/file/program-unit', $doc);
   
   for my $pu (@pu)
     {
 
-      for (&f ('.//f:program-unit', $pu))
+      for (&F ('.//program-unit', $pu))
         {
           $_->unbindNode ();
         }
@@ -1571,8 +1565,8 @@ sub intfb
   
       (my $kind = $stmt->nodeName ()) =~ s/-stmt$//o;
   
-      my ($name) = &f ('./f:' . $kind . '-N/f:N/f:n/text ()', $stmt, 1);
-      my @args = &f ('.//f:dummy-arg-LT//f:arg-N/f:N/f:n/text ()', $stmt, 1);
+      my ($name) = &F ('./' . $kind . '-N/N/n/text()', $stmt, 1);
+      my @args = &F ('.//dummy-arg-LT//arg-N/N/n/text()', $stmt, 1);
       
       my %stmt;
       
@@ -1581,12 +1575,11 @@ sub intfb
       $stmt{$pu->firstChild} = $pu->firstChild;
       $stmt{$pu->lastChild}  = $pu->lastChild;
       
-      # Keep declaration statements referecing arguments
-      
+      # Keep declaration statements referencing arguments
 
       for my $arg (@args)
         {
-          my @en = &f ('.//f:EN-decl[./f:EN-N/f:N/f:n[text ()="' . $arg . '"]]', $pu);
+          my @en = &F ('.//EN-decl[./EN-N[string(N)="?"]]', $arg, $pu);
           for my $en (@en)
             {
               my $stmt = &Fxtran::stmt ($en);
@@ -1596,20 +1589,19 @@ sub intfb
   
       # Strip blocks (these may contain use statements)
       
-      for (&f ('.//f:block-construct', $doc))
+      for (&F ('.//ANY-construct', $doc))
         {
           $_->unbindNode ();
         }
   
       # Keep use statements
       
-      for (&f ('.//f:use-stmt', $pu))
+      for (&F ('.//use-stmt', $pu))
         {
           $stmt{$_} = $_;
         }
-        
       
-      my @stmt = &f ('.//' . &Fxtran::xpath_by_type ('stmt'), $pu);
+      my @stmt = &F ('.//ANY-stmt', $pu);
       
       for my $stmt (@stmt)
         {
@@ -1620,14 +1612,14 @@ sub intfb
   
 
   # Strip labels
-  for (&f ('.//f:label', $doc))
+  for (&F ('.//label', $doc))
     {
       $_->unbindNode ();
     }
   
   # Strip comments
   
-  for (&f ('.//f:C', $doc))
+  for (&F ('.//C', $doc))
     {
       next if ($_->textContent =~ m/^!\$acc\s+routine/o);
       $_->unbindNode ();
@@ -1635,17 +1627,41 @@ sub intfb
   
   # Strip includes
   
-  for (&f ('.//f:include', $doc))
+  for (&F ('.//include', $doc))
     {
       $_->unbindNode ();
     }
 
   # Strip defines
 
-  for (&f ('.//f:cpp[starts-with (text (), "#define ")]', $doc))
+  for (&F ('.//cpp[starts-with (text(),"#define ")]', $doc))
     {
       $_->unbindNode ();
     }
+
+  $doc->documentElement->normalize ();
+
+  my @text = &F ('.//text()[translate(.," ?","")=""]', "\n", $doc);
+
+  for my $text (@text)
+    {
+      if ($text->data =~ m/\n/goms)
+        {
+          $text->setData ("\n");
+        }
+    }
+
+}
+
+sub intfb
+{
+  my ($F90, $dir) = @_;
+  
+  $dir ||= '.';
+
+  my $doc = &Fxtran::fxtran (location => $F90, fopts => ['-line-length' => 300]);
+  
+  &intfb_body ($doc);
 
   # Strip empty lines
   
