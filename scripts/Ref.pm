@@ -41,5 +41,19 @@ sub resolveParensRef
 
 }
 
+sub getRLT
+{
+  my $expr = shift;
+
+  my ($rlt) = &F ('./R-LT', $expr);
+
+  unless ($rlt)
+    {   
+      $expr->appendChild ($rlt = &n ('<R-LT/>'));
+    }   
+
+  return $rlt;
+}
+
 
 1;
