@@ -7,11 +7,6 @@ sub getNoExec
 {
   my $d = shift;
  
-  if (my ($drhook) = &F ('.//if-stmt/action-stmt/call-stmt[string(procedure-designator)="DR_HOOK"]', $d))
-    {
-      return $drhook;
-    }
-
   my ($exec) = grep { &Fxtran::stmt_is_executable ($_) } &F ('.//ANY-stmt', $d);
   my @prev = &F ('preceding::*', $exec);
 

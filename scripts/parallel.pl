@@ -22,9 +22,11 @@ my ($f) = @ARGV;
 my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 
 &Decl::forceSingleDecl ($d);
-&Parallel::wrapArrays ($d);
+#&Parallel::wrapArrays ($d);
 
-print $d->textContent;
+&Parallel::makeParallel ($d);
+
+print $d;
 
 #'FileHandle'->new (">$f")->print ($d->textContent ());
 

@@ -57,7 +57,7 @@ sub deps
                $_ = $mod2obj{$_};
             }
         }
-   
+
       @{ $deps{$f} } = &uniq (@{ $deps{$f} });
 
    }

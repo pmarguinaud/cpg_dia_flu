@@ -3,8 +3,10 @@
 set -e
 
 dir=support
-no_alloc=FIELD_2D,FIELD_3D,FIELD_4D
-module_map=UTIL_FIELD_2D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_3D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_4D_MOD,UTIL_FIELD_MOD
+no_alloc=FIELD_2D,FIELD_3D,FIELD_4D,FIELD_5D,FIELD_INT2D,FIELD_INT3D,FIELD_INT4D,FIELD_INT5D,FIELD_LOG2D,FIELD_LOG3D,FIELD_LOG4D,FIELD_LOG5D
+module_map=UTIL_FIELD_2D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_3D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_4D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_5D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_INT2D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_INT3D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_INT4D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_INT5D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_LOG2D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_LOG3D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_LOG4D_MOD,UTIL_FIELD_MOD,UTIL_FIELD_LOG5D_MOD,UTIL_FIELD_MOD
+
+
 
 function resolve ()
 {
@@ -36,6 +38,7 @@ for F90 in \
   .fypp/arpifs/module/cpg_type_mod.F90  \
   .fypp/arpifs/module/variable_module.F90  \
   .fypp/arpifs/module/yomcfu_type.F90  \
+  .fypp/arpifs/module/array_mod.F90  \
   .fypp/arpifs/module/yomxfu_type.F90
 do
   b=$(basename $F90 .F90)
@@ -120,3 +123,8 @@ done
   --only-components 'MF_PHYS_SURF_TYPE%GSP_RR,MF_PHYS_SURF_TYPE%GSP_SG,MF_PHYS_SURF_TYPE%GSD_XP,MF_PHYS_SURF_TYPE%GSD_XP2,MF_PHYS_SURF_TYPE%GSP_CL' \
   $(resolve .fypp/arpifs/module/mf_phys_surface_type_mod.F90)
   
+./scripts/loadsave.pl \
+  --load --save --dir $dir --skip-components info_arr --no-allocate $no_alloc \
+  --module-map $module_map --field-api --field-api-class info_arr --out util_array_mod.F90 \
+  $(resolve .fypp/arpifs/module/array_mod.F90)
+

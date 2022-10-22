@@ -5,11 +5,7 @@ USE FIELD_MODULE
 
 IMPLICIT NONE
 
-#!#:set select = lambda dtype, suffix, rank, default: ((rank < 5) and (suffix != "LOG") and (suffix != "INT"))
-#:set select = lambda type, suffix, rank, default: True
-
 #:for dtype, suffix, rank, default in field_descriptors
-#:if select (dtype, suffix, rank, default)
 TYPE ARRAY_${'%s%sD' % (suffix, rank)}$
   CLASS (FIELD_${'%s%sD' % (suffix, rank)}$), POINTER :: F_P => NULL ()
   ${dtype}$, POINTER :: P (${shapes[rank-1]}$) => NULL()
@@ -19,13 +15,11 @@ CONTAINS
   PROCEDURE :: UPDATE_VIEW => UPDATE_VIEW_ARRAY_${'%s%sD' % (suffix, rank)}$
 END TYPE
 
-#:endif
 #:endfor
 
 CONTAINS
 
 #:for dtype, suffix, rank, default in field_descriptors
-#:if select (dtype, suffix, rank, default)
 #:set suff = '%s%sD' % (suffix, rank)
 SUBROUTINE INIT_ARRAY_${suff}$ (SELF, PERSISTENT, LBOUNDS, UBOUNDS, DATA)
 
@@ -74,7 +68,6 @@ ENDIF
 
 END SUBROUTINE
 
-#:endif
 #:endfor
 
 END MODULE
