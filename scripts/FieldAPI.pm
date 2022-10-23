@@ -7,6 +7,11 @@ use Storable;
 use Memoize;
 use Fxtran;
 
+sub isUpdatable
+{
+  my $UI = &getUpdatableInfo ();
+  return $UI->{$_[0]};
+}
 
 sub getFieldAPIMember
 {
@@ -84,6 +89,7 @@ NOTFOUND:
 
 &memoize ('getFieldAPIMember');
 &memoize ('isFieldAPIMember');
+&memoize ('isUpdatable');
 
 
 {
@@ -95,6 +101,14 @@ sub getTypeInfo
 {
   $TI = &Storable::retrieve ("$Bin/types.dat") unless ($TI);
   return $TI;
+}
+
+my $UI;
+
+sub getUpdatableInfo
+{
+  $UI = &Storable::retrieve ("$Bin/updatable.dat") unless ($TI);
+  return $UI;
 }
 
 }
