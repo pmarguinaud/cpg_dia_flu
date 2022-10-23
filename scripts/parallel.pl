@@ -11,23 +11,17 @@ use lib $Bin;
 use Common;
 
 use Fxtran;
-use FieldAPI;
-use Inline;
-use Decl;
-use Construct;
 use Parallel;
 
 my ($f) = @ARGV;
 
 my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 
-&Decl::forceSingleDecl ($d);
-#&Parallel::wrapArrays ($d);
-
 &Parallel::makeParallel ($d);
 
-print $d;
+print $d->textContent;
 
-#'FileHandle'->new (">$f")->print ($d->textContent ());
+'FileHandle'->new (">$f.new")->print ($d->textContent ());
+'FileHandle'->new (">$f.new.xml")->print ($d->toString ());
 
 

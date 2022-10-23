@@ -73,4 +73,4 @@ for my $T (keys (%T))
 #print &Dumper (\%UU);
 
 &Storable::nstore (\%TT, "$Bin/types.dat");
-&Storable::nstore (\%TT, "$Bin/update_view.dat");
+&Storable::nstore (\%UU, "$Bin/update_view.dat");

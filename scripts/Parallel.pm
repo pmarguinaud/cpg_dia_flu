@@ -4,9 +4,14 @@ use strict;
 use FileHandle;
 use Data::Dumper;
 use Storable;
+use List::MoreUtils;
+
 use Scope;
 use Fxtran;
 use Ref;
+use Decl;
+use Subroutine;
+use FieldAPI;
 
 
 sub parseDirectives
@@ -161,24 +166,89 @@ sub wrapArrays
 
   # Use array wrappers in expression
 
+  my %proc;
+
   my @expr = &F ('.//named-E[' . join (' or ', map { "string(N)=\"$_\"" } @N) . ']', $d);
   for my $expr (@expr)
     {
+      my $stmt = &Fxtran::stmt ($expr);
+      my ($para) = &F ('ancestor::parallel-section', $stmt);
+      my $call = ($stmt->nodeName eq 'call-stmt') && $stmt;
+
       my ($N) = &F ('./N', $expr, 1); my $Y = $Y{$N};
       my $nd = scalar (@{ $L{$Y} });
       my ($n) = &F ('./N/n/text()', $expr); $n->setData ($Y);
-      my $rlt = &Ref::getRLT ($expr);
-      $rlt->insertBefore (&n ('<component-R>%<ct>P</ct></component-R>'), $rlt->firstChild);
-    }
 
+      if ($para)
+        {
+          my $rlt = &Ref::getRLT ($expr);
+          $rlt->insertBefore (&n ('<component-R>%<ct>P</ct></component-R>'), $rlt->firstChild);
+        }
+
+      if ($call && (! $para))
+        {
+          my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $stmt);
+          $proc{$proc->unique_key} = $proc;
+        }
+    }
+  for my $proc (values (%proc))
+    {
+      $proc->setData ($proc->data . '_PARALLEL');
+    }
+   
 }
 
 sub makeParallel
 {
   my $d = shift;
+
+  &Decl::forceSingleDecl ($d);
  
   &parseDirectives ($d);
 
+  &wrapArrays ($d);
+
+  my (%T, %U);
+  for my $en_decl (&F ('.//EN-decl', $d))
+    {
+      my ($stmt) = &Fxtran::stmt ($en_decl);
+      next unless (my ($ts) = &F ('./_T-spec_/derived-T-spec', $stmt));
+      my ($N) = &F ('./EN-N', $en_decl, 1);
+      my ($T) = &F ('./T-N', $ts, 1);
+      $T{$N} = $T;
+      $U{$N} = &FieldAPI::isUpdatable ($T);
+    }
+
+  for my $para (&F ('.//parallel-section', $d))
+    {
+      my @N = grep { $U{$_} } &F ('.//named-E/N/n/text()',  $para, 1);
+      my ($stmt) = &F ('.//ANY-stmt', $para);
+      my $indent = ' ' x &Fxtran::getIndent ($stmt);
+
+      my $loop = "DO IBL = 1, YCPG_OPTS%KGPBLKS\n";
+      for my $N (@N)
+        {
+          $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+        }
+      $loop .= "${indent}ENDDO\n";
+      my ($loop) = &Fxtran::fxtran (fragment => $loop);
+
+      my ($enddo) = &F ('.//end-do-stmt', $loop);
+      my $p = $enddo->parentNode;
+     
+      for my $node ($para->childNodes ()) 
+        {   
+          $p->insertBefore (&t (' ' x (2)), $enddo);
+          &Fxtran::reIndent ($node, 2); 
+          $p->insertBefore ($node, $enddo);
+        }   
+      $p->insertBefore (&t ($indent), $enddo);
+
+      $para->appendChild ($loop);
+      $para->insertBefore (&t ($indent), $loop);
+    }
+
+  &Subroutine::addSuffix ($d, '_PARALLEL');
   
 }
 

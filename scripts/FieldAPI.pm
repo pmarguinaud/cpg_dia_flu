@@ -5,6 +5,7 @@ use FileHandle;
 use Data::Dumper;
 use Storable;
 use Memoize;
+use Subroutine;
 use Fxtran;
 
 sub isUpdatable
@@ -107,7 +108,7 @@ my $UI;
 
 sub getUpdatableInfo
 {
-  $UI = &Storable::retrieve ("$Bin/updatable.dat") unless ($TI);
+  $UI = &Storable::retrieve ("$Bin/update_view.dat") unless ($TI);
   return $UI;
 }
 
@@ -498,32 +499,15 @@ sub fieldify
         }
     }
 
+
+  &Subroutine::addSuffix ($d, '_PLAN');
   
-  my @sn = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()|./object/file/program-unit/end-subroutine-stmt/subroutine-N/N/n/text()', $d);
-
-  for my $sn (@sn) 
-    {
-      $sn->setData ($sn->data . '_PLAN');
-    }
-
-
   unless (my ($use) = &F ('.//use-stmt[string(use-N)="FIELD_MODULE"][./rename-LT/rename/use-N[string(.)="FIELD_BASIC"]]', $d))
     {
       ($use) = &F ('.//use-stmt', $d);
       $use->parentNode->insertBefore (&s ("USE FIELD_MODULE, ONLY : FIELD_BASIC"), $use);
       $use->parentNode->insertBefore (&t ("\n"), $use);
     }
-
-    
-  my @drhook_name = &F ('.//call-stmt[string(procedure-designator)="DR_HOOK"]/arg-spec/arg/string-E/S/text()', $d);
-
-  for (@drhook_name)
-    {
-      (my $str = $_->data) =~ s/(["'])$/_PLAN$1/go;
-      $_->setData ($str);
-    }
-
-
 
 }
 
