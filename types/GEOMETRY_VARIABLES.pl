@@ -32,5 +32,6 @@ $VAR1 = {
                       'RSILON' => \'VARIABLE_2D'
                     },
           'name' => 'GEOMETRY_VARIABLES',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

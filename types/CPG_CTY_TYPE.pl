@@ -22,5 +22,6 @@ $VAR1 = {
                               ]
                     },
           'name' => 'CPG_CTY_TYPE',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

@@ -33,5 +33,6 @@ $VAR1 = {
                       'GSP_X2' => \'SURFACE_VIEW_GROUP_XTRP2'
                     },
           'name' => 'MF_PHYS_SURF_TYPE',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

@@ -372,5 +372,6 @@ $VAR1 = {
                       'YXFUPT' => \'TXFUPTR'
                     },
           'name' => 'TXFU',
-          'super' => 'TXFU_KEYS'
+          'super' => 'TXFU_KEYS',
+          'update_view' => 1
         };

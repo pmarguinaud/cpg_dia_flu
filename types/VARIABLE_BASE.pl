@@ -1,5 +1,6 @@
 $VAR1 = {
           'comp' => {},
           'name' => 'VARIABLE_BASE',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 0
         };

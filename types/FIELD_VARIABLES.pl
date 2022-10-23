@@ -129,5 +129,6 @@ $VAR1 = {
                       'VWVNL' => \'VARIABLE_3D'
                     },
           'name' => 'FIELD_VARIABLES',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

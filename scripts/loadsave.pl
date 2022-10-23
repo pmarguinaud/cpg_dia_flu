@@ -494,7 +494,14 @@ sub registerFieldAPI
         }
     }
 
-  return {comp => \%h, name => $type, super => ($extends && $extends->textContent)};
+
+  my $update_view = 0;
+  if (&F ('./procedure-stmt/procedure-N-LT/rename[string(use-N)="UPDATE_VIEW"]', $tc))
+    {
+      $update_view = 1;
+    }
+
+  return {comp => \%h, name => $type, super => ($extends && $extends->textContent), update_view => $update_view};
 }
 
 my %opts = qw (dir .);

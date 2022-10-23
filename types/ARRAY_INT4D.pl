@@ -6,5 +6,6 @@ $VAR1 = {
                            ]
                     },
           'name' => 'ARRAY_INT4D',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

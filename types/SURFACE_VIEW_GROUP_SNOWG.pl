@@ -67,5 +67,6 @@ $VAR1 = {
                       'VARIABLE_GROUP' => \'SURFACE_VARIABLE_GROUP_SNOWG'
                     },
           'name' => 'SURFACE_VIEW_GROUP_SNOWG',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

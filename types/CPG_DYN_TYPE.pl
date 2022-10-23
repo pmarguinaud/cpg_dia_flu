@@ -114,5 +114,6 @@ $VAR1 = {
                       'XYB' => \'CPG_XYB_TYPE'
                     },
           'name' => 'CPG_DYN_TYPE',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

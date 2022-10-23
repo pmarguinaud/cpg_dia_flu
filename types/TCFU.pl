@@ -344,5 +344,6 @@ $VAR1 = {
                       'YWS' => \'FLUXES_DESCRIPTOR'
                     },
           'name' => 'TCFU',
-          'super' => 'TCFU_KEYS'
+          'super' => 'TCFU_KEYS',
+          'update_view' => 1
         };

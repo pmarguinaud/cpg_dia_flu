@@ -30,5 +30,6 @@ $VAR1 = {
                               ]
                     },
           'name' => 'CPG_XYB_TYPE',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

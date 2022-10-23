@@ -1,5 +1,6 @@
 $VAR1 = {
           'comp' => {},
           'name' => 'TXFU_KEYS',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 0
         };

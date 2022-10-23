@@ -7,5 +7,6 @@ $VAR1 = {
                       'VW' => \'VARIABLE_2D'
                     },
           'name' => 'SURFACE_VARIABLE_GROUP_RESVR',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 0
         };

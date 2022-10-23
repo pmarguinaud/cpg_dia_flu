@@ -550,5 +550,6 @@ $VAR1 = {
                                  ]
                     },
           'name' => 'MF_PHYS_OUT_TYPE',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

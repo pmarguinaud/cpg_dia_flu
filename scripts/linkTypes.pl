@@ -61,6 +61,16 @@ while (my ($t, $h) = each (%T))
     %{ $TT{$t} } = %h;
   }
 
-print &Dumper (\%TT);
+#print &Dumper (\%TT);
+
+my %UU;
+
+for my $T (keys (%T))
+  {
+    $UU{$T} = $T{$T}{update_view};
+  }
+
+#print &Dumper (\%UU);
 
 &Storable::nstore (\%TT, "$Bin/types.dat");
+&Storable::nstore (\%TT, "$Bin/update_view.dat");

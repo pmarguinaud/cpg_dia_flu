@@ -11,5 +11,6 @@ $VAR1 = {
                       'VARIABLE_GROUP' => \'SURFACE_VARIABLE_GROUP_VPRECIP'
                     },
           'name' => 'SURFACE_VIEW_GROUP_VPRECIP',
-          'super' => undef
+          'super' => undef,
+          'update_view' => 1
         };

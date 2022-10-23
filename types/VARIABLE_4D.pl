@@ -34,5 +34,6 @@ $VAR1 = {
                             ]
                     },
           'name' => 'VARIABLE_4D',
-          'super' => 'VARIABLE_BASE'
+          'super' => 'VARIABLE_BASE',
+          'update_view' => 1
         };
