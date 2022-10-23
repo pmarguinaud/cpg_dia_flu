@@ -4,7 +4,7 @@ use strict;
 use FileHandle;
 use Data::Dumper;
 use Storable;
-use List::MoreUtils;
+use List::MoreUtils qw (uniq);
 
 use Scope;
 use Fxtran;
@@ -221,7 +221,7 @@ sub makeParallel
 
   for my $para (&F ('.//parallel-section', $d))
     {
-      my @N = grep { $U{$_} } &F ('.//named-E/N/n/text()',  $para, 1);
+      my @N = &uniq (grep { $U{$_} } &F ('.//named-E/N/n/text()',  $para, 1));
       my ($stmt) = &F ('.//ANY-stmt', $para);
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
