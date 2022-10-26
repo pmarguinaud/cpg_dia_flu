@@ -20,7 +20,7 @@ sub parseDirectives
 
   my $d = shift;
 
-  my @C = &F ('//C[starts-with(string (.),"!=")]', $d);
+  return unless (my @C = &F ('//C[starts-with(string (.),"!=")]', $d));
   
   while (my $C  = shift (@C))
     {
@@ -62,6 +62,8 @@ sub parseDirectives
       $C->replaceNode ($e);
 
     }
+
+  return 1;
 }
 
 sub tsToArray
@@ -174,12 +176,13 @@ sub wrapArrays
       my $stmt = &Fxtran::stmt ($expr);
       my ($para) = &F ('ancestor::parallel-section', $stmt);
       my $call = ($stmt->nodeName eq 'call-stmt') && $stmt;
+      my @pu = &F ('ancestor::program-unit', $stmt); # Contained subroutines
 
       my ($N) = &F ('./N', $expr, 1); my $Y = $Y{$N};
       my $nd = scalar (@{ $L{$Y} });
       my ($n) = &F ('./N/n/text()', $expr); $n->setData ($Y);
 
-      if ($para)
+      if ($para || scalar (@pu) > 1)
         {
           my $rlt = &Ref::getRLT ($expr);
           $rlt->insertBefore (&n ('<component-R>%<ct>P</ct></component-R>'), $rlt->firstChild);
@@ -220,15 +223,17 @@ sub makeParallelUpdateView
 {
   my $d = shift;
 
+  return unless (&parseDirectives ($d));
+
   &Decl::forceSingleDecl ($d);
- 
-  &parseDirectives ($d);
 
   &wrapArrays ($d);
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL',
                   'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+  &Decl::use ($d,
+              'USE ARRAY_MOD');
 
   my (%T, %U);
   for my $en_decl (&F ('.//EN-decl', $d))
@@ -241,18 +246,26 @@ sub makeParallelUpdateView
       $U{$N} = &FieldAPI::isUpdatable ($T);
     }
 
+  for my $U (sort keys (%U))
+    {
+      next unless (my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]', $U, $d));
+      next unless (my ($intent) = &F ('./attribute/intent-spec/text()', $decl));
+      $intent->setData ('INOUT');
+    }
+
   for my $para (&F ('.//parallel-section', $d))
     {
       my @N = &uniq (grep { $U{$_} } &F ('.//named-E/N/n/text()',  $para, 1));
       my ($stmt) = &F ('.//ANY-stmt', $para);
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
-      my $loop = "DO IBL = 1, YCPG_OPTS%KGPBLKS\n";
+      my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
       for my $N (@N, 'YLCPG_BNDS')
         {
           $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
         }
       $loop .= "${indent}ENDDO\n";
+
       my ($loop) = &Fxtran::fxtran (fragment => $loop);
 
       my ($enddo) = &F ('.//end-do-stmt', $loop);
@@ -282,7 +295,7 @@ sub makeParallelUpdateView
 
   &Subroutine::addSuffix ($d, '_PARALLEL');
   
-
+  return 1;
 }
 
 

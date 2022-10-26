@@ -91,6 +91,26 @@ sub generatePlan
    &Fxtran::intfb ($f);
 }
 
+sub generateParallel
+{
+  use Parallel;
+  use Stack;
+
+  my $f = shift;
+  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+
+  return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
+
+  &Parallel::makeParallelUpdateView ($d);
+  &Stack::addStack ($d);
+
+  ($f = &basename ($f)) =~ s/\.F90$/_parallel.F90/o;
+
+  'FileHandle'->new (">$f")->print ($d->textContent ());
+
+   &Fxtran::intfb ($f);
+}
+
 sub preProcessIfNewer
 {
   my ($f1, $f2, $opts) = @_;
@@ -119,6 +139,8 @@ sub preProcessIfNewer
       &Fxtran::intfb ($f2);
 
       &generatePlan ($f1);
+
+      &generateParallel ($f1);
     }
 }
 

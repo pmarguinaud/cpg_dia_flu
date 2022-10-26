@@ -11,13 +11,17 @@ sub addStack
 
   my @call = &F ('.//call-stmt[string(procedure-designator)!="ABOR1" and string(procedure-designator)!="REDUCE"]', $d);
 
+  my %contained = map { ($_, 1) } &F ('.//subroutine-N[count(ancestor::program-unit)>1]', $d, 1);
+
   for my $call (@call)
     {
       my ($proc) = &F ('./procedure-designator', $call, 1);
       next if ($proc eq 'DR_HOOK');
+      next if ($contained{$proc});
+      next if ($proc =~ m/%/o);
       my ($argspec) = &F ('./arg-spec', $call);
       $argspec->appendChild (&t (', '));
-      $argspec->appendChild (&n ("<named-E><N><n>YLSTACK</n></N></named-E>"));
+      $argspec->appendChild (&e ('YLSTACK'));
     }
 
   my ($dummy_arg_lt) = &F ('.//subroutine-stmt/dummy-arg-LT', $d);

@@ -108,7 +108,7 @@ my $UI;
 
 sub getUpdatableInfo
 {
-  $UI = &Storable::retrieve ("$Bin/update_view.dat") unless ($TI);
+  $UI = &Storable::retrieve ("$Bin/update_view.dat") unless ($UI);
   return $UI;
 }
 

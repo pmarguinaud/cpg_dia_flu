@@ -98,6 +98,9 @@ REAL(KIND=JPRB) :: ZHOOK_HANDLE
 IF (LHOOK) CALL DR_HOOK('CPCFU',0,ZHOOK_HANDLE)
 
 ASSOCIATE(LREACFU=>YDCFU%LREACFU, NFRRC=>YDCFU%NFRRC, TSTEP=>YDRIP%TSTEP)
+
+!=PARALLEL
+
 !     ------------------------------------------------------------------
 
 !*    1.    PREPARATIONS
@@ -231,6 +234,9 @@ IF (YDCFU%YOZONT%LACTIVE) CALL COPY31M_CFU (YDCFU%YOZONT, YDCFU%OZONT, YDVARS%O3
 
 
 !     ------------------------------------------------------------------
+
+!=END PARALLEL
+
 
 END ASSOCIATE
 

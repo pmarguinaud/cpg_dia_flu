@@ -57,4 +57,24 @@ sub declare
 
 }
 
+sub use
+{
+  my $d = shift;
+  my @stmt = map { &s ($_) } @_;
+
+  my %U_d = map { ($_, 1) } &F ('.//module-N', $d, 1);
+
+  my ($use) = &F ('.//use-stmt', $d);
+
+  for my $stmt (@stmt)
+    {
+      my ($U) = &F ('.//module-N', $stmt);
+      next if ($U_d{$U});
+      $use->parentNode->insertBefore ($stmt, $use);
+      $use->parentNode->insertBefore (&t ("\n"), $use);
+    }
+
+
+}
+
 1;
