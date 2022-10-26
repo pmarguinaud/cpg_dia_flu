@@ -17,7 +17,7 @@ my ($f) = @ARGV;
 
 my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 
-&Parallel::makeParallel ($d);
+&Parallel::makeParallelUpdateView ($d);
 
 print $d->textContent;
 

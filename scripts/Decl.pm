@@ -2,17 +2,18 @@ package Decl;
 
 use strict;
 use Fxtran;
+use Scope;
 
 sub forceSingleDecl
 {
 
 # Single declaration statement per entity
 
-  my $doc = shift;
+  my $d = shift;
 
 # Select all entity lists with several entities
 
-  my @en_decl_lst = &F ('.//EN-decl-LT[count(./EN-decl)>1]', $doc);
+  my @en_decl_lst = &F ('.//EN-decl-LT[count(./EN-decl)>1]', $d);
 
   for my $en_decl_lst (@en_decl_lst)
     {
@@ -32,6 +33,26 @@ sub forceSingleDecl
           $stmt->parentNode->insertAfter (&t ("\n" . (' ' x $indent)), $stmt);
         }
       $stmt->unbindNode ();
+    }
+
+}
+
+sub declare
+{
+  my $d = shift;
+  my @stmt = map { &s ($_) } @_;
+
+  my %N_d = map { ($_, 1) } &F ('.//EN-N', $d, 1);
+
+  my $noexec = &Scope::getNoExec ($d);
+
+  for my $stmt (@stmt)
+    {
+      my @N = &F ('.//EN-N', $stmt);
+      die if (scalar (@N) > 1);
+      next if ($N_d{$N[0]});
+      $noexec->parentNode->insertBefore ($stmt, $noexec);
+      $noexec->parentNode->insertBefore (&t ("\n"), $noexec);
     }
 
 }

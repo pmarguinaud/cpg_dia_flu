@@ -191,14 +191,32 @@ sub wrapArrays
           $proc{$proc->unique_key} = $proc;
         }
     }
+
   for my $proc (values (%proc))
     {
-      $proc->setData ($proc->data . '_PARALLEL');
+      my $name = $proc->data;
+      $proc->setData ($name . '_PARALLEL');
+
+      next unless (my ($include) = &F ('.//include[string(filename)="?"]', lc ($name) . '.intfb.h', $d));
+
+      if (&F ('.//call-stmt[string(procedure-designator)="?"]', $name, $d))
+        {
+          my $include_parallel = $include->cloneNode (1);
+          my ($t) = &F ('./filename/text()', $include_parallel); 
+          $t->setData (lc ($name) . '_parallel.intfb.h');
+          $include->parentNode->insertBefore ($include_parallel, $include);
+          $include->parentNode->insertBefore (&t ("\n"), $include);
+        }
+      else
+        {
+          my ($t) = &F ('./filename/text()', $include); 
+          $t->setData (lc ($name) . '_parallel.intfb.h');
+        }
     }
    
 }
 
-sub makeParallel
+sub makeParallelUpdateView
 {
   my $d = shift;
 
@@ -207,6 +225,10 @@ sub makeParallel
   &parseDirectives ($d);
 
   &wrapArrays ($d);
+
+  &Decl::declare ($d,  
+                  'INTEGER (KIND=JPIM) :: IBL',
+                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
 
   my (%T, %U);
   for my $en_decl (&F ('.//EN-decl', $d))
@@ -226,7 +248,7 @@ sub makeParallel
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
       my $loop = "DO IBL = 1, YCPG_OPTS%KGPBLKS\n";
-      for my $N (@N)
+      for my $N (@N, 'YLCPG_BNDS')
         {
           $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
         }
@@ -246,10 +268,21 @@ sub makeParallel
 
       $para->appendChild ($loop);
       $para->insertBefore (&t ($indent), $loop);
+
+      $para->parentNode->insertBefore (&t ("$indent"), $para);
+      $para->parentNode->insertBefore (&s ('YLCPG_BNDS = YDCPG_BNDS'), $para);
+      $para->parentNode->insertBefore (&t ("\n"), $para);
+
+      for (&F ('.//named-E/N/n/text()[string(.)="YDCPG_BNDS"]', $para))
+        {
+          $_->setData ('YLCPG_BNDS');
+        }
+
     }
 
   &Subroutine::addSuffix ($d, '_PARALLEL');
   
+
 }
 
 
