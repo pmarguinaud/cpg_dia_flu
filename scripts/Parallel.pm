@@ -230,8 +230,7 @@ sub makeParallelUpdateView
   &wrapArrays ($d);
 
   &Decl::declare ($d,  
-                  'INTEGER (KIND=JPIM) :: IBL',
-                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+                  'INTEGER (KIND=JPIM) :: IBL');
   &Decl::use ($d,
               'USE ARRAY_MOD');
 
@@ -246,7 +245,7 @@ sub makeParallelUpdateView
       $U{$N} = &FieldAPI::isUpdatable ($T);
     }
 
-  for my $U (sort keys (%U))
+  for my $U (sort keys (%U), 'YDCPG_BNDS')
     {
       next unless (my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]', $U, $d));
       next unless (my ($intent) = &F ('./attribute/intent-spec/text()', $decl));
@@ -260,7 +259,7 @@ sub makeParallelUpdateView
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
       my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-      for my $N (@N, 'YLCPG_BNDS')
+      for my $N (@N, 'YDCPG_BNDS')
         {
           $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
         }
@@ -283,13 +282,6 @@ sub makeParallelUpdateView
       $para->insertBefore (&t ($indent), $loop);
 
       $para->parentNode->insertBefore (&t ("$indent"), $para);
-      $para->parentNode->insertBefore (&s ('YLCPG_BNDS = YDCPG_BNDS'), $para);
-      $para->parentNode->insertBefore (&t ("\n"), $para);
-
-      for (&F ('.//named-E/N/n/text()[string(.)="YDCPG_BNDS"]', $para))
-        {
-          $_->setData ('YLCPG_BNDS');
-        }
 
     }
 
