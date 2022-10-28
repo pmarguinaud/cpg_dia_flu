@@ -77,4 +77,20 @@ sub use
 
 }
 
+sub changeIntent
+{
+  my ($d, %intent) = @_;
+
+  my @en_decl = &F ('.//EN-decl[' . join (' or ', map { "string(EN-N)='$_'" } sort keys (%intent)) . ']', $d);
+
+  for my $en_decl (@en_decl)
+    {
+      my ($N) = &F ('./EN-N', $en_decl, 1);
+      my ($stmt) = &Fxtran::stmt ($en_decl);
+      my ($intent) = &F ('.//intent-spec/text()', $stmt); 
+      $intent->setData ($intent{$N});
+    }
+
+}
+
 1;
