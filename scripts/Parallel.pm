@@ -387,16 +387,12 @@ sub makeParallelFieldAPI
 
       &Call::addSuffix ($para, suffix => '_FIELD_API');
 
-=pod
-
       # Insert OpenMP directive
 
-      my @priv = grep { ! $U{$_} } &F ('.//a-stmt/E-1/named-E/N|.//do-V/named-E/N', $para, 1);
+      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
       
       $para->insertBefore (&t ("\n"), $loop);
-      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%U)]);
-
-=cut
+      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 
     }
 
