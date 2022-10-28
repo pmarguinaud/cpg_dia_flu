@@ -12,6 +12,7 @@ use Ref;
 use Decl;
 use Subroutine;
 use FieldAPI;
+use OpenMP;
 
 
 sub parseDirectives
@@ -225,7 +226,10 @@ sub makeParallelUpdateView
 
   return unless (&parseDirectives ($d));
 
+  &Associate::resolveAssociates ($d);
   &Decl::forceSingleDecl ($d);
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
 
   &wrapArrays ($d);
 
@@ -245,21 +249,33 @@ sub makeParallelUpdateView
       $U{$N} = &FieldAPI::isUpdatable ($T);
     }
 
-  for my $U (sort keys (%U), 'YDCPG_BNDS')
+  $U{YDCPG_BNDS} = 1;
+
+  for my $U (sort keys (%U))
     {
+      unless ($U{$U})
+        {
+          delete $U{$U};
+          next;
+        }
       next unless (my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]', $U, $d));
       next unless (my ($intent) = &F ('./attribute/intent-spec/text()', $decl));
       $intent->setData ('INOUT');
     }
 
-  for my $para (&F ('.//parallel-section', $d))
+  my @para = &F ('.//parallel-section', $d);
+
+  for my $para (@para)
     {
       my @N = &uniq (grep { $U{$_} } &F ('.//named-E/N/n/text()',  $para, 1));
+
       my ($stmt) = &F ('.//ANY-stmt', $para);
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
+      # Insert loop nest
+
       my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-      for my $N (@N, 'YDCPG_BNDS')
+      for my $N (@N)
         {
           $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
         }
@@ -283,6 +299,12 @@ sub makeParallelUpdateView
 
       $para->parentNode->insertBefore (&t ("$indent"), $para);
 
+      # Insert OpenMP directive
+
+      my @priv = grep { ! $U{$_} } &F ('.//a-stmt/E-1/named-E/N|.//do-V/named-E/N', $para, 1);
+      
+      $para->insertBefore (&t ("\n"), $loop);
+      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%U)]);
     }
 
   &Subroutine::addSuffix ($d, '_PARALLEL');
