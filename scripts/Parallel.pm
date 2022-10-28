@@ -321,5 +321,91 @@ sub makeParallelView
   return 1;
 }
 
+sub makeParallelFieldAPI
+{
+  use FieldAPI;
+
+  my $d = shift;
+
+  return unless (&parseDirectives ($d));
+
+  # Resolving ASSOCIATEs in parallel sections is mandatory
+  &Associate::resolveAssociates ($d);
+
+  &Decl::forceSingleDecl ($d);
+
+  # Inlining contained subroutines called from parallel sections is mandatory
+  # when they use some variables from the outer scope and these variables
+  # are made FIRSTPRIVATE
+
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
+
+  my $suffix = '_PARALLEL_FIELD_API';
+
+  &wrapArrays ($d, $suffix);
+
+  &Decl::declare ($d,  
+                  'INTEGER (KIND=JPIM) :: IBL');
+  &Decl::use ($d,
+              'USE ARRAY_MOD');
+
+  &FieldAPI::pointers2FieldAPIPtr ($d);
+
+
+  my @para = &F ('.//parallel-section', $d);
+
+  for my $para (@para)
+    {
+      my ($stmt) = &F ('.//ANY-stmt', $para);
+      my $indent = ' ' x &Fxtran::getIndent ($stmt);
+
+      # Insert loop nest
+
+      my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+      $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+      $loop .= "${indent}ENDDO\n";
+
+      my ($loop) = &Fxtran::fxtran (fragment => $loop);
+
+      my ($enddo) = &F ('.//end-do-stmt', $loop);
+      my $p = $enddo->parentNode;
+     
+      for my $node ($para->childNodes ()) 
+        {   
+          $p->insertBefore (&t (' ' x (2)), $enddo);
+          &Fxtran::reIndent ($node, 2); 
+          $p->insertBefore ($node, $enddo);
+        }   
+      $p->insertBefore (&t ($indent), $enddo);
+
+      $para->appendChild (&t ("\n"));
+      $para->appendChild ($loop);
+      $para->insertBefore (&t ($indent), $loop);
+
+      $para->parentNode->insertBefore (&t ("$indent"), $para);
+
+      &Call::addSuffix ($para, suffix => '_FIELD_API');
+
+=pod
+
+      # Insert OpenMP directive
+
+      my @priv = grep { ! $U{$_} } &F ('.//a-stmt/E-1/named-E/N|.//do-V/named-E/N', $para, 1);
+      
+      $para->insertBefore (&t ("\n"), $loop);
+      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%U)]);
+
+=cut
+
+    }
+
+  
+
+  &Subroutine::addSuffix ($d, $suffix);
+
+  return 1;
+}
+
 
 1;

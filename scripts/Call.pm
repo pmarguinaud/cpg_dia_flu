@@ -9,11 +9,15 @@ sub addSuffix
 
   my ($suffix, $match) = @opts{qw (suffix match)};
 
+  my %contained = map { ($_, 1) } &F ('//subroutine-stmt[count(ancestor::program-unit)>1]/subroutine-N/N/n/text()', $d, 1);
+
   my %proc;
-  for my $proc (&F ('.//call-stmt/procedure-designator/named-E/N/n/text()', $d))
+  for my $proc (&F ('.//call-stmt/procedure-designator', $d))
     {
       next if ($proc->textContent =~ m/%/o);
       next if ($proc->textContent eq 'DR_HOOK');
+      ($proc) = &F ('./named-E/N/n/text()', $proc);
+      next if ($contained{$proc->textContent});
       if ($match)
         {
           next unless $match->($proc);
@@ -21,6 +25,7 @@ sub addSuffix
       $proc{$proc->textContent} = 1;
       $proc->setData ($proc->textContent . $suffix);
     }
+
 
   for my $proc (keys (%proc))
     {   

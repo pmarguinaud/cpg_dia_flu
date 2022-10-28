@@ -73,7 +73,7 @@ sub saveSubroutine
   my ($F90) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $d, 1);
   $F90 = lc ($F90) . '.F90';
   'FileHandle'->new (">$F90")->print ($d->textContent);
-   &Fxtran::intfb ($F90);
+  &Fxtran::intfb ($F90);
   return $F90;
 }
 
@@ -83,6 +83,37 @@ sub generateSyncHost
   my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 
   &FieldAPI::makeSyncHost ($d);
+
+  &saveSubroutine ($d);
+}
+
+sub generateParallelFieldAPI
+{
+  use Parallel;
+  use Stack;
+
+  my $f = shift;
+  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+
+  return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
+
+  &Parallel::makeParallelFieldAPI ($d);
+
+  &saveSubroutine ($d);
+}
+
+sub generateFieldAPI
+{
+  use Subroutine;
+  use Call;
+
+  my $f = shift;
+  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+
+  &FieldAPI::pointers2FieldAPIPtr ($d);
+
+  &Subroutine::addSuffix ($d, '_FIELD_API');
+  &Call::addSuffix ($d, suffix => '_FIELD_API');
 
   &saveSubroutine ($d);
 }
@@ -102,7 +133,7 @@ sub generateParallelView
   &saveSubroutine ($d);
 }
 
-sub generateSingleColumn
+sub generateSingleColumnFieldAPI
 {
   use Subroutine;
   use Call;
@@ -123,7 +154,7 @@ sub generateSingleColumn
       &apply ($method, $d, $f);
     }
 
-  my $suffix = '_SINGLE_COLUMN';
+  my $suffix = '_SINGLE_COLUMN_FIELD_API';
 
   &Call::addSuffix ($d, suffix => $suffix);
   &Subroutine::addSuffix ($d, $suffix);
@@ -152,7 +183,11 @@ sub preProcessIfNewer
 
       &generateParallelView ($f1);
 
-      &generateSingleColumn ($f1);
+      &generateParallelFieldAPI ($f1);
+
+      &generateSingleColumnFieldAPI ($f1);
+
+      &generateFieldAPI ($f1);
     }
 }
 

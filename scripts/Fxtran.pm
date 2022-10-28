@@ -1659,7 +1659,7 @@ sub intfb
   
   $dir ||= '.';
 
-  my $doc = &Fxtran::fxtran (location => $F90, fopts => ['-line-length' => 300]);
+  my $doc = &Fxtran::fxtran (location => $F90, fopts => ['-line-length' => 500]);
   
   &intfb_body ($doc);
 
