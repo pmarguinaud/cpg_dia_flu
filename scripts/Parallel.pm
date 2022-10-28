@@ -96,7 +96,7 @@ sub tsToArray
 
 sub wrapArrays
 {
-  my $d = shift;
+  my ($d, $suffix) = @_;
 
   my %args = map { ($_->textContent, $_) } &F ('.//subroutine-stmt/dummy-arg-LT/arg-N/N/n/text()', $d);
 
@@ -199,7 +199,7 @@ sub wrapArrays
   for my $proc (values (%proc))
     {
       my $name = $proc->data;
-      $proc->setData ($name . '_PARALLEL');
+      $proc->setData ($name . $suffix);
 
       next unless (my ($include) = &F ('.//include[string(filename)="?"]', lc ($name) . '.intfb.h', $d));
 
@@ -207,31 +207,40 @@ sub wrapArrays
         {
           my $include_parallel = $include->cloneNode (1);
           my ($t) = &F ('./filename/text()', $include_parallel); 
-          $t->setData (lc ($name) . '_parallel.intfb.h');
+          $t->setData (lc ($name) . lc ($suffix) . '.intfb.h');
           $include->parentNode->insertBefore ($include_parallel, $include);
           $include->parentNode->insertBefore (&t ("\n"), $include);
         }
       else
         {
           my ($t) = &F ('./filename/text()', $include); 
-          $t->setData (lc ($name) . '_parallel.intfb.h');
+          $t->setData (lc ($name) . lc ($suffix) . '.intfb.h');
         }
     }
    
 }
 
-sub makeParallelUpdateView
+sub makeParallelView
 {
   my $d = shift;
 
   return unless (&parseDirectives ($d));
 
+  # Resolving ASSOCIATEs in parallel sections is mandatory
   &Associate::resolveAssociates ($d);
+
   &Decl::forceSingleDecl ($d);
+
+  # Inlining contained subroutines called from parallel sections is mandatory
+  # when they use some variables from the outer scope and these variables
+  # are made FIRSTPRIVATE
+
   &Construct::changeIfStatementsInIfConstructs ($d);
   &Inline::inlineContainedSubroutines ($d);
 
-  &wrapArrays ($d);
+  my $suffix = '_PARALLEL_VIEW';
+
+  &wrapArrays ($d, $suffix);
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL');
@@ -307,7 +316,7 @@ sub makeParallelUpdateView
       &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%U)]);
     }
 
-  &Subroutine::addSuffix ($d, '_PARALLEL');
+  &Subroutine::addSuffix ($d, $suffix);
   
   return 1;
 }

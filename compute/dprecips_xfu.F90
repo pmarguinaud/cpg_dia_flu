@@ -97,7 +97,6 @@ REAL(KIND=JPRB) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 IF (LHOOK) CALL DR_HOOK('DPRECIPS_XFU',0,ZHOOK_HANDLE)
 
-
 IF (LDRESET) THEN
   PXPTYPE (KIDIA:KFDIA) = 0._JPRB
 ENDIF

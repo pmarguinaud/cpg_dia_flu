@@ -185,9 +185,21 @@ sub pointers2FieldAPIPtr
 }
 
 
-sub fieldify
+sub makeSyncHost
 {
+  use Decl;
+  use Construct;
+  use Inline;
+  use FieldAPI;
+  use Construct;
+
   my $d = shift;
+
+  &Decl::forceSingleDecl ($d);
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
+
+  my $suffix = '_SYNC_HOST';
 
   my @en_decl = (&F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="YDCPG_OPTS%KLON"]]', $d),
                  &F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="KLON"]]', $d));
@@ -286,10 +298,10 @@ sub fieldify
     {
       for my $proc (@$list)
         {
-          $proc->setData ($name . '_PLAN');
+          $proc->setData ($name . $suffix);
         }
       next unless (my ($filename) = &F ('.//include/filename[string(.)="?"]/text()', lc ($name) . '.intfb.h', $d));
-      $filename->setData (lc ($name) . '_plan.intfb.h');
+      $filename->setData (lc ($name) . lc ($suffix) . '.intfb.h');
     }
 
 
@@ -500,7 +512,7 @@ sub fieldify
     }
 
 
-  &Subroutine::addSuffix ($d, '_PLAN');
+  &Subroutine::addSuffix ($d, $suffix);
   
   unless (my ($use) = &F ('.//use-stmt[string(use-N)="FIELD_MODULE"][./rename-LT/rename/use-N[string(.)="FIELD_BASIC"]]', $d))
     {
@@ -508,6 +520,8 @@ sub fieldify
       $use->parentNode->insertBefore (&s ("USE FIELD_MODULE, ONLY : FIELD_BASIC"), $use);
       $use->parentNode->insertBefore (&t ("\n"), $use);
     }
+
+  &Construct::removeEmptyConstructs ($d);
 
 }
 

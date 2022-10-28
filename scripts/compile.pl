@@ -67,31 +67,27 @@ sub apply
   &saveToFile ($doc, "tmp/$routine/$file");
 }
 
-sub generatePlan
+sub saveSubroutine
 {
-  use Decl;
-  use Construct;
-  use Inline;
-  use FieldAPI;
-  use Construct;
+  my $d = shift;
+  my ($F90) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $d, 1);
+  $F90 = lc ($F90) . '.F90';
+  'FileHandle'->new (">$F90")->print ($d->textContent);
+   &Fxtran::intfb ($F90);
+  return $F90;
+}
 
+sub generateSyncHost
+{
   my $f = shift;
   my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 
-  &Decl::forceSingleDecl ($d);
-  &Construct::changeIfStatementsInIfConstructs ($d);
-  &Inline::inlineContainedSubroutines ($d);
-  &FieldAPI::fieldify ($d);
-  &Construct::removeEmptyConstructs ($d);
+  &FieldAPI::makeSyncHost ($d);
 
-  ($f = &basename ($f)) =~ s/\.F90$/_plan.F90/o;
-
-  'FileHandle'->new (">$f")->print ($d->textContent ());
-
-   &Fxtran::intfb ($f);
+  &saveSubroutine ($d);
 }
 
-sub generateParallel
+sub generateParallelView
 {
   use Parallel;
   use Stack;
@@ -101,21 +97,43 @@ sub generateParallel
 
   return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
 
-  &Parallel::makeParallelUpdateView ($d);
-  &Stack::addStack ($d);
+  &Parallel::makeParallelView ($d);
 
-  ($f = &basename ($f)) =~ s/\.F90$/_parallel.F90/o;
+  &saveSubroutine ($d);
+}
 
-  'FileHandle'->new (">$f")->print ($d->textContent ());
+sub generateSingleColumn
+{
+  use Subroutine;
+  use Call;
 
-   &Fxtran::intfb ($f);
+  my $f = shift;
+  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+
+  my @method = qw (
+    Associate::resolveAssociates
+    Construct::changeIfStatementsInIfConstructs
+    Inline::inlineContainedSubroutines
+    FieldAPI::pointers2FieldAPIPtr
+    Loop::removeJlonLoops
+  );
+
+  for my $method (@method)
+    {
+      &apply ($method, $d, $f);
+    }
+
+  my $suffix = '_SINGLE_COLUMN';
+
+  &Call::addSuffix ($d, suffix => $suffix);
+  &Subroutine::addSuffix ($d, $suffix);
+
+  &saveSubroutine ($d);
 }
 
 sub preProcessIfNewer
 {
   my ($f1, $f2, $opts) = @_;
-
-  my @list = @{ $opts->{'transform-list'} };
 
   if (&newer ($f1, $f2))
     {
@@ -126,51 +144,26 @@ sub preProcessIfNewer
 
       print "Preprocess $f1\n";
 
-      my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500)]);
-      &saveToFile ($d, "tmp/$f2");
-
-      for my $l (@list)
-        {
-          &apply ($l, $d, $f2);
-        }
-
-      'FileHandle'->new (">$f2")->print ($d->textContent ());
+      &copy ($f1, $f2);
 
       &Fxtran::intfb ($f2);
 
-      &generatePlan ($f1);
+      &generateSyncHost ($f1);
 
-      &generateParallel ($f1);
+      &generateParallelView ($f1);
+
+      &generateSingleColumn ($f1);
     }
 }
 
 my @opts_f = qw (update compile external-drhook);
-my @opts_s = qw (arch transform-list);
+my @opts_s = qw (arch);
 
 &GetOptions
 (
   map ({ ($_,     \$opts{$_}) } @opts_f),
   map ({ ("$_=s", \$opts{$_}) } @opts_s),
 );
-
-
-$opts{'transform-list'} ||= '';
-
-if ($opts{'transform-list'} =~ s,^file://,,o)
-  {
-    my @list = do { my $fh = 'FileHandle'->new ("<$opts{'transform-list'}"); <$fh> };
-    for (@list)
-      {
-        chomp;
-        s/^\s*//o;
-        s/\s*$//o;
-      }
-    $opts{'transform-list'} = \@list;
-  }
-else
-  {
-    $opts{'transform-list'} = [split (m/,/o, $opts{'transform-list'})];
-  }
 
 
 my @compute = map { &basename ($_) } <compute/*.F90>;
