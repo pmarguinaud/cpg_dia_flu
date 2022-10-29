@@ -333,6 +333,7 @@ sub makeSyncHost
       $ifc->unbindNode ();
     }
 
+
   # Find where field data is modified
 
   for my $stmt (&F ('.//a-stmt', $d))
@@ -342,23 +343,47 @@ sub makeSyncHost
       for my $expr (&F ('./E-1//named-E', $stmt))
         {
           next unless ($isNproma->($expr));
+
+          # Remove last reference if it is an array reference
+
+          my @r = &F ('./R-LT/ANY-R', $expr);
+          my $ar = $r[-1];
+          if ($ar && (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R')))
+            {
+              $ar->previousSibling->unbindNode ()
+                if ($ar->previousSibling->nodeName eq '#text');
+              $ar->unbindNode ();
+            }
           my $dum = &s ($expr->textContent . " = ZDUM");
           $stmt->parentNode->insertBefore ($dum, $stmt);
           $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
+
           $n++;
         }
       for my $expr (&F ('./E-2//named-E', $stmt))
         {
           next unless ($isNproma->($expr));
+
+          # Remove last reference if it is an array reference
+
+          my @r = &F ('./R-LT/ANY-R', $expr);
+          my $ar = $r[-1];
+          if ($ar && (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R')))
+            {
+              $ar->previousSibling->unbindNode ()
+                if ($ar->previousSibling->nodeName eq '#text');
+              $ar->unbindNode ();
+            }
+
           my $dum = &s ("ZDUM = " . $expr->textContent);
           $stmt->parentNode->insertBefore ($dum, $stmt);
           $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
+
           $n++;
         }
       $n && $stmt->unbindNode ();
     }
  
-
   # Use the field API object
 
   my %YLFLDPTR;
@@ -374,13 +399,6 @@ sub makeSyncHost
           my $fd = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
           next unless ($fd);
   
-          # Remove last reference if it is an array reference
-          my @r = &F ('./R-LT/ANY-R', $expr);
-          my $ar = $r[-1];
-          if (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R'))
-            {
-              $ar && $ar->unbindNode ();
-            }
           my ($f, $d) = @$fd;
           $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
 
@@ -447,67 +465,68 @@ sub makeSyncHost
 
   $d->normalize ();
 
-  my @stmt = &F ('.//ANY-stmt', $d);
 
-  my (@g, @G);
+  my @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
 
-  for my $i (0 .. $#stmt)
+  STMT : for my $stmt (@stmt)
     {
-      my $stmt = $stmt[$i];
-      if (($stmt->nodeName eq 'a-stmt') && (&F ('./E-1[string(.)="ZDUM"]|./E-2[string(.)="ZDUM"]', $stmt)))
+      my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
+      next unless (my @p = &F ('ancestor::*', $stmt));
+
+      my $C = &n ("<C>! " . $stmt->textContent . "</C>");
+      $stmt->replaceNode ($C);
+
+      # Remove equivalent statement in same block
+
+      for my $s (&F ('./a-stmt[string(.)="?"]', $stmt->textContent, $p[-1]))
         {
-          push @g, $stmt;
+          $s->unbindNode ();
         }
-      elsif (@g)
+
+      $C->replaceNode ($stmt);
+
+      if ($E2 eq 'ZDUM')
         {
-          push @G, [@g];
-          @g = ();
+          # Remove RDONLY statement in same block
+          for my $s (&F ('./a-stmt[string(.)="ZDUM = ?"]', $E1, $p[-1]))
+            {
+              $s->unbindNode ();
+            }
+        }  
+      pop (@p);
+
+      for my $p (@p)
+        {
+          # Outer block contains the same statement -> remove current statement
+          if (my @s = &F ('./a-stmt[string(.)="?"]', $stmt->textContent, $p))
+            {
+              $stmt->unbindNode ();
+              next STMT;
+            }
+          if ($E1 eq 'ZDUM')
+            {
+              # Current statement is RDONLY, but outer block contains RDWR -> remove current statement
+              if (&F ('./a-stmt[string(.)="? = ZDUM"]', $E2, $p))
+                {
+                  $stmt->unbindNode ();
+                  next STMT;
+                }
+            }
         }
     }
 
-  for my $g (@G)
+  @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
+
+  for my $stmt (@stmt)
     {
-      my (%rd, %rw);
-      for my $stmt (@$g)
+      my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
+      if ($E2 eq 'ZDUM')
         {
-          (my ($E1) = &F ('./E-1', $stmt, 1)) =~ s/\s+//go;
-          (my ($E2) = &F ('./E-2', $stmt, 1)) =~ s/\s+//go;
-
-          $rw{$E1}++ unless ($E1 eq 'ZDUM');
-          $rd{$E2}++ unless ($E2 eq 'ZDUM');
-
+          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E1)) CALL $E1%SYNC_HOST_RDWR"));
         }
-      
-      delete $rd{$_} for (keys (%rw));
-
-      for (keys (%LOCAL))
+      else
         {
-          delete $rd{$_};
-          delete $rw{$_};
-        }
-      
-      my ($stmt) = @$g;
-      my $indent = "\n" . (' ' x &Fxtran::getIndent ($stmt));
-
-      for (sort keys (%rw))
-        {
-          my $if = m/%/o ? "" : "IF (ASSOCIATED ($_)) ";
-          $stmt->parentNode->insertBefore (&s ("${if}CALL $_%SYNC_HOST_RDWR"), $stmt);
-          $stmt->parentNode->insertBefore (&t ($indent), $stmt);
-        }
-
-      for (sort keys (%rd))
-        {
-          my $if = m/%/o ? "" : "IF (ASSOCIATED ($_)) ";
-          $stmt->parentNode->insertBefore (&s ("${if}CALL $_%SYNC_HOST_RDONLY"), $stmt);
-          $stmt->parentNode->insertBefore (&t ($indent), $stmt);
-        }
-
-      for my $stmt (reverse @$g)
-        {
-          my $prev = $stmt->previousSibling;
-          $prev->unbindNode ();
-          $stmt->unbindNode ();
+          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E2)) CALL $E2%SYNC_HOST_RDONLY"));
         }
     }
 
