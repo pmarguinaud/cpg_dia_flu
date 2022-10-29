@@ -19,6 +19,8 @@ sub getNoExec
       last;
     }
 
+  $prev or die $d->textContent;
+
   my @anc = &F ('ancestor::*', $prev);
 
   for my $anc (reverse (@anc))

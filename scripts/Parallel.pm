@@ -149,9 +149,13 @@ sub wrapArrays
         }
     }
 
+
+  my ($lastst) = &F ('./object/file/program-unit/contains|./object/file/program-unit/end-subroutine-stmt', $d);
+
   # Initialize array wrappers
- 
+
   $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
+  $lastst->parentNode->insertBefore (&t ("\n"), $lastst);
 
   for my $N (reverse (@N))
     {
@@ -161,10 +165,16 @@ sub wrapArrays
       my @ub = (@{ $U{$Y} }, 'YDCPG_OPTS%KGPBLKS');
       my $lbounds = (grep { $_ ne '1' } @lb) ? 'LBOUNDS=[' . join (',', @lb) . '], ' : '';
       my $ubounds =                            'UBOUNDS=[' . join (',', @ub) . ']';
+
       $noexec->parentNode->insertAfter (&s ("CALL $Y%INIT ($lbounds$ubounds, PERSISTENT=.TRUE.)"), $noexec);
       $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
+ 
+      $lastst->parentNode->insertBefore (&s ("CALL $Y%FINAL"), $lastst);
+      $lastst->parentNode->insertBefore (&t ("\n"), $lastst);
+ 
     }
 
+  $lastst->parentNode->insertBefore (&t ("\n"), $lastst);
   $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
 
   # Use array wrappers in expression
