@@ -180,8 +180,7 @@ sub removeStmt
 
 sub inlineContainedSubroutine
 {
-  my ($d1, $n2) = @_;
-
+  my ($d1, $n2, %opts) = @_;
 
   # Subroutine to be inlined
   my ($D2) = &F ('.//program-unit[./subroutine-stmt[./subroutine-N/N/n/text()="?"]]', $n2, $d1);
@@ -282,8 +281,11 @@ sub inlineContainedSubroutine
       # Insert statements from inlined routine + a few comments
   
       $call->parentNode->insertAfter (&t ("\n"), $call);
-      $call->parentNode->insertAfter (&n ("<C>!----- END INLINE $n2</C>"), $call);
-      $call->parentNode->insertAfter (&t ("\n"  . (' ' x $ci)), $call);
+      if ($opts{comment})
+        {
+          $call->parentNode->insertAfter (&n ("<C>!----- END INLINE $n2</C>"), $call);
+          $call->parentNode->insertAfter (&t ("\n"  . (' ' x $ci)), $call);
+        }
   
       for my $node (reverse @node)
         {
@@ -294,22 +296,26 @@ sub inlineContainedSubroutine
           $call->parentNode->insertAfter (&t (' ' x $di), $call);
         }
   
-      # Comment old code (CALL)
-      my @c = split (m/\n/o, $call->textContent ());
-      for my $i (reverse (0 .. $#c))
+      if ($opts{comment})
         {
-          my $c = $c[$i];
-          $c = (' ' x ($ci)) . "! $c";
-          $c = &t ($c);
-          $c = $c->toString ();
-          $call->parentNode->insertAfter (&t ("\n"), $call);
-          $call->parentNode->insertAfter (&n ("<C>" . $c . "</C>"), $call);
-        }
+          # Comment old code (CALL)
+          my @c = split (m/\n/o, $call->textContent ());
+          for my $i (reverse (0 .. $#c))
+            {
+              my $c = $c[$i];
+              $c = (' ' x ($ci)) . "! $c";
+              $c = &t ($c);
+              $c = $c->toString ();
+              $call->parentNode->insertAfter (&t ("\n"), $call);
+              $call->parentNode->insertAfter (&n ("<C>" . $c . "</C>"), $call);
+            }
   
-      $call->parentNode->insertAfter (&t ("\n"), $call);
-      $call->parentNode->insertAfter (&t ("\n"), $call);
-      $call->parentNode->insertAfter (&n ("<C>!----- BEGIN INLINE $n2</C>"), $call);
-      $call->parentNode->insertAfter (&t ("\n"  . (' ' x $ci)), $call);
+          $call->parentNode->insertAfter (&t ("\n"), $call);
+          $call->parentNode->insertAfter (&t ("\n"), $call);
+
+          $call->parentNode->insertAfter (&n ("<C>!----- BEGIN INLINE $n2</C>"), $call);
+          $call->parentNode->insertAfter (&t ("\n"  . (' ' x $ci)), $call);
+        }
   
 
       # Remove CALL statement 
@@ -323,13 +329,13 @@ sub inlineContainedSubroutine
 
 sub inlineContainedSubroutines
 {
-  my $d1 = shift;
+  my ($d1, %opts) = @_;
 
   my @n2 = &F ('.//program-unit//program-unit/subroutine-stmt/subroutine-N/N/n/text()', $d1);
 
   for my $n2 (@n2)
     {
-      &inlineContainedSubroutine ($d1, $n2);
+      &inlineContainedSubroutine ($d1, $n2, %opts);
     }
   
   for (&F ('.//program-unit//program-unit', $d1))
