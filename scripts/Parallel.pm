@@ -416,6 +416,7 @@ sub makeParallelSingleColumnFieldAPI
   use Loop;
 
   my $d = shift;
+  my %opts = @_;
 
   return unless (&parseDirectives ($d));
 
@@ -457,7 +458,16 @@ sub makeParallelSingleColumnFieldAPI
 
       my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
       $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+ 
+      if ($opts{stack})
+        {
+          $loop .= "${indent}  ! Setup stack\n";
+          $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%PTR (1,IBL))\n";
+          $loop .= "${indent}  YLSTACK%U = YLSTACK%L + KIND (YLSTACK%F_P%PTR) * SIZE (YLSTACK%F_P%PTR (:,IBL))\n";
+        }
+
       $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
+      $loop .= "${indent}    ! Select single column\n";
       $loop .= "${indent}    YLCPG_BNDS = YDCPG_BNDS\n";
       $loop .= "${indent}    YLCPG_BNDS%KIDIA = JLON\n";
       $loop .= "${indent}    YLCPG_BNDS%KFDIA = JLON\n";
@@ -495,8 +505,12 @@ sub makeParallelSingleColumnFieldAPI
       # Insert OpenMP directive
 
       my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
+      @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($opts{stack});
+
+      my @first = ('YDCPG_BNDS');
+      push @first, 'YLSTACK' if ($opts{stack});
       
-      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
+      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 
     }
 

@@ -128,3 +128,7 @@ done
   --module-map $module_map --field-api --field-api-class info_arr --out util_array_mod.F90 \
   $(resolve .fypp/arpifs/module/array_mod.F90)
 
+./scripts/loadsave.pl \
+  --field-api --field-api-class info_sta \
+  --dir $dir --no-allocate $no_alloc --module-map $module_map --field-api \
+  $(resolve stack_mod.F90)
