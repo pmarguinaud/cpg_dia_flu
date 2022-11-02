@@ -12,6 +12,25 @@ use Ref;
 use Scope;
 
 
+sub removeJlonConstructs
+{
+  my $d = shift;
+
+  my @do = &F ('.//do-construct[./do-stmt[string(do-V)="JLON"]]', $d);
+  
+  for my $do (@do)
+    {
+      $do->firstChild->unbindNode;
+      $do->lastChild->unbindNode;
+      my @nodes = &F ('./node()', $do);
+      for (@nodes)
+        {
+          $do->parentNode->insertBefore ($_, $do);
+        }
+      $do->unbindNode ();
+    }
+}
+
 sub removeJlonLoops
 {
   my $d = shift;
@@ -33,20 +52,7 @@ sub removeJlonLoops
   $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
   $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
   
-  
-  my @do = &F ('.//do-construct[./do-stmt[string(do-V)="JLON"]]', $d);
-  
-  for my $do (@do)
-    {
-      $do->firstChild->unbindNode;
-      $do->lastChild->unbindNode;
-      my @nodes = &F ('./node()', $do);
-      for (@nodes)
-        {
-          $do->parentNode->insertBefore ($_, $do);
-        }
-      $do->unbindNode ();
-    }
+  &removeJlonConstructs ($d);
   
   # NPROMA variables
 
@@ -61,6 +67,24 @@ sub removeJlonLoops
       my ($N) = &F ('./EN-N', $en_decl, 1);
       $NPROMA{$N} = scalar (@ss);
     }
+
+  &removeJlonLoopsFieldAPI ($d, $d);
+
+  for my $NPROMA (sort keys (%NPROMA))
+    {
+      my $nd = $NPROMA{$NPROMA};
+      my @expr = &F ('.//named-E[string(N)="?"][not(ancestor::call-stmt)]', $NPROMA, $d);
+      for my $expr (@expr)
+        {
+          &setJLON ($expr, $nd);
+        }
+    }
+
+}
+
+sub removeJlonLoopsFieldAPI
+{
+  my ($d, $s) = @_;
 
   my $TI = &FieldAPI::getTypeInfo ();
   my @T = sort keys (%$TI);
@@ -79,8 +103,7 @@ sub removeJlonLoops
 
   my @F = sort keys (%T);
 
-
-  my @ptr = &F ('.//named-E[./R-LT/component-R[string(ct)="PTR"]][not(ancestor::call-stmt)]', $d);
+  my @ptr = &F ('.//named-E[./R-LT/component-R[string(ct)="PTR"]][not(ancestor::call-stmt)]', $s);
   
   for my $ptr (@ptr)
     {
@@ -90,16 +113,6 @@ sub removeJlonLoops
       my $nd = $fd->[1] + 1;
 
       &setJLON ($ptr, $nd);
-    }
-
-  for my $NPROMA (sort keys (%NPROMA))
-    {
-      my $nd = $NPROMA{$NPROMA};
-      my @expr = &F ('.//named-E[string(N)="?"][not(ancestor::call-stmt)]', $NPROMA, $d);
-      for my $expr (@expr)
-        {
-          &setJLON ($expr, $nd);
-        }
     }
 
 }

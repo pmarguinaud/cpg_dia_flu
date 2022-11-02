@@ -104,6 +104,23 @@ sub generateParallelFieldAPI
   &saveSubroutine ($d);
 }
 
+sub generateParallelSingleColumnFieldAPI
+{
+  use Parallel;
+  use Stack;
+  use Decl;
+
+  my $f = shift;
+  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+
+  return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
+
+  &Parallel::makeParallelSingleColumnFieldAPI ($d);
+  &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
+
+  &saveSubroutine ($d);
+}
+
 sub generateFieldAPI
 {
   use Subroutine;
@@ -191,6 +208,8 @@ sub preProcessIfNewer
       &generateSingleColumnFieldAPI ($f1);
 
       &generateFieldAPI ($f1);
+
+      &generateParallelSingleColumnFieldAPI ($f1);
     }
 }
 

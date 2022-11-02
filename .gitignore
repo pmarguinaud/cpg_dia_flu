@@ -8,3 +8,4 @@ compile.gpu*
 *.F90.xml
 tmp/
 drhook.prof.*
+drhook_lock

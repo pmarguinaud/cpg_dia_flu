@@ -393,15 +393,12 @@ sub makeParallelFieldAPI
       $para->appendChild ($loop);
       $para->insertBefore (&t ($indent), $loop);
 
-      $para->parentNode->insertBefore (&t ("$indent"), $para);
-
       &Call::addSuffix ($para, suffix => '_FIELD_API');
 
       # Insert OpenMP directive
 
       my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
       
-      $para->insertBefore (&t ("\n"), $loop);
       &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 
     }
@@ -413,5 +410,102 @@ sub makeParallelFieldAPI
   return 1;
 }
 
+sub makeParallelSingleColumnFieldAPI
+{
+  use FieldAPI;
+  use Loop;
+
+  my $d = shift;
+
+  return unless (&parseDirectives ($d));
+
+  # Resolving ASSOCIATEs in parallel sections is mandatory
+  &Associate::resolveAssociates ($d);
+
+  &Decl::forceSingleDecl ($d);
+
+  # Inlining contained subroutines called from parallel sections is mandatory
+  # when they use some variables from the outer scope and these variables
+  # are made FIRSTPRIVATE
+
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
+
+  my $suffix = '_PARALLEL_SINGLE_COLUMN_FIELD_API';
+
+  &wrapArrays ($d, $suffix);
+
+
+  &Decl::declare ($d,  
+                  'INTEGER (KIND=JPIM) :: IBL',
+                  'INTEGER (KIND=JPIM) :: JLON',
+                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+  &Decl::use ($d,
+              'USE ARRAY_MOD');
+
+  &FieldAPI::pointers2FieldAPIPtr ($d);
+
+
+  my @para = &F ('.//parallel-section', $d);
+
+  for my $para (@para)
+    {
+      my ($stmt) = &F ('.//ANY-stmt', $para);
+      my $indent = ' ' x &Fxtran::getIndent ($stmt);
+
+      # Insert loop nest
+
+      my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+      $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+      $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
+      $loop .= "${indent}    YLCPG_BNDS = YDCPG_BNDS\n";
+      $loop .= "${indent}    YLCPG_BNDS%KIDIA = JLON\n";
+      $loop .= "${indent}    YLCPG_BNDS%KFDIA = JLON\n";
+      $loop .= "${indent}  ENDDO\n";
+      $loop .= "${indent}ENDDO\n";
+
+      my ($loop) = &Fxtran::fxtran (fragment => $loop);
+      my ($loop_jlon) = &F ('./do-construct', $loop);
+
+      my ($enddo) = &F ('.//end-do-stmt', $loop);
+      my $p = $enddo->parentNode;
+     
+      for my $expr (&F ('.//named-E[string(N)="YDCPG_BNDS"]/N/n/text()', $para))
+        {
+          $expr->setData ('YLCPG_BNDS');
+        }
+
+      for my $node ($para->childNodes ()) 
+        {   
+          $p->insertBefore (&t (' ' x (4)), $enddo);
+          &Fxtran::reIndent ($node, 4); 
+          $p->insertBefore ($node, $enddo);
+        }   
+      $p->insertBefore (&t ($indent . '  '), $enddo);
+
+      $para->appendChild (&t ("\n"));
+      $para->appendChild ($loop);
+      $para->insertBefore (&t ($indent), $loop);
+
+      &Loop::removeJlonConstructs ($loop_jlon);
+      &Loop::removeJlonLoopsFieldAPI ($d, $loop_jlon);
+
+      &Call::addSuffix ($para, suffix => '_SINGLE_COLUMN_FIELD_API');
+
+      # Insert OpenMP directive
+
+      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
+      
+      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
+
+    }
+
+  
+
+  &Subroutine::addSuffix ($d, $suffix);
+
+
+  return 1;
+}
 
 1;

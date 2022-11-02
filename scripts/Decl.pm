@@ -48,7 +48,7 @@ sub declare
 
   for my $stmt (@stmt)
     {
-      my @N = &F ('.//EN-N', $stmt);
+      my @N = &F ('.//EN-N', $stmt, 1);
       die if (scalar (@N) > 1);
       next if ($N_d{$N[0]});
       $noexec->parentNode->insertBefore ($stmt, $noexec);

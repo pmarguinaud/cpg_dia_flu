@@ -8,6 +8,8 @@ sub parallelDo
 {
   my ($p, %c)  = @_;
 
+  my $indent = ' ' x &Fxtran::getIndent ($p);
+
   my $P = $p->parentNode;
 
   my @d = (' PARALLEL DO ');
@@ -52,11 +54,16 @@ sub parallelDo
       $d[$i] = "!\$OMP$d[$i]";
     }
 
+  $P->insertBefore (&t ("\n"), $p);
+
   for my $d (@d)
     {
       $P->insertBefore (&n ("<C>$d</C>"), $p);
       $P->insertBefore (&t ("\n"), $p);
     }
+
+
+  $P->insertBefore (&t ("\n$indent"), $p);
       
 }
 
