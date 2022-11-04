@@ -514,6 +514,7 @@ my %opts = qw (dir .);
   size => \$opts{size}, save => \$opts{save}, load => \$opts{load}, copy => \$opts{copy},
   'no-allocate=s' => \$opts{'no-allocate'}, 'module-map=s' => \$opts{'module-map'},
   'field-api' => \$opts{'field-api'}, 'field-api-class=s' => \$opts{'field-api-class'},
+  'tmp=s' => \$opts{tmp},
 );
 
 ( -d $opts{dir}) or &mkpath ($opts{dir});
@@ -603,7 +604,7 @@ sub parseSkipOnly
 
 my $F90 = shift;
 
-my $doc = &Fxtran::fxtran (location => $F90, fopts => [qw (-line-length 800)]);
+my $doc = &Fxtran::fxtran (location => $F90, fopts => [qw (-line-length 800)], dir => $opts{tmp});
 
 if ($opts{load} || $opts{save} || $opts{size} || $opts{copy})
   {
