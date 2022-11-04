@@ -61,7 +61,7 @@ sub declare
 sub use
 {
   my $d = shift;
-  my @stmt = map { &s ($_) } @_;
+  my @stmt = map { ref ($_) ? $_ : &s ($_) } @_;
 
   my %U_d = map { ($_, 1) } &F ('.//module-N', $d, 1);
 
