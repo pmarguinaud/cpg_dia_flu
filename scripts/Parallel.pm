@@ -13,6 +13,8 @@ use Decl;
 use Subroutine;
 use FieldAPI;
 use OpenMP;
+use Call;
+use Associate;
 
 
 sub parseDirectives
@@ -436,7 +438,6 @@ sub makeParallelSingleColumnFieldAPI
 
   &wrapArrays ($d, $suffix);
 
-
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL',
                   'INTEGER (KIND=JPIM) :: JLON',
@@ -444,10 +445,22 @@ sub makeParallelSingleColumnFieldAPI
   &Decl::use ($d,
               'USE ARRAY_MOD');
 
-  &FieldAPI::pointers2FieldAPIPtr ($d);
-
-
   my @para = &F ('.//parallel-section', $d);
+
+  my $ctx = &FieldAPI::makeSyncHostContext ($d);
+
+  my ($name) = &F ('.//subroutine-N', $d, 1);
+  my $i = 0;
+  mkdir ('para');
+  for my $para (@para)
+    {
+      my $sync = &FieldAPI::makeSyncHostSection ($d, section => $para, context => $ctx, 
+                   suffix => '_SYNC_HOST', name => "$name\_PARALLEL_$i\_SYNC_HOST");
+      'FileHandle'->new ('>para/' . lc ($name) . ".$i.F90")->print ($sync->textContent);
+      $i++;
+    }
+
+  &FieldAPI::pointers2FieldAPIPtr ($d);
 
   for my $para (@para)
     {

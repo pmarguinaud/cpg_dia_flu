@@ -185,6 +185,358 @@ sub pointers2FieldAPIPtr
 }
 
 
+sub makeSyncHostContext
+{
+  my $d = shift;
+
+  my $TI = &getTypeInfo ();
+  my @T = sort keys (%$TI);
+
+  # Find objects containing field API pointers and map them to their types
+
+  my %T;
+  for my $T (@T)
+    {
+      my @F = &F ('.//T-decl-stmt[./_T-spec_/derived-T-spec[string(T-N)="?"]]//EN-decl/EN-N/N/n/text()', $T, $d, 1);
+      for my $F (@F)
+        {
+          $T{$F} = $T;
+        }
+    }
+  my @F = sort keys (%T);
+
+  return {TI => $TI, T => \%T};
+}
+
+sub makeSyncHostSection
+{
+  my $d = shift;
+  my %args = @_;
+
+  my ($s, $ctx, $suffix, $name) = @args{qw (section context suffix name)};
+
+  $s = $s->cloneNode (1);
+
+  my $TI = $ctx->{TI};
+  my %T = %{ $ctx->{T} };
+  my @F = sort keys (%T);
+
+  # This anonymous sub tests whether and expression contains NPROMA data (backed by field API)
+  my $isNproma = sub
+  {
+    my $expr = shift;
+    my ($N) = &F ('./N', $expr, 1);
+    return &getExprFieldAPIMember ($expr, $T{$N}, $TI);
+  };
+  
+  my $pu = &n ("<program-unit><subroutine-stmt>SUBROUTINE <subroutine-N><N><n>$name</n></N></subroutine-N></subroutine-stmt>
+<end-subroutine-stmt>END SUBROUTINE</end-subroutine-stmt></program-unit>");
+
+  &Decl::use ($pu, 'USE FIELD_MODULE, ONLY : FIELD_BASIC');
+  
+  $pu->insertBefore ($s, $pu->lastChild);
+  $pu->insertBefore (&t ("\n"), $pu->lastChild);
+
+  $s = $pu;
+
+  # Handle call statements
+
+  my @call = &F ('.//call-stmt', $s);
+  my %proc;
+
+  for my $call (@call)
+    {
+      my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
+      my @expr = &F ('./arg-spec/arg/named-E', $call);
+      for my $expr (@expr)
+        {
+          next unless ($isNproma->($expr));
+          push @{ $proc{$proc->textContent} }, $proc;
+          last;
+        }
+    }
+
+  while (my ($name, $list) = each (%proc))
+    {
+      for my $proc (@$list)
+        {
+          $proc->setData ($name . $suffix);
+        }
+    }
+
+  &removeNPROMAIfConstruct ($s, $isNproma);
+
+  &changeFieldAPIAccessToSimpleStatements ($s, $isNproma);
+
+  &useFieldAPIObjects ($s, \%T, \@F);
+
+  &removeJLONJLEVLoops ($s);
+
+  &simplifyReadWriteAssignemnts ($s);
+
+  &changeSimpleAssignmentsToSync ($s);
+
+  &Scope::removeWhiteLines ($s);
+
+  return $s;
+}
+
+sub removeJLONJLEVLoops 
+{
+  my $d = shift;
+
+  # Remove loops on JLEV or JLON
+
+  for my $ind (qw (JLON JLEV))
+   {
+     my @do = &F ('.//do-construct[./do-stmt[string(do-V)="?"]]', $ind, $d);
+     
+     for my $do (@do)
+       {   
+         $do->firstChild->unbindNode;
+         $do->lastChild->unbindNode;
+ 
+         # Remove calculations involving non-NPROMA data
+
+         for (&F ('.//a-stmt[string(E-1)!="ZDUM" and string(E-2)!="ZDUM"]', $do))
+           {
+             $_->unbindNode ();
+           }
+
+         # Remove construct
+
+         my @nodes = &F ('./node()', $do);
+         for (@nodes)
+           {
+             $do->parentNode->insertBefore ($_, $do);
+           }
+         $do->unbindNode (); 
+       }   
+   }
+
+  $d->normalize ();
+
+}
+
+sub simplifyReadWriteAssignemnts
+{
+  my $d = shift;
+
+  my @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
+
+  STMT : for my $stmt (@stmt)
+    {
+      my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
+      next unless (my @p = &F ('ancestor::*', $stmt));
+
+      my $C = &n ("<C>! " . $stmt->textContent . "</C>");
+      $stmt->replaceNode ($C);
+
+      # Remove equivalent statement in same block
+
+      for my $s (&F ('./a-stmt[string(.)="?"]', $stmt->textContent, $p[-1]))
+        {
+          $s->unbindNode ();
+        }
+
+      $C->replaceNode ($stmt);
+
+      if ($E2 eq 'ZDUM')
+        {
+          # Remove RDONLY statement in same block
+          for my $s (&F ('./a-stmt[string(.)="ZDUM = ?"]', $E1, $p[-1]))
+            {
+              $s->unbindNode ();
+            }
+        }  
+      pop (@p);
+
+      for my $p (@p)
+        {
+          # Outer block contains the same statement -> remove current statement
+          if (my @s = &F ('./a-stmt[string(.)="?"]', $stmt->textContent, $p))
+            {
+              $stmt->unbindNode ();
+              next STMT;
+            }
+          if ($E1 eq 'ZDUM')
+            {
+              # Current statement is RDONLY, but outer block contains RDWR -> remove current statement
+              if (&F ('./a-stmt[string(.)="? = ZDUM"]', $E2, $p))
+                {
+                  $stmt->unbindNode ();
+                  next STMT;
+                }
+            }
+        }
+    }
+
+  &Construct::removeEmptyConstructs ($d);
+
+}
+
+
+sub removeNPROMAIfConstruct
+{
+  my ($s, $isNproma) = @_;
+
+  # Remove if construct where conditions involve NPROMA expressions (local arrays of field API pointers)
+
+  for my $ifc (&F ('.//if-construct', $s))
+    {
+      my $found = 0;
+      for my $expr (&F ('./if-block/ANY-stmt/condition-E//named-E', $ifc))
+        {
+          if ($isNproma->($expr))
+            {
+              $found = 1;
+              last;
+            }
+        }
+
+      next unless ($found);
+      my @block = &F ('./if-block', $ifc);
+      for (@block)
+        {
+          $_->firstChild->unbindNode;
+        }
+      $block[-1]->lastChild->unbindNode ();
+      for my $node (&F ('./if-block/node()', $ifc))
+        {
+          $ifc->parentNode->insertBefore ($node, $ifc);
+        }
+      $ifc->unbindNode ();
+    }
+
+}
+
+sub changeFieldAPIAccessToSimpleStatements
+{
+  my ($s, $isNproma) = @_;
+
+  # Find where field data is written to or read from
+
+  for my $stmt (&F ('.//a-stmt', $s))
+    {
+      my $indent = ' ' x &Fxtran::getIndent ($stmt);
+      my $n = 0;
+      for my $expr (&F ('./E-1//named-E', $stmt))
+        {
+          next unless ($isNproma->($expr));
+
+          # Remove last reference if it is an array reference
+
+          my @r = &F ('./R-LT/ANY-R', $expr);
+          my $ar = $r[-1];
+          if ($ar && (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R')))
+            {
+              $ar->previousSibling->unbindNode ()
+                if ($ar->previousSibling->nodeName eq '#text');
+              $ar->unbindNode ();
+            }
+          my $dum = &s ($expr->textContent . " = ZDUM");
+          $stmt->parentNode->insertBefore ($dum, $stmt);
+          $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
+
+          $n++;
+        }
+      for my $expr (&F ('./E-2//named-E', $stmt))
+        {
+          next unless ($isNproma->($expr));
+
+          # Remove last reference if it is an array reference
+
+          my @r = &F ('./R-LT/ANY-R', $expr);
+          my $ar = $r[-1];
+          if ($ar && (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R')))
+            {
+              $ar->previousSibling->unbindNode ()
+                if ($ar->previousSibling->nodeName eq '#text');
+              $ar->unbindNode ();
+            }
+
+          my $dum = &s ("ZDUM = " . $expr->textContent);
+          $stmt->parentNode->insertBefore ($dum, $stmt);
+          $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
+
+          $n++;
+        }
+      $n && $stmt->unbindNode ();
+    }
+}
+
+sub useFieldAPIObjects
+{
+  my ($d, $Th, $Fl) = @_;
+
+  # Use the field API object
+
+  my %YLFLDPTR;
+
+  for my $F (@$Fl)
+    {
+      my $T = $Th->{$F};
+      my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $d);
+      for my $expr (@expr)
+        {
+
+          my @ct = &F ('./R-LT/component-R/ct', $expr);
+          my $fd = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
+          next unless ($fd);
+  
+          my ($f, $d) = @$fd;
+          $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
+
+          my $stmt = &Fxtran::stmt ($expr);
+
+          if ($stmt->nodeName eq 'call-stmt')
+            {
+              my $target = $expr->cloneNode (1);
+              my %basic = map { m/^YLFLDPTR/o ? ($_, 1) : () } &F ('./arg-spec/arg/named-E/N', $stmt, 1);
+              my $basic;
+              for (my $i = 0; ; $i++)
+                {
+                  $basic = "YLFLDPTR" . $i;
+                  last unless ($basic{$basic});
+                }
+              $YLFLDPTR{$basic}++;
+              $expr->replaceNode (&e ($basic));
+              my $assoc = &s ("$basic => " . $target->textContent);
+              my $indent = "\n" . (' ' x &Fxtran::getIndent ($stmt));
+              $stmt->parentNode->insertBefore ($assoc, $stmt);
+              $stmt->parentNode->insertBefore (&t ($indent), $stmt);
+            }
+          
+        }
+    }
+ 
+  &Decl::declare ($d,
+                  map ({ &s ("CLASS (FIELD_BASIC), POINTER :: $_") } sort keys (%YLFLDPTR)));
+
+}
+
+sub changeSimpleAssignmentsToSync
+{
+  my $d = shift;
+
+  my @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
+
+  for my $stmt (@stmt)
+    {
+      my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
+      if ($E2 eq 'ZDUM')
+        {
+          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E1)) CALL $E1%SYNC_HOST_RDWR"));
+        }
+      else
+        {
+          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E2)) CALL $E2%SYNC_HOST_RDONLY"));
+        }
+    }
+}
+
+
+
 sub makeSyncHost
 {
   use Decl;
@@ -305,244 +657,26 @@ sub makeSyncHost
     }
 
 
-  # Remove if construct where conditions involve NPROMA expressions (local arrays of field API pointers)
+  &removeNPROMAIfConstruct ($d, $isNproma);
 
-  for my $ifc (&F ('.//if-construct', $d))
-    {
-      my $found = 0;
-      for my $expr (&F ('./if-block/ANY-stmt/condition-E//named-E', $ifc))
-        {
-          if ($isNproma->($expr))
-            {
-              $found = 1;
-              last;
-            }
-        }
+  &changeFieldAPIAccessToSimpleStatements ($d, $isNproma);
 
-      next unless ($found);
-      my @block = &F ('./if-block', $ifc);
-      for (@block)
-        {
-          $_->firstChild->unbindNode;
-        }
-      $block[-1]->lastChild->unbindNode ();
-      for my $node (&F ('./if-block/node()', $ifc))
-        {
-          $ifc->parentNode->insertBefore ($node, $ifc);
-        }
-      $ifc->unbindNode ();
-    }
+  &useFieldAPIObjects ($d, \%T, \@F);
 
+  &removeJLONJLEVLoops ($d);
 
-  # Find where field data is modified
+  &simplifyReadWriteAssignemnts ($d);
 
-  for my $stmt (&F ('.//a-stmt', $d))
-    {
-      my $indent = ' ' x &Fxtran::getIndent ($stmt);
-      my $n = 0;
-      for my $expr (&F ('./E-1//named-E', $stmt))
-        {
-          next unless ($isNproma->($expr));
-
-          # Remove last reference if it is an array reference
-
-          my @r = &F ('./R-LT/ANY-R', $expr);
-          my $ar = $r[-1];
-          if ($ar && (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R')))
-            {
-              $ar->previousSibling->unbindNode ()
-                if ($ar->previousSibling->nodeName eq '#text');
-              $ar->unbindNode ();
-            }
-          my $dum = &s ($expr->textContent . " = ZDUM");
-          $stmt->parentNode->insertBefore ($dum, $stmt);
-          $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
-
-          $n++;
-        }
-      for my $expr (&F ('./E-2//named-E', $stmt))
-        {
-          next unless ($isNproma->($expr));
-
-          # Remove last reference if it is an array reference
-
-          my @r = &F ('./R-LT/ANY-R', $expr);
-          my $ar = $r[-1];
-          if ($ar && (($ar->nodeName eq 'parens-R') || ($ar->nodeName eq 'array-R')))
-            {
-              $ar->previousSibling->unbindNode ()
-                if ($ar->previousSibling->nodeName eq '#text');
-              $ar->unbindNode ();
-            }
-
-          my $dum = &s ("ZDUM = " . $expr->textContent);
-          $stmt->parentNode->insertBefore ($dum, $stmt);
-          $stmt->parentNode->insertBefore (&t ("\n$indent"), $stmt);
-
-          $n++;
-        }
-      $n && $stmt->unbindNode ();
-    }
- 
-  # Use the field API object
-
-  my %YLFLDPTR;
-
-  for my $F (@F)
-    {
-      my $T = $T{$F};
-      my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $d);
-      for my $expr (@expr)
-        {
-
-          my @ct = &F ('./R-LT/component-R/ct', $expr);
-          my $fd = &getFieldAPIMember ($T, map ({ $_->textContent } @ct));
-          next unless ($fd);
-  
-          my ($f, $d) = @$fd;
-          $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
-
-          my $stmt = &Fxtran::stmt ($expr);
-
-          if ($stmt->nodeName eq 'call-stmt')
-            {
-              my $target = $expr->cloneNode (1);
-              my %basic = map { m/^YLFLDPTR/o ? ($_, 1) : () } &F ('./arg-spec/arg/named-E/N', $stmt, 1);
-              my $basic;
-              for (my $i = 0; ; $i++)
-                {
-                  $basic = "YLFLDPTR" . $i;
-                  last unless ($basic{$basic});
-                }
-              $YLFLDPTR{$basic}++;
-              $expr->replaceNode (&e ($basic));
-              my $assoc = &s ("$basic => " . $target->textContent);
-              my $indent = "\n" . (' ' x &Fxtran::getIndent ($stmt));
-              $stmt->parentNode->insertBefore ($assoc, $stmt);
-              $stmt->parentNode->insertBefore (&t ($indent), $stmt);
-            }
-          
-        }
-    }
- 
-  my ($drhook) = &F ('.//if-stmt[.//call-stmt[string(procedure-designator)="DR_HOOK"]]', $d);
-  my $indent = "\n" . (' ' x &Fxtran::getIndent ($drhook));
-
-  for my $var (sort keys (%YLFLDPTR))
-    {
-      $drhook->parentNode->insertBefore (&s ("CLASS (FIELD_BASIC), POINTER :: $var"), $drhook);
-      $drhook->parentNode->insertBefore (&t ($indent), $drhook);
-    }
-
-  # Remove loops on JLEV or JLON
-
-  for my $ind (qw (JLON JLEV))
-   {
-     my @do = &F ('.//do-construct[./do-stmt[string(do-V)="?"]]', $ind, $d);
-     
-     for my $do (@do)
-       {   
-         $do->firstChild->unbindNode;
-         $do->lastChild->unbindNode;
- 
-         # Remove calculations involving non-NPROMA data
-
-         for (&F ('.//a-stmt[string(E-1)!="ZDUM" and string(E-2)!="ZDUM"]', $do))
-           {
-             $_->unbindNode ();
-           }
-
-         # Remove construct
-
-         my @nodes = &F ('./node()', $do);
-         for (@nodes)
-           {
-             $do->parentNode->insertBefore ($_, $do);
-           }
-         $do->unbindNode (); 
-       }   
-   }
-
-  $d->normalize ();
-
-
-  my @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
-
-  STMT : for my $stmt (@stmt)
-    {
-      my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
-      next unless (my @p = &F ('ancestor::*', $stmt));
-
-      my $C = &n ("<C>! " . $stmt->textContent . "</C>");
-      $stmt->replaceNode ($C);
-
-      # Remove equivalent statement in same block
-
-      for my $s (&F ('./a-stmt[string(.)="?"]', $stmt->textContent, $p[-1]))
-        {
-          $s->unbindNode ();
-        }
-
-      $C->replaceNode ($stmt);
-
-      if ($E2 eq 'ZDUM')
-        {
-          # Remove RDONLY statement in same block
-          for my $s (&F ('./a-stmt[string(.)="ZDUM = ?"]', $E1, $p[-1]))
-            {
-              $s->unbindNode ();
-            }
-        }  
-      pop (@p);
-
-      for my $p (@p)
-        {
-          # Outer block contains the same statement -> remove current statement
-          if (my @s = &F ('./a-stmt[string(.)="?"]', $stmt->textContent, $p))
-            {
-              $stmt->unbindNode ();
-              next STMT;
-            }
-          if ($E1 eq 'ZDUM')
-            {
-              # Current statement is RDONLY, but outer block contains RDWR -> remove current statement
-              if (&F ('./a-stmt[string(.)="? = ZDUM"]', $E2, $p))
-                {
-                  $stmt->unbindNode ();
-                  next STMT;
-                }
-            }
-        }
-    }
-
-  @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
-
-  for my $stmt (@stmt)
-    {
-      my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
-      if ($E2 eq 'ZDUM')
-        {
-          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E1)) CALL $E1%SYNC_HOST_RDWR"));
-        }
-      else
-        {
-          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E2)) CALL $E2%SYNC_HOST_RDONLY"));
-        }
-    }
-
+  &changeSimpleAssignmentsToSync ($d);
 
   &Subroutine::addSuffix ($d, $suffix);
   
-  unless (my ($use) = &F ('.//use-stmt[string(use-N)="FIELD_MODULE"][./rename-LT/rename/use-N[string(.)="FIELD_BASIC"]]', $d))
-    {
-      ($use) = &F ('.//use-stmt', $d);
-      $use->parentNode->insertBefore (&s ("USE FIELD_MODULE, ONLY : FIELD_BASIC"), $use);
-      $use->parentNode->insertBefore (&t ("\n"), $use);
-    }
+  &Decl::use ($d, 'USE FIELD_MODULE, ONLY : FIELD_BASIC');
 
-  &Construct::removeEmptyConstructs ($d);
+  &Scope::removeWhiteLines ($d);
 
 }
+
 
 
 1;

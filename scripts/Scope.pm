@@ -34,5 +34,51 @@ sub getNoExec
   return $prev;
 }
 
+sub removeWhiteSpaces
+{
+  my $d = shift;
+
+  if ($d->isa ('XML::LibXML::Document'))
+    {
+      $d = $d->documentElement;
+    }
+
+  $d->normalize ();
+
+  my @text = &F ('.//text()[translate(.," ?","")=""]', "\n", $d);
+
+  for my $text (@text)
+    {    
+      if ($text->data =~ m/\n/goms)
+        {
+          $text->setData ("\n");
+        }
+    }    
+}
+
+sub removeWhiteLines
+{
+  my $d = shift;
+
+  if ($d->isa ('XML::LibXML::Document'))
+    {
+      $d = $d->documentElement;
+    }
+
+  $d->normalize ();
+
+  my @text = &F ('.//text()[translate(.," ?","")=""]', "\n", $d);
+
+  for my $text (@text)
+    {    
+      my $tt = $text->data;
+      if ($tt =~ m/\n/goms)
+        {
+          $tt =~ s/^.*\n([ ]*?)$/\n$1/goms;
+          $text->setData ($tt);
+        }
+    }    
+}
+
 
 1;
