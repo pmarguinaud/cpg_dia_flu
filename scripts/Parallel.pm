@@ -203,11 +203,12 @@ sub makeParallelView
 
   &wrapArrays ($d, $suffix);
 
+  my @array = &F ('.//T-decl/_T-spec_/derived-T-spec/T-N', $d, 1);
+  &Decl::use ($d,
+              'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
+
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL');
-  &Decl::use ($d,
-              'USE ARRAY_MOD');
-
   my (%T, %U);
   for my $en_decl (&F ('.//EN-decl', $d))
     {
@@ -344,7 +345,7 @@ sub makeParallelFieldAPI
       $para->appendChild ($loop);
       $para->insertBefore (&t ($indent), $loop);
 
-      &Call::addSuffix ($para, suffix => '_FIELD_API');
+      &Call::addSuffix ($d, section => $para, suffix => '_FIELD_API');
 
       # Insert OpenMP directive
 
@@ -353,8 +354,6 @@ sub makeParallelFieldAPI
       &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 
     }
-
-  
 
   &Subroutine::addSuffix ($d, $suffix);
 
@@ -387,12 +386,15 @@ sub makeParallelSingleColumnFieldAPI
 
   &wrapArrays ($d, $suffix);
 
+
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL',
                   'INTEGER (KIND=JPIM) :: JLON',
                   'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+
+  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
   &Decl::use ($d,
-              'USE ARRAY_MOD');
+              'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
 
   my @para = &F ('.//parallel-section', $d);
 
@@ -403,9 +405,20 @@ sub makeParallelSingleColumnFieldAPI
   mkdir ('para');
   for my $para (@para)
     {
-      my $sync = &FieldAPI::makeSyncHostSection ($d, section => $para, context => $ctx, 
-                   suffix => '_SYNC_HOST', name => "$name\_PARALLEL_$i\_SYNC_HOST");
-      'FileHandle'->new ('>para/' . lc ($name) . ".$i.F90")->print ($sync->textContent);
+      my $para1 = $para->cloneNode (1);
+      $para->parentNode->insertBefore ($para1, $para);
+      $para->parentNode->insertBefore (&t ("\n"), $para);
+      use Outline;
+      my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i\_SYNC_HOST");
+      my ($outline, $call) = @$oc;
+
+      &Fxtran::fold ($call);
+
+#     'FileHandle'->new ('>para/' . lc ($name) . ".$i.F90")->print ($outline->textContent);
+    
+      my $sync = &FieldAPI::makeSyncHost ($outline);
+
+      'FileHandle'->new ('>para/' . lc ($name) . ".$i.F90")->print ($outline->textContent);
       $i++;
     }
 
@@ -462,7 +475,7 @@ sub makeParallelSingleColumnFieldAPI
       &Loop::removeJlonConstructs ($loop_jlon);
       &Loop::removeJlonLoopsFieldAPI ($d, $loop_jlon);
 
-      &Call::addSuffix ($para, suffix => '_SINGLE_COLUMN_FIELD_API');
+      &Call::addSuffix ($d, section => $para, suffix => '_SINGLE_COLUMN_FIELD_API');
 
       # Insert OpenMP directive
 
@@ -476,10 +489,7 @@ sub makeParallelSingleColumnFieldAPI
 
     }
 
-  
-
   &Subroutine::addSuffix ($d, $suffix);
-
 
   return 1;
 }

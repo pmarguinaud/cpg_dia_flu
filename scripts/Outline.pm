@@ -85,7 +85,10 @@ sub outlineSection
 
   my ($s) = @args{qw (section)};
 
-  my ($NAME) = &F ('./@name', $s, 1);
+  my $NAME = $args{name};
+
+  ($NAME) = &F ('./@name', $s, 1) unless ($NAME);
+
   my $name = lc ($NAME);
 
 
@@ -176,7 +179,8 @@ EOF
   
   # Replace section by call statement in original subroutine
 
-  $s->replaceNode (&s ("CALL $NAME (" . join (', ', map { $_ } grep { ! $local{$_} } @N) . ')'));
+  my $call = &s ("CALL $NAME (" . join (', ', map { $_ } grep { ! $local{$_} } @N) . ')');
+  $s->replaceNode ($call);
 
   my @decl;
 
@@ -209,10 +213,9 @@ EOF
           for my $ts (@ts)
             {
               my ($use) = &F ('.//use-stmt[.//use-N[string(.)="?"]]', $ts, $d);
+              die $ts unless ($use);
               $use = $use->cloneNode (1);
-  
-              $C1->parentNode->insertBefore ($use->cloneNode (1), $C1);
-              $C1->parentNode->insertBefore (&t ("\n"), $C1);
+              &Decl::use ($o, $use);
             }
   
           $n->replaceNode (&t ($N2M->{$N}));
@@ -281,7 +284,7 @@ EOF
         }
     }
   
-  return $o;
+  return [$o, $call];
 }
 
 

@@ -21,5 +21,7 @@ my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
 &Decl::forceSingleDecl ($d);
 my @o = &Outline::outline ($d);
 
-print &Dumper ([map { $_->textContent } ($d, @o)]);
+print $d->textContent, "\n";
+
+print &Dumper ([map { ($_->[0]->textContent, $_->[1]->textContent) } @o]);
 

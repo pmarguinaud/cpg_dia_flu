@@ -7,12 +7,14 @@ sub addSuffix
 {
   my ($d, %opts) = @_;
 
-  my ($suffix, $match) = @opts{qw (suffix match)};
+  my ($suffix, $match, $section) = @opts{qw (suffix match section)};
+
+  $section ||= $d;
 
   my %contained = map { ($_, 1) } &F ('//subroutine-stmt[count(ancestor::program-unit)>1]/subroutine-N/N/n/text()', $d, 1);
 
   my %proc;
-  for my $proc (&F ('.//call-stmt/procedure-designator', $d))
+  for my $proc (&F ('.//call-stmt/procedure-designator', $section))
     {
       next if ($proc->textContent =~ m/%/o);
       next if ($proc->textContent eq 'DR_HOOK');

@@ -74,7 +74,7 @@ sub use
 
   for my $stmt (@stmt)
     {
-      my ($U) = &F ('.//module-N', $stmt);
+      my ($U) = &F ('.//module-N', $stmt, 1);
       next if ($U_d{$U});
       $use->parentNode->insertAfter ($stmt, $use);
       $use->parentNode->insertAfter (&t ("\n"), $use);
