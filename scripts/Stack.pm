@@ -7,7 +7,9 @@ use Scope;
 
 sub addStack
 {
-  my $d = shift;
+  my ($d, %args) = @_;
+
+  my $skip = $args{skip};
 
   my @call = &F ('.//call-stmt[string(procedure-designator)!="ABOR1" and string(procedure-designator)!="REDUCE"]', $d);
 
@@ -19,6 +21,10 @@ sub addStack
       next if ($proc eq 'DR_HOOK');
       next if ($contained{$proc});
       next if ($proc =~ m/%/o);
+      if ($skip)
+        {
+          next if ($skip->($proc, $call));
+        }
       my ($argspec) = &F ('./arg-spec', $call);
       $argspec->appendChild (&t (', '));
       $argspec->appendChild (&e ('YLSTACK'));

@@ -409,16 +409,15 @@ sub makeParallelSingleColumnFieldAPI
       $para->parentNode->insertBefore ($para1, $para);
       $para->parentNode->insertBefore (&t ("\n"), $para);
       use Outline;
-      my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i\_SYNC_HOST");
+      my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
       my ($outline, $call) = @$oc;
 
       &Fxtran::fold ($call);
 
-#     'FileHandle'->new ('>para/' . lc ($name) . ".$i.F90")->print ($outline->textContent);
-    
       my $sync = &FieldAPI::makeSyncHost ($outline);
 
-      'FileHandle'->new ('>para/' . lc ($name) . ".$i.F90")->print ($outline->textContent);
+      my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
+      'FileHandle'->new ('>para/' . lc ($name) . ".F90")->print ($outline->textContent);
       $i++;
     }
 

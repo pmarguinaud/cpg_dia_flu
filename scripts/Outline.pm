@@ -75,7 +75,7 @@ sub renameVariables
 } 
 
 
-my @INTRINSIC = qw (SIGN MAX MIN MOD REAL EXP ASIN FOLH SQRT PRESENT ABS TINY SUM);
+my @INTRINSIC = qw (SIGN MAX MIN MOD REAL EXP ASIN FOLH SQRT PRESENT ABS TINY SUM JPIM JPRB);
 my %INTRINSIC = map { ($_, 1) } @INTRINSIC;
 
 sub outlineSection
@@ -136,10 +136,22 @@ EOF
         }
       $N{$n} = 1;
     }
+
+  # Look for scalars modified in loops; these should not be passed as arguments
   
-  my @N = &sortArgs ($d, grep { (! $do{$_}) && (! $call{$_}) } keys (%N));
+  my %sc;
+
+  my @sc = &F ('.//EN-N[not(array-spec)]', $d, 1);
   
-  my %local; # Local to outlined (not used in original subroutine)
+  for (&F ('.//do-construct//a-stmt/E-1[' . join (' or ', map { 'string(.)="' . $_ . '"' } @sc) . ']', $d, 1))
+    {
+      $sc{$_}++;
+    }
+  
+
+  my @N = &sortArgs ($d, grep { (! $do{$_}) && (! $sc{$_}) && (! $call{$_}) } keys (%N));
+  
+  my %local; # Local to outline (not used in original subroutine)
 
   for my $N (@N)
     {
@@ -179,7 +191,10 @@ EOF
   
   # Replace section by call statement in original subroutine
 
-  my $call = &s ("CALL $NAME (" . join (', ', map { $_ } grep { ! $local{$_} } @N) . ')');
+  my $call = "CALL $NAME (" . join (', ', map { $_ } grep { ! $local{$_} } @N) . ')';
+
+  $call = &s ($call);
+
   $s->replaceNode ($call);
 
   my @decl;

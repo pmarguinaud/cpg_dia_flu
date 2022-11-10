@@ -21,7 +21,7 @@ for my $f (@ARGV)
 
     &Parallel::makeParallelSingleColumnFieldAPI ($d, stack => 1);
     &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-    &Stack::addStack ($d);
+    &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return 1 if ($proc =~ m/_SYNC_HOST/o) });
 
     my ($name) = &F ('.//subroutine-N', $d, 1);
     'FileHandle'->new ('>' . lc ($name) . '.F90')->print ($d->textContent);
