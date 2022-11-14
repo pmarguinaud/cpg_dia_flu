@@ -281,37 +281,11 @@ sub makeParallelView
   return 1;
 }
 
-sub makeParallelBlockFieldAPI
+sub makeBlockSections
 {
-  use FieldAPI;
-
   my $d = shift;
   my %args = @_;
-
-  # Resolving ASSOCIATEs in parallel sections is mandatory
-  &Associate::resolveAssociates ($d);
-
-  &Decl::forceSingleDecl ($d);
-
-  # Inlining contained subroutines called from parallel sections is mandatory
-  # when they use some variables from the outer scope and these variables
-  # are made FIRSTPRIVATE
-
-  &Construct::changeIfStatementsInIfConstructs ($d);
-  &Inline::inlineContainedSubroutines ($d);
-
-  my $suffix = '_PARALLEL_BLOCK_FIELD_API';
-
-  &wrapArrays ($d, $suffix);
-
-  &Decl::declare ($d,  
-                  'INTEGER (KIND=JPIM) :: IBL');
-
-  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
-  &Decl::use ($d,
-              'USE ARRAY_MOD, ONLY : '  . join (', ', @array));
-
-  my @para = &F ('.//parallel-section', $d);
+  my @para = @{ $args{sections} };
 
   for my $para (@para)
     {
@@ -355,6 +329,43 @@ sub makeParallelBlockFieldAPI
       &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 
     }
+}
+
+sub makeParallelBlockFieldAPI
+{
+  use FieldAPI;
+
+  my $d = shift;
+  my %args = @_;
+
+  # Resolving ASSOCIATEs in parallel sections is mandatory
+  &Associate::resolveAssociates ($d);
+
+  &Decl::forceSingleDecl ($d);
+
+  # Inlining contained subroutines called from parallel sections is mandatory
+  # when they use some variables from the outer scope and these variables
+  # are made FIRSTPRIVATE
+
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
+
+  my $suffix = '_PARALLEL_BLOCK_FIELD_API';
+
+  &wrapArrays ($d, $suffix);
+
+  &Decl::declare ($d,  
+                  'INTEGER (KIND=JPIM) :: IBL');
+
+  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
+  &Decl::use ($d,
+              'USE ARRAY_MOD, ONLY : '  . join (', ', @array));
+
+  my @para = &F ('.//parallel-section', $d);
+
+  &makeSyncSections ($d, %args, sections => \@para);
+
+  &makeBlockSections ($d, %args, sections => \@para);
 
   &Subroutine::addSuffix ($d, $suffix);
 
@@ -401,44 +412,11 @@ sub makeSyncSections
 
 }
 
-
-sub makeParallelSingleColumnFieldAPI
+sub makeSingleColumnSections
 {
-  use FieldAPI;
-  use Loop;
-
   my $d = shift;
   my %args = @_;
-
-  # Resolving ASSOCIATEs in parallel sections is mandatory
-  &Associate::resolveAssociates ($d);
-
-  &Decl::forceSingleDecl ($d);
-
-  # Inlining contained subroutines called from parallel sections is mandatory
-  # when they use some variables from the outer scope and these variables
-  # are made FIRSTPRIVATE
-
-  &Construct::changeIfStatementsInIfConstructs ($d);
-  &Inline::inlineContainedSubroutines ($d);
-
-  my $suffix = '_PARALLEL_SINGLE_COLUMN_FIELD_API';
-
-  &wrapArrays ($d, $suffix);
-
-
-  &Decl::declare ($d,  
-                  'INTEGER (KIND=JPIM) :: IBL',
-                  'INTEGER (KIND=JPIM) :: JLON',
-                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
-
-  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
-  &Decl::use ($d,
-              'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
-
-  my @para = &F ('.//parallel-section', $d);
-
-  &makeSyncSections ($d, %args, sections => \@para);
+  my @para = @{ $args{sections} };
 
   for my $para (@para)
     {
@@ -509,6 +487,47 @@ sub makeParallelSingleColumnFieldAPI
       &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 
     }
+}
+
+sub makeParallelSingleColumnFieldAPI
+{
+  use FieldAPI;
+  use Loop;
+
+  my $d = shift;
+  my %args = @_;
+
+  # Resolving ASSOCIATEs in parallel sections is mandatory
+  &Associate::resolveAssociates ($d);
+
+  &Decl::forceSingleDecl ($d);
+
+  # Inlining contained subroutines called from parallel sections is mandatory
+  # when they use some variables from the outer scope and these variables
+  # are made FIRSTPRIVATE
+
+  &Construct::changeIfStatementsInIfConstructs ($d);
+  &Inline::inlineContainedSubroutines ($d);
+
+  my $suffix = '_PARALLEL_SINGLE_COLUMN_FIELD_API';
+
+  &wrapArrays ($d, $suffix);
+
+
+  &Decl::declare ($d,  
+                  'INTEGER (KIND=JPIM) :: IBL',
+                  'INTEGER (KIND=JPIM) :: JLON',
+                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+
+  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
+  &Decl::use ($d,
+              'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
+
+  my @para = &F ('.//parallel-section', $d);
+
+  &makeSyncSections ($d, %args, sections => \@para);
+
+  &makeSingleColumnSections ($d, %args, sections => \@para);
 
   &Subroutine::addSuffix ($d, $suffix);
 
