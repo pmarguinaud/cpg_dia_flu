@@ -214,6 +214,8 @@ EOF
   my @decl;
 
   my ($dummy_arg_LT) = &F ('.//dummy-arg-LT', $o);
+
+  my $narg = 0;
   for my $N (@N)
     {
       $N2M->{$N} or next;
@@ -222,8 +224,8 @@ EOF
 
       if (! ($local{$N} || $param{$N}))
         {
+          $dummy_arg_LT->appendChild (&t (", ")) if ($narg++);
           $dummy_arg_LT->appendChild (&n ("<arg-N><N><n>$N2M->{$N}</n></N></arg-N>"));
-          $dummy_arg_LT->appendChild (&t (", ")) if ($N ne $N[-1]);
         }
   
       my @n = &F ('.//named-E[string(N)="?"]/N/n/text()', $N, $o);

@@ -17,41 +17,49 @@ sub parseDirectives
     {
       (my $bdir = $C->textContent) =~ s/^!=\s*//o;
 
-      ($bdir, my $opts) = ($bdir =~ m/^(\w+)\s*(?:\(\s*(\S.*\S)\s*\)\s*)?$/goms);
+      ($bdir, my $opts) = ($bdir =~ m/^(\S+)(?:\s+(\S.*\S)\s*)?$/goms);
+
+      my $noend = $bdir =~ s/=$//o;
+
       my %opts = $opts ? split (m/\s*[=,]\s*/o, $opts) : ();
 
       $bdir = lc ($bdir);
       my ($tag) = ($bdir =~ m/^(\w+)/o);
-  
-      my @node;
-      for (my $node = $C->nextSibling; ; $node = $node->nextSibling)
+
+      my $Tag = $tag; 
+      $Tag .= '-section' unless ($noend);
+
+      my $e = &n ("<$Tag " . join (' ', map { sprintf ('%s="%s"', lc ($_), $opts{$_}) } keys (%opts))  . "/>");
+
+      if (! $noend)
         {
-          $node or die $C->textContent;
-          if (($node->nodeName eq 'C') && (index ($node->textContent, '!=') == 0))
+          my @node;
+          for (my $node = $C->nextSibling; ; $node = $node->nextSibling)
             {
-              my $C = shift (@C);
-              (my $edir = $C->textContent) =~ s/^!=\s*//o;
-              $edir = lc ($edir);
+              $node or die $C->textContent;
+              if (($node->nodeName eq 'C') && (index ($node->textContent, '!=') == 0))
+                {
+                  my $C = shift (@C);
+                  (my $edir = $C->textContent) =~ s/^!=\s*//o;
+                  $edir = lc ($edir);
 
-              die unless ($edir =~ s/^end\s+//o);
-              die unless ($edir eq $tag);
+                  die unless ($edir =~ s/^end\s+//o);
+                  die unless ($edir eq $tag);
 
-              $C->unbindNode ();
-              
-              last;
+                  $C->unbindNode ();
+                  
+                  last;
+                }
+              push @node, $node;
             }
-          push @node, $node;
-        }
 
-      my $e = &n ("<$tag-section " . join (' ', map { sprintf ('%s="%s"', lc ($_), $opts{$_}) } keys (%opts))  . "/>");
- 
-      for my $node (@node)
-        {
-          $e->appendChild ($node);
+          for my $node (@node)
+            {
+              $e->appendChild ($node);
+            }
         }
 
       $C->replaceNode ($e);
-
       push @e, $e;
 
     }
