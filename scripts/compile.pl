@@ -110,6 +110,7 @@ sub generateParallelBlockFieldAPI
 
   &Parallel::makeParallelBlockFieldAPI ($d);
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
+  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL_|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
 
   &saveSubroutine ($d);
 }
@@ -127,7 +128,7 @@ sub generateParallelSingleColumnFieldAPI
 
   &Parallel::makeParallelSingleColumnFieldAPI ($d, stack => 1);
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return $proc =~ m/SYNC_(?:HOST|DEVICE)/o; });
+  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL_|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
 
   &saveSubroutine ($d);
 }

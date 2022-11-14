@@ -16,6 +16,7 @@ use OpenMP;
 use Call;
 use Associate;
 use Directive;
+use Loop;
 
 
 sub tsToArray
@@ -288,7 +289,6 @@ sub makeBlockSection
   my $para = $args{section};
 
   my $what = $para->getAttribute ('target') || 'host';
-  my $vector = $para->getAttribute ('vector') || 'block';
   
   &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
   
@@ -325,50 +325,6 @@ sub makeBlockSection
   my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
   
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
-}
-
-sub makeParallelBlockFieldAPI
-{
-  use FieldAPI;
-
-  my $d = shift;
-  my %args = @_;
-
-  # Resolving ASSOCIATEs in parallel sections is mandatory
-  &Associate::resolveAssociates ($d);
-
-  &Decl::forceSingleDecl ($d);
-
-  # Inlining contained subroutines called from parallel sections is mandatory
-  # when they use some variables from the outer scope and these variables
-  # are made FIRSTPRIVATE
-
-  &Construct::changeIfStatementsInIfConstructs ($d);
-  &Inline::inlineContainedSubroutines ($d);
-
-  my $suffix = '_PARALLEL_BLOCK_FIELD_API';
-
-  &wrapArrays ($d, $suffix);
-
-  &Decl::declare ($d,  
-                  'INTEGER (KIND=JPIM) :: IBL');
-
-  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
-  &Decl::use ($d,
-              'USE ARRAY_MOD, ONLY : '  . join (', ', @array));
-
-  my @para = &F ('.//parallel-section', $d);
-
-  my $i = 0;
-  for my $para (@para)
-    {
-      &makeSyncSection ($d, %args, section => $para, number => $i++);
-      &makeBlockSection ($d, %args, section => $para);
-    }
-
-  &Subroutine::addSuffix ($d, $suffix);
-
-  return 1;
 }
 
 
@@ -412,7 +368,6 @@ sub makeSingleColumnSection
   my $para = $args{section};
 
   my $what = $para->getAttribute ('target') || 'host';
-  my $vector = $para->getAttribute ('vector') || 'block';
   
   &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
   
@@ -478,13 +433,11 @@ sub makeSingleColumnSection
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 }
 
-sub makeParallelSingleColumnFieldAPI
+sub makeParallelFieldAPI
 {
-  use FieldAPI;
-  use Loop;
-
   my $d = shift;
   my %args = @_;
+  my $suffix = $args{suffix};
 
   # Resolving ASSOCIATEs in parallel sections is mandatory
   &Associate::resolveAssociates ($d);
@@ -498,32 +451,53 @@ sub makeParallelSingleColumnFieldAPI
   &Construct::changeIfStatementsInIfConstructs ($d);
   &Inline::inlineContainedSubroutines ($d);
 
-  my $suffix = '_PARALLEL_SINGLE_COLUMN_FIELD_API';
-
   &wrapArrays ($d, $suffix);
 
+  my @para = &F ('.//parallel-section', $d);
+
+  my $singlecolumn = grep { my $vector = lc ($_->getAttribute ('vector') || 'block'); $vector eq 'singlecolumn' }
+                     @para;
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL',
-                  'INTEGER (KIND=JPIM) :: JLON',
-                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+                   $singlecolumn ? ('INTEGER (KIND=JPIM) :: JLON', 'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS') : ());
 
   my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
   &Decl::use ($d,
               'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
 
-  my @para = &F ('.//parallel-section', $d);
-
   my $i = 0;
   for my $para (@para)
     {
       &makeSyncSection ($d, %args, section => $para, number => $i++);
-      &makeSingleColumnSection ($d, %args, section => $para);
+      my $vector = lc ($para->getAttribute ('vector') || 'block');
+      if ($vector eq 'singlecolumn')
+        {
+          &makeSingleColumnSection ($d, %args, section => $para, stack => 1);
+        }
+      elsif ($vector eq 'block')
+        {
+          &makeBlockSection ($d, %args, section => $para);
+        }
+      else
+        {
+          die $vector;
+        }
     }
 
   &Subroutine::addSuffix ($d, $suffix);
 
   return 1;
+}
+
+sub makeParallelSingleColumnFieldAPI
+{
+  &makeParallelFieldAPI (@_, suffix => '_PARALLEL_SINGLE_COLUMN_FIELD_API');
+}
+
+sub makeParallelBlockFieldAPI
+{
+  &makeParallelFieldAPI (@_, suffix => '_PARALLEL_BLOCK_FIELD_API');
 }
 
 1;
