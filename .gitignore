@@ -9,3 +9,5 @@ compile.gpu*
 tmp/
 drhook.prof.*
 drhook_lock
+*.svg
+attic

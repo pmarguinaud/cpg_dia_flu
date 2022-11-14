@@ -316,6 +316,8 @@ sub makeParallelBlockFieldAPI
   for my $para (@para)
     {
       my $what = $para->getAttribute ('target') || 'host';
+      my $vector = $para->getAttribute ('vector') || 'block';
+
       &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
 
       my ($stmt) = &F ('.//ANY-stmt', $para);
@@ -359,6 +361,47 @@ sub makeParallelBlockFieldAPI
   return 1;
 }
 
+
+sub makeSyncSections
+{
+  my $d = shift;
+  my %args = @_;
+  my @para = @{ $args{sections} };
+
+
+  my ($name) = &F ('.//subroutine-N', $d, 1);
+  my $i = 0;
+
+  for my $para (@para)
+    {
+      my $what = $para->getAttribute ('target') || 'host';
+
+      my $para1 = $para->cloneNode (1);
+      $para->parentNode->insertBefore ($para1, $para);
+      $para->parentNode->insertBefore (&t ("\n"), $para);
+      use Outline;
+      my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
+      my ($outline, $call, $include) = @$oc;
+
+      my $sync = &FieldAPI::makeSync ($outline, what => $what);
+
+      my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
+      'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
+
+      my ($filename) = &F ('./filename/text()', $include);
+      $filename->setData (lc ($name) . '.intfb.h');
+
+      my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
+      $proc->setData ($name);
+
+      &Fxtran::fold ($call);
+
+      $i++;
+    }
+
+}
+
+
 sub makeParallelSingleColumnFieldAPI
 {
   use FieldAPI;
@@ -395,41 +438,13 @@ sub makeParallelSingleColumnFieldAPI
 
   my @para = &F ('.//parallel-section', $d);
 
-  my $ctx = &FieldAPI::makeSyncContext ($d);
-
-  my ($name) = &F ('.//subroutine-N', $d, 1);
-  my $i = 0;
+  &makeSyncSections ($d, %args, sections => \@para);
 
   for my $para (@para)
     {
       my $what = $para->getAttribute ('target') || 'host';
+      my $vector = $para->getAttribute ('vector') || 'block';
 
-      my $para1 = $para->cloneNode (1);
-      $para->parentNode->insertBefore ($para1, $para);
-      $para->parentNode->insertBefore (&t ("\n"), $para);
-      use Outline;
-      my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
-      my ($outline, $call, $include) = @$oc;
-
-      my $sync = &FieldAPI::makeSync ($outline, what => $what);
-
-      my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
-      'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
-
-      my ($filename) = &F ('./filename/text()', $include);
-      $filename->setData (lc ($name) . '.intfb.h');
-
-      my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
-      $proc->setData ($name);
-
-      &Fxtran::fold ($call);
-
-      $i++;
-    }
-
-  for my $para (@para)
-    {
-      my $what = $para->getAttribute ('target') || 'host';
       &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
 
       my ($stmt) = &F ('.//ANY-stmt', $para);
