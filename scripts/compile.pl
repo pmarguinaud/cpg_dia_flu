@@ -117,7 +117,7 @@ sub generateParallelSingleColumnFieldAPI
 
   &Parallel::makeParallelSingleColumnFieldAPI ($d, stack => 1);
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-  &Stack::addStack ($d);
+  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return $proc =~ m/SYNC_HOST/o; });
 
   &saveSubroutine ($d);
 }

@@ -5,6 +5,7 @@ use Fxtran;
 use Associate;
 use Directive;
 use Decl;
+use Scope;
 
 use Data::Dumper;
 
@@ -28,7 +29,7 @@ sub sortArgs
 
 sub renameVariables
 {
-  my ($Nl, $local) = @_;
+  my ($Nl, $local, $param) = @_;
 
   my %N2M;
   
@@ -59,7 +60,7 @@ sub renameVariables
             {
               my $v = $S{$k};
               my $M = $N;
-              $M =~ s/^$k/$v/ unless ($local->{$N});
+              $M =~ s/^$k/$v/ unless ($local->{$N} || $param->{$N});
               while ($M{$M})
                 {
                   $M .= '_';
@@ -75,7 +76,8 @@ sub renameVariables
 } 
 
 
-my @INTRINSIC = qw (SIGN MAX MIN MOD REAL EXP ASIN FOLH SQRT PRESENT ABS TINY SUM JPIM JPRB ATAN2);
+my @INTRINSIC = qw (SIGN MAX MIN MOD REAL EXP ASIN FOLH SQRT PRESENT 
+                    ABS TINY SUM JPIM JPRB ATAN2 COS SIN);
 my %INTRINSIC = map { ($_, 1) } @INTRINSIC;
 
 sub outlineSection
@@ -91,15 +93,21 @@ sub outlineSection
 
   my $name = lc ($NAME);
 
+  my $include = &n ("<include>#include &quot;<filename>$name.intfb.h</filename>&quot;</include>");
 
   # Add include for outlined subroutine
 
-  my ($include) = &F ('.//include[last()]', $d);
-  if ($include)
+  my ($inc_target) = &F ('.//include[last()]', $d);
+
+  unless ($inc_target)
     {
-      $include->parentNode->insertAfter (&n ("<include>#include &quot;<filename>$name.intfb.h</filename>&quot;</include>"), $include);
-      $include->parentNode->insertAfter (&t ("\n"), $include);
+      $inc_target = &Scope::getNoExec ($d);
     }
+
+  die unless ($inc_target);
+
+  $inc_target->parentNode->insertAfter ($include, $inc_target);
+  $inc_target->parentNode->insertAfter (&t ("\n"), $inc_target);
   
   # Subroutine template
 
@@ -152,6 +160,7 @@ EOF
   my @N = &sortArgs ($d, grep { (! $do{$_}) && (! $sc{$_}) && (! $call{$_}) } keys (%N));
   
   my %local; # Local to outline (not used in original subroutine)
+  my %param; # Parameters
 
   for my $N (@N)
     {
@@ -165,6 +174,11 @@ EOF
              {
                $local{$N} = 0;
              }
+           my ($parameter) = &F ('./attribute[string(attribute-N)="PARAMETER"]', $decl);
+           if ($parameter)
+             {
+               $param{$N} = 1;
+             }
         }
       else
         {
@@ -176,7 +190,7 @@ EOF
   
   @N = sort { ($local{$a} <=> $local{$b}) or ($rank{$a} <=> $rank{$b}) } @N;
   
-  my $N2M = &renameVariables (\@N, \%local);
+  my $N2M = &renameVariables (\@N, \%local, \%param);
   
   # Targets for use & declarations insertion
 
@@ -191,7 +205,7 @@ EOF
   
   # Replace section by call statement in original subroutine
 
-  my $call = "CALL $NAME (" . join (', ', map { $_ } grep { ! $local{$_} } @N) . ')';
+  my $call = "CALL $NAME (" . join (', ', map { $_ } grep { ! ($local{$_} || $param{$_}) } @N) . ')';
 
   $call = &s ($call);
 
@@ -206,7 +220,7 @@ EOF
   
       # Variable has to be passed by argument
 
-      if (! $local{$N})
+      if (! ($local{$N} || $param{$N}))
         {
           $dummy_arg_LT->appendChild (&n ("<arg-N><N><n>$N2M->{$N}</n></N></arg-N>"));
           $dummy_arg_LT->appendChild (&t (", ")) if ($N ne $N[-1]);
@@ -299,7 +313,7 @@ EOF
         }
     }
   
-  return [$o, $call];
+  return [$o, $call, $include];
 }
 
 

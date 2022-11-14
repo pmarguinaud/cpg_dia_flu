@@ -405,9 +405,6 @@ sub makeParallelSingleColumnFieldAPI
   my ($name) = &F ('.//subroutine-N', $d, 1);
   my $i = 0;
 
-=pod
-
-  mkdir ('para');
   for my $para (@para)
     {
       my $para1 = $para->cloneNode (1);
@@ -415,18 +412,23 @@ sub makeParallelSingleColumnFieldAPI
       $para->parentNode->insertBefore (&t ("\n"), $para);
       use Outline;
       my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
-      my ($outline, $call) = @$oc;
-
-      &Fxtran::fold ($call);
+      my ($outline, $call, $include) = @$oc;
 
       my $sync = &FieldAPI::makeSyncHost ($outline);
 
       my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
-      'FileHandle'->new ('>para/' . lc ($name) . ".F90")->print ($outline->textContent);
+      'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
+
+      my ($filename) = &F ('./filename/text()', $include);
+      $filename->setData (lc ($name) . '.intfb.h');
+
+      my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
+      $proc->setData ($name);
+
+      &Fxtran::fold ($call);
+
       $i++;
     }
-
-=cut
 
   &FieldAPI::pointers2FieldAPIPtr ($d);
 
