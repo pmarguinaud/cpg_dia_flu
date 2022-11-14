@@ -51,7 +51,7 @@ sub saveToFile
 
 sub apply
 {
-  my ($method, $doc, $file) = @_;
+  my ($method, $doc) = @_;
   my ($module, $routine) = split (m/::/o, $method);
 
   eval "use $module;";
@@ -64,7 +64,6 @@ sub apply
     &{$method} ($doc);
   }
 
-  &saveToFile ($doc, "tmp/$routine/$file");
 }
 
 sub saveSubroutine
@@ -79,8 +78,8 @@ sub saveSubroutine
 
 sub generateSyncHost
 {
-  my $f = shift;
-  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+  shift;
+  my $d = shift;
 
   &FieldAPI::makeSyncHost ($d);
 
@@ -89,12 +88,12 @@ sub generateSyncHost
 
 sub generateParallelFieldAPI
 {
+  shift;
   use Parallel;
   use Stack;
   use Decl;
 
-  my $f = shift;
-  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+  my $d = shift;
 
   return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
 
@@ -106,12 +105,12 @@ sub generateParallelFieldAPI
 
 sub generateParallelSingleColumnFieldAPI
 {
+  shift;
   use Parallel;
   use Stack;
   use Decl;
 
-  my $f = shift;
-  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+  my $d = shift;
 
   return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
 
@@ -124,11 +123,11 @@ sub generateParallelSingleColumnFieldAPI
 
 sub generateFieldAPI
 {
+  shift;
   use Subroutine;
   use Call;
 
-  my $f = shift;
-  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+  my $d = shift;
 
   &FieldAPI::pointers2FieldAPIPtr ($d);
 
@@ -140,11 +139,11 @@ sub generateFieldAPI
 
 sub generateParallelView
 {
+  shift;
   use Parallel;
   use Stack;
 
-  my $f = shift;
-  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+  my $d = shift;
 
   return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
 
@@ -155,13 +154,14 @@ sub generateParallelView
 
 sub generateSingleColumnFieldAPI
 {
+  shift;
   use Subroutine;
   use Call;
   use Decl;
   use Stack;
+  use Associate;
 
-  my $f = shift;
-  my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+  my $d = shift;
 
   my @method = qw (
     Associate::resolveAssociates
@@ -173,7 +173,7 @@ sub generateSingleColumnFieldAPI
 
   for my $method (@method)
     {
-      &apply ($method, $d, $f);
+      &apply ($method, $d);
     }
 
   my $suffix = '_SINGLE_COLUMN_FIELD_API';
@@ -191,28 +191,29 @@ sub preProcessIfNewer
 
   if (&newer ($f1, $f2))
     {
-      use Associate;
-      use Inline;
-      use Construct;
-      use DrHook;
-
+      use Directive;
       print "Preprocess $f1\n";
 
       &copy ($f1, $f2);
 
       &Fxtran::intfb ($f2);
 
-      &generateSyncHost ($f1);
+      my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500)]);
+      
+      &Directive::parseDirectives ($d);
 
-      &generateParallelView ($f1);
+      my @generate = &F ('.//generate', $d);
 
-      &generateParallelFieldAPI ($f1);
+      for my $generate (&F ('.//generate', $d))
+        {
+          my @target = split (m,\W,o, $generate->getAttribute ('target'));
+          for my $target (@target)
+            {
+              my $method = "generate$target";
+              __PACKAGE__->$method ($d->cloneNode (1));
+            }
+        }
 
-      &generateSingleColumnFieldAPI ($f1);
-
-      &generateFieldAPI ($f1);
-
-      &generateParallelSingleColumnFieldAPI ($f1);
     }
 }
 
