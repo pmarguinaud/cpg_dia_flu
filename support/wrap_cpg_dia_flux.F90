@@ -47,7 +47,7 @@ TYPE(FIELD_2D_OWNER), POINTER :: YLFO ! For the stack
 #include "cpg_dia_flu_single_column_field_api_host.intfb.h"
 #include "cpg_dia_flu_sync_host.intfb.h"
 #include "cpg_dia_flu_parallel_view.intfb.h"
-#include "cpg_dia_flu_parallel_field_api.intfb.h"
+#include "cpg_dia_flu_parallel_block_field_api.intfb.h"
 #include "cpg_dia_flu_parallel_single_column_field_api.intfb.h"
 
 TYPE(CPG_BNDS_TYPE)       :: YLCPG_BNDS1
@@ -161,8 +161,8 @@ DO ITIME = 1, NTIME
               & (YLCPG_BNDS, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, &
               & YLCPG_DYN0, YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL, YLSTACK)
   ELSEIF (LLPARALLELFIELDAPI) THEN
-    CALL CPG_DIA_FLU_PARALLEL_FIELD_API (YLCPG_BNDS, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
-                                       & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL)
+    CALL CPG_DIA_FLU_PARALLEL_BLOCK_FIELD_API (YLCPG_BNDS, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
+                                             & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL)
   ELSEIF (LLPARALLELVIEW) THEN
     CALL CPG_DIA_FLU_PARALLEL_VIEW (YLCPG_BNDS, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
                                   & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL)

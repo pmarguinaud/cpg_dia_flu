@@ -281,7 +281,7 @@ sub makeParallelView
   return 1;
 }
 
-sub makeParallelFieldAPI
+sub makeParallelBlockFieldAPI
 {
   use FieldAPI;
 
@@ -300,7 +300,7 @@ sub makeParallelFieldAPI
   &Construct::changeIfStatementsInIfConstructs ($d);
   &Inline::inlineContainedSubroutines ($d);
 
-  my $suffix = '_PARALLEL_FIELD_API';
+  my $suffix = '_PARALLEL_BLOCK_FIELD_API';
 
   &wrapArrays ($d, $suffix);
 

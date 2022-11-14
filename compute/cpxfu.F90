@@ -2,7 +2,7 @@ SUBROUTINE CPXFU(YDXFU, YDPRECIPS, YDCPG_OPTS, YDCPG_BNDS, YDMF_PHYS_OUT, YDCPG_
 & PSTRDU, PSTRDV, PSTRTU, PSTRTV, PXUCLS, PXVCLS, PXNUCLS, PXNVCLS, PXUGST, PXVGST, PDPRECIPS,        &
 & PDPRECIPS2)
 
-!=GENERATE= TARGET=ParallelView/ParallelFieldAPI/ParallelSingleColumnFieldAPI
+!=GENERATE= TARGET=ParallelView/ParallelBlockFieldAPI/ParallelSingleColumnFieldAPI
 !=GENERATE= TARGET=SyncHost/SingleColumnFieldAPIHost/FieldAPIHost
 !=GENERATE= TARGET=SyncDevice/SingleColumnFieldAPIDevice/FieldAPIDevice
 

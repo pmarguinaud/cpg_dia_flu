@@ -1,7 +1,8 @@
 SUBROUTINE CPCFU(YDCST, YDCFU, YDRIP, YDCPG_OPTS, YDCPG_BNDS, YDMF_PHYS_OUT, YDCPG_MISC, YDCPG_DYN0, &
 & YDVARS, YDMF_PHYS_SURF, PSTRCU, PSTRCV, PSTRDU, PSTRDV, PSTRTU, PSTRTV)
 
-!=GENERATE= TARGET=SyncDevice/SyncHost/ParallelView/ParallelFieldAPI/SingleColumnFieldAPIHost/FieldAPIHost/ParallelSingleColumnFieldAPI
+!=GENERATE= TARGET=SyncDevice
+!=GENERATE= TARGET=SyncHost/ParallelView/ParallelBlockFieldAPI/SingleColumnFieldAPIHost/FieldAPIHost/ParallelSingleColumnFieldAPI
 
 !**** *CPCFU* - CUMUL OF FLUX DIAGNOSTICS.
 

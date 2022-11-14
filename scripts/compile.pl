@@ -97,7 +97,7 @@ sub generateSyncDevice
   &saveSubroutine ($d);
 }
 
-sub generateParallelFieldAPI
+sub generateParallelBlockFieldAPI
 {
   shift;
   use Parallel;
@@ -108,7 +108,7 @@ sub generateParallelFieldAPI
 
   return unless (&F ('.//parallel-section', $d));
 
-  &Parallel::makeParallelFieldAPI ($d);
+  &Parallel::makeParallelBlockFieldAPI ($d);
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
 
   &saveSubroutine ($d);
