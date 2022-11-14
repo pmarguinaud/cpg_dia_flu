@@ -281,54 +281,50 @@ sub makeParallelView
   return 1;
 }
 
-sub makeBlockSections
+sub makeBlockSection
 {
   my $d = shift;
   my %args = @_;
-  my @para = @{ $args{sections} };
+  my $para = $args{section};
 
-  for my $para (@para)
-    {
-      my $what = $para->getAttribute ('target') || 'host';
-      my $vector = $para->getAttribute ('vector') || 'block';
-
-      &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
-
-      my ($stmt) = &F ('.//ANY-stmt', $para);
-      my $indent = ' ' x &Fxtran::getIndent ($stmt);
-
-      # Insert loop nest
-
-      my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-      $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
-      $loop .= "${indent}ENDDO\n";
-
-      my ($loop) = &Fxtran::fxtran (fragment => $loop);
-
-      my ($enddo) = &F ('.//end-do-stmt', $loop);
-      my $p = $enddo->parentNode;
-     
-      for my $node ($para->childNodes ()) 
-        {   
-          $p->insertBefore (&t (' ' x (2)), $enddo);
-          &Fxtran::reIndent ($node, 2); 
-          $p->insertBefore ($node, $enddo);
-        }   
-      $p->insertBefore (&t ($indent), $enddo);
-
-      $para->appendChild (&t ("\n"));
-      $para->appendChild ($loop);
-      $para->insertBefore (&t ($indent), $loop);
-
-      &Call::addSuffix ($d, section => $para, suffix => '_FIELD_API_' . uc ($what));
-
-      # Insert OpenMP directive
-
-      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
-      
-      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
-
-    }
+  my $what = $para->getAttribute ('target') || 'host';
+  my $vector = $para->getAttribute ('vector') || 'block';
+  
+  &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
+  
+  my ($stmt) = &F ('.//ANY-stmt', $para);
+  my $indent = ' ' x &Fxtran::getIndent ($stmt);
+  
+  # Insert loop nest
+  
+  my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+  $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+  $loop .= "${indent}ENDDO\n";
+  
+  my ($loop) = &Fxtran::fxtran (fragment => $loop);
+  
+  my ($enddo) = &F ('.//end-do-stmt', $loop);
+  my $p = $enddo->parentNode;
+  
+  for my $node ($para->childNodes ()) 
+    {   
+      $p->insertBefore (&t (' ' x (2)), $enddo);
+      &Fxtran::reIndent ($node, 2); 
+      $p->insertBefore ($node, $enddo);
+    }   
+  $p->insertBefore (&t ($indent), $enddo);
+  
+  $para->appendChild (&t ("\n"));
+  $para->appendChild ($loop);
+  $para->insertBefore (&t ($indent), $loop);
+  
+  &Call::addSuffix ($d, section => $para, suffix => '_FIELD_API_' . uc ($what));
+  
+  # Insert OpenMP directive
+  
+  my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
+  
+  &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 }
 
 sub makeParallelBlockFieldAPI
@@ -363,9 +359,12 @@ sub makeParallelBlockFieldAPI
 
   my @para = &F ('.//parallel-section', $d);
 
-  &makeSyncSections ($d, %args, sections => \@para);
-
-  &makeBlockSections ($d, %args, sections => \@para);
+  my $i = 0;
+  for my $para (@para)
+    {
+      &makeSyncSection ($d, %args, section => $para, number => $i++);
+      &makeBlockSection ($d, %args, section => $para);
+    }
 
   &Subroutine::addSuffix ($d, $suffix);
 
@@ -373,120 +372,110 @@ sub makeParallelBlockFieldAPI
 }
 
 
-sub makeSyncSections
+sub makeSyncSection
 {
   my $d = shift;
   my %args = @_;
-  my @para = @{ $args{sections} };
+  my $para = $args{section};
 
 
   my ($name) = &F ('.//subroutine-N', $d, 1);
-  my $i = 0;
+  my $i = $args{number};
 
-  for my $para (@para)
-    {
-      my $what = $para->getAttribute ('target') || 'host';
-
-      my $para1 = $para->cloneNode (1);
-      $para->parentNode->insertBefore ($para1, $para);
-      $para->parentNode->insertBefore (&t ("\n"), $para);
-      use Outline;
-      my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
-      my ($outline, $call, $include) = @$oc;
-
-      my $sync = &FieldAPI::makeSync ($outline, what => $what);
-
-      my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
-      'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
-
-      my ($filename) = &F ('./filename/text()', $include);
-      $filename->setData (lc ($name) . '.intfb.h');
-
-      my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
-      $proc->setData ($name);
-
-      &Fxtran::fold ($call);
-
-      $i++;
-    }
-
+  my $what = $para->getAttribute ('target') || 'host';
+  
+  my $para1 = $para->cloneNode (1);
+  $para->parentNode->insertBefore ($para1, $para);
+  $para->parentNode->insertBefore (&t ("\n"), $para);
+  use Outline;
+  my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
+  my ($outline, $call, $include) = @$oc;
+  
+  my $sync = &FieldAPI::makeSync ($outline, what => $what);
+  
+  my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
+  'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
+  
+  my ($filename) = &F ('./filename/text()', $include);
+  $filename->setData (lc ($name) . '.intfb.h');
+  
+  my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
+  $proc->setData ($name);
+  
+  &Fxtran::fold ($call);
 }
 
-sub makeSingleColumnSections
+sub makeSingleColumnSection
 {
   my $d = shift;
   my %args = @_;
-  my @para = @{ $args{sections} };
+  my $para = $args{section};
 
-  for my $para (@para)
+  my $what = $para->getAttribute ('target') || 'host';
+  my $vector = $para->getAttribute ('vector') || 'block';
+  
+  &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
+  
+  my ($stmt) = &F ('.//ANY-stmt', $para);
+  my $indent = ' ' x &Fxtran::getIndent ($stmt);
+  
+  # Insert loop nest
+  
+  my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+  $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+  
+  if ($args{stack})
     {
-      my $what = $para->getAttribute ('target') || 'host';
-      my $vector = $para->getAttribute ('vector') || 'block';
-
-      &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
-
-      my ($stmt) = &F ('.//ANY-stmt', $para);
-      my $indent = ' ' x &Fxtran::getIndent ($stmt);
-
-      # Insert loop nest
-
-      my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-      $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
- 
-      if ($args{stack})
-        {
-          $loop .= "${indent}  ! Setup stack\n";
-          $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%PTR (1,IBL))\n";
-          $loop .= "${indent}  YLSTACK%U = YLSTACK%L + KIND (YLSTACK%F_P%PTR) * SIZE (YLSTACK%F_P%PTR (:,IBL))\n";
-        }
-
-      $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
-      $loop .= "${indent}    ! Select single column\n";
-      $loop .= "${indent}    YLCPG_BNDS = YDCPG_BNDS\n";
-      $loop .= "${indent}    YLCPG_BNDS%KIDIA = JLON\n";
-      $loop .= "${indent}    YLCPG_BNDS%KFDIA = JLON\n";
-      $loop .= "${indent}  ENDDO\n";
-      $loop .= "${indent}ENDDO\n";
-
-      my ($loop) = &Fxtran::fxtran (fragment => $loop);
-      my ($loop_jlon) = &F ('./do-construct', $loop);
-
-      my ($enddo) = &F ('.//end-do-stmt', $loop);
-      my $p = $enddo->parentNode;
-     
-      for my $expr (&F ('.//named-E[string(N)="YDCPG_BNDS"]/N/n/text()', $para))
-        {
-          $expr->setData ('YLCPG_BNDS');
-        }
-
-      for my $node ($para->childNodes ()) 
-        {   
-          $p->insertBefore (&t (' ' x (4)), $enddo);
-          &Fxtran::reIndent ($node, 4); 
-          $p->insertBefore ($node, $enddo);
-        }   
-      $p->insertBefore (&t ($indent . '  '), $enddo);
-
-      $para->appendChild (&t ("\n"));
-      $para->appendChild ($loop);
-      $para->insertBefore (&t ($indent), $loop);
-
-      &Loop::removeJlonConstructs ($loop_jlon);
-      &Loop::removeJlonLoopsFieldAPI ($d, $loop_jlon);
-
-      &Call::addSuffix ($d, section => $para, suffix => '_SINGLE_COLUMN_FIELD_API_' . uc ($what));
-
-      # Insert OpenMP directive
-
-      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
-      @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
-
-      my @first = ('YDCPG_BNDS');
-      push @first, 'YLSTACK' if ($args{stack});
-      
-      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
-
+      $loop .= "${indent}  ! Setup stack\n";
+      $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%PTR (1,IBL))\n";
+      $loop .= "${indent}  YLSTACK%U = YLSTACK%L + KIND (YLSTACK%F_P%PTR) * SIZE (YLSTACK%F_P%PTR (:,IBL))\n";
     }
+  
+  $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
+  $loop .= "${indent}    ! Select single column\n";
+  $loop .= "${indent}    YLCPG_BNDS = YDCPG_BNDS\n";
+  $loop .= "${indent}    YLCPG_BNDS%KIDIA = JLON\n";
+  $loop .= "${indent}    YLCPG_BNDS%KFDIA = JLON\n";
+  $loop .= "${indent}  ENDDO\n";
+  $loop .= "${indent}ENDDO\n";
+  
+  my ($loop) = &Fxtran::fxtran (fragment => $loop);
+  my ($loop_jlon) = &F ('./do-construct', $loop);
+  
+  my ($enddo) = &F ('.//end-do-stmt', $loop);
+  my $p = $enddo->parentNode;
+  
+  for my $expr (&F ('.//named-E[string(N)="YDCPG_BNDS"]/N/n/text()', $para))
+    {
+      $expr->setData ('YLCPG_BNDS');
+    }
+  
+  for my $node ($para->childNodes ()) 
+    {   
+      $p->insertBefore (&t (' ' x (4)), $enddo);
+      &Fxtran::reIndent ($node, 4); 
+      $p->insertBefore ($node, $enddo);
+    }   
+  $p->insertBefore (&t ($indent . '  '), $enddo);
+  
+  $para->appendChild (&t ("\n"));
+  $para->appendChild ($loop);
+  $para->insertBefore (&t ($indent), $loop);
+  
+  &Loop::removeJlonConstructs ($loop_jlon);
+  &Loop::removeJlonLoopsFieldAPI ($d, $loop_jlon);
+  
+  &Call::addSuffix ($d, section => $para, suffix => '_SINGLE_COLUMN_FIELD_API_' . uc ($what));
+  
+  # Insert OpenMP directive
+  
+  my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
+  @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
+  
+  my @first = ('YDCPG_BNDS');
+  push @first, 'YLSTACK' if ($args{stack});
+  
+  &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 }
 
 sub makeParallelSingleColumnFieldAPI
@@ -525,9 +514,12 @@ sub makeParallelSingleColumnFieldAPI
 
   my @para = &F ('.//parallel-section', $d);
 
-  &makeSyncSections ($d, %args, sections => \@para);
-
-  &makeSingleColumnSections ($d, %args, sections => \@para);
+  my $i = 0;
+  for my $para (@para)
+    {
+      &makeSyncSection ($d, %args, section => $para, number => $i++);
+      &makeSingleColumnSection ($d, %args, section => $para);
+    }
 
   &Subroutine::addSuffix ($d, $suffix);
 
