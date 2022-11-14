@@ -203,7 +203,7 @@ sub makeParallelView
 
   &wrapArrays ($d, $suffix);
 
-  my @array = &F ('.//T-decl/_T-spec_/derived-T-spec/T-N', $d, 1);
+  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
   &Decl::use ($d,
               'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
 
@@ -309,8 +309,10 @@ sub makeParallelFieldAPI
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL');
+
+  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
   &Decl::use ($d,
-              'USE ARRAY_MOD');
+              'USE ARRAY_MOD, ONLY : '  . join (', ', @array));
 
   &FieldAPI::pointers2FieldAPIPtr ($d);
 
@@ -402,6 +404,9 @@ sub makeParallelSingleColumnFieldAPI
 
   my ($name) = &F ('.//subroutine-N', $d, 1);
   my $i = 0;
+
+=pod
+
   mkdir ('para');
   for my $para (@para)
     {
@@ -420,6 +425,8 @@ sub makeParallelSingleColumnFieldAPI
       'FileHandle'->new ('>para/' . lc ($name) . ".F90")->print ($outline->textContent);
       $i++;
     }
+
+=cut
 
   &FieldAPI::pointers2FieldAPIPtr ($d);
 
