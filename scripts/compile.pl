@@ -8,6 +8,7 @@ use File::Basename;
 use File::stat;
 use File::Path;
 use Getopt::Long;
+use Data::Dumper;
 use FindBin qw ($Bin);
 use lib $Bin;
 
@@ -86,6 +87,16 @@ sub generateSyncHost
   &saveSubroutine ($d);
 }
 
+sub generateSyncDevice
+{
+  shift;
+  my $d = shift;
+
+  &FieldAPI::makeSyncDevice ($d);
+
+  &saveSubroutine ($d);
+}
+
 sub generateParallelFieldAPI
 {
   shift;
@@ -95,7 +106,7 @@ sub generateParallelFieldAPI
 
   my $d = shift;
 
-  return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
+  return unless (&F ('.//parallel-section', $d));
 
   &Parallel::makeParallelFieldAPI ($d);
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
@@ -112,16 +123,16 @@ sub generateParallelSingleColumnFieldAPI
 
   my $d = shift;
 
-  return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
+  return unless (&F ('.//parallel-section', $d));
 
   &Parallel::makeParallelSingleColumnFieldAPI ($d, stack => 1);
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return $proc =~ m/SYNC_HOST/o; });
+  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return $proc =~ m/SYNC_(?:HOST|DEVICE)/o; });
 
   &saveSubroutine ($d);
 }
 
-sub generateFieldAPI
+sub generateFieldAPIDevice
 {
   shift;
   use Subroutine;
@@ -129,10 +140,26 @@ sub generateFieldAPI
 
   my $d = shift;
 
-  &FieldAPI::pointers2FieldAPIPtr ($d);
+  &FieldAPI::pointers2FieldAPIPtrDevice ($d);
 
-  &Subroutine::addSuffix ($d, '_FIELD_API');
-  &Call::addSuffix ($d, suffix => '_FIELD_API');
+  &Subroutine::addSuffix ($d, '_FIELD_API_DEVICE');
+  &Call::addSuffix ($d, suffix => '_FIELD_API_DEVICE');
+
+  &saveSubroutine ($d);
+}
+
+sub generateFieldAPIHost
+{
+  shift;
+  use Subroutine;
+  use Call;
+
+  my $d = shift;
+
+  &FieldAPI::pointers2FieldAPIPtrHost ($d);
+
+  &Subroutine::addSuffix ($d, '_FIELD_API_HOST');
+  &Call::addSuffix ($d, suffix => '_FIELD_API_HOST');
 
   &saveSubroutine ($d);
 }
@@ -145,14 +172,14 @@ sub generateParallelView
 
   my $d = shift;
 
-  return unless (&F ('.//C[starts-with(string(.),"!=PARALLEL")', $d));
+  return unless (&F ('.//parallel-section', $d));
 
   &Parallel::makeParallelView ($d);
 
   &saveSubroutine ($d);
 }
 
-sub generateSingleColumnFieldAPI
+sub generateSingleColumnFieldAPIHost
 {
   shift;
   use Subroutine;
@@ -167,7 +194,7 @@ sub generateSingleColumnFieldAPI
     Associate::resolveAssociates
     Construct::changeIfStatementsInIfConstructs
     Inline::inlineContainedSubroutines
-    FieldAPI::pointers2FieldAPIPtr
+    FieldAPI::pointers2FieldAPIPtrHost
     Loop::removeJlonLoops
   );
 
@@ -176,7 +203,40 @@ sub generateSingleColumnFieldAPI
       &apply ($method, $d);
     }
 
-  my $suffix = '_SINGLE_COLUMN_FIELD_API';
+  my $suffix = '_SINGLE_COLUMN_FIELD_API_HOST';
+
+  &Call::addSuffix ($d, suffix => $suffix);
+  &Subroutine::addSuffix ($d, $suffix);
+  &Stack::addStack ($d);
+
+  &saveSubroutine ($d);
+}
+
+sub generateSingleColumnFieldAPIDevice
+{
+  shift;
+  use Subroutine;
+  use Call;
+  use Decl;
+  use Stack;
+  use Associate;
+
+  my $d = shift;
+
+  my @method = qw (
+    Associate::resolveAssociates
+    Construct::changeIfStatementsInIfConstructs
+    Inline::inlineContainedSubroutines
+    FieldAPI::pointers2FieldAPIPtrDevice
+    Loop::removeJlonLoops
+  );
+
+  for my $method (@method)
+    {
+      &apply ($method, $d);
+    }
+
+  my $suffix = '_SINGLE_COLUMN_FIELD_API_DEVICE';
 
   &Call::addSuffix ($d, suffix => $suffix);
   &Subroutine::addSuffix ($d, $suffix);
@@ -210,6 +270,7 @@ sub preProcessIfNewer
           for my $target (@target)
             {
               my $method = "generate$target";
+              print "  $method\n";
               __PACKAGE__->$method ($d->cloneNode (1));
             }
         }

@@ -185,8 +185,6 @@ sub makeParallelView
 {
   my $d = shift;
 
-  return unless (&Directive::parseDirectives ($d));
-
   # Resolving ASSOCIATEs in parallel sections is mandatory
   &Associate::resolveAssociates ($d);
 
@@ -288,8 +286,7 @@ sub makeParallelFieldAPI
   use FieldAPI;
 
   my $d = shift;
-
-  return unless (&Directive::parseDirectives ($d));
+  my %args = @_;
 
   # Resolving ASSOCIATEs in parallel sections is mandatory
   &Associate::resolveAssociates ($d);
@@ -314,13 +311,13 @@ sub makeParallelFieldAPI
   &Decl::use ($d,
               'USE ARRAY_MOD, ONLY : '  . join (', ', @array));
 
-  &FieldAPI::pointers2FieldAPIPtr ($d);
-
-
   my @para = &F ('.//parallel-section', $d);
 
   for my $para (@para)
     {
+      my $what = $para->getAttribute ('target') || 'host';
+      &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
+
       my ($stmt) = &F ('.//ANY-stmt', $para);
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
@@ -347,7 +344,7 @@ sub makeParallelFieldAPI
       $para->appendChild ($loop);
       $para->insertBefore (&t ($indent), $loop);
 
-      &Call::addSuffix ($d, section => $para, suffix => '_FIELD_API');
+      &Call::addSuffix ($d, section => $para, suffix => '_FIELD_API_' . uc ($what));
 
       # Insert OpenMP directive
 
@@ -368,9 +365,7 @@ sub makeParallelSingleColumnFieldAPI
   use Loop;
 
   my $d = shift;
-  my %opts = @_;
-
-  return unless (&Directive::parseDirectives ($d));
+  my %args = @_;
 
   # Resolving ASSOCIATEs in parallel sections is mandatory
   &Associate::resolveAssociates ($d);
@@ -400,13 +395,15 @@ sub makeParallelSingleColumnFieldAPI
 
   my @para = &F ('.//parallel-section', $d);
 
-  my $ctx = &FieldAPI::makeSyncHostContext ($d);
+  my $ctx = &FieldAPI::makeSyncContext ($d);
 
   my ($name) = &F ('.//subroutine-N', $d, 1);
   my $i = 0;
 
   for my $para (@para)
     {
+      my $what = $para->getAttribute ('target') || 'host';
+
       my $para1 = $para->cloneNode (1);
       $para->parentNode->insertBefore ($para1, $para);
       $para->parentNode->insertBefore (&t ("\n"), $para);
@@ -414,7 +411,7 @@ sub makeParallelSingleColumnFieldAPI
       my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
       my ($outline, $call, $include) = @$oc;
 
-      my $sync = &FieldAPI::makeSyncHost ($outline);
+      my $sync = &FieldAPI::makeSync ($outline, what => $what);
 
       my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
       'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
@@ -430,10 +427,11 @@ sub makeParallelSingleColumnFieldAPI
       $i++;
     }
 
-  &FieldAPI::pointers2FieldAPIPtr ($d);
-
   for my $para (@para)
     {
+      my $what = $para->getAttribute ('target') || 'host';
+      &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
+
       my ($stmt) = &F ('.//ANY-stmt', $para);
       my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
@@ -442,7 +440,7 @@ sub makeParallelSingleColumnFieldAPI
       my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
       $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
  
-      if ($opts{stack})
+      if ($args{stack})
         {
           $loop .= "${indent}  ! Setup stack\n";
           $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%PTR (1,IBL))\n";
@@ -483,15 +481,15 @@ sub makeParallelSingleColumnFieldAPI
       &Loop::removeJlonConstructs ($loop_jlon);
       &Loop::removeJlonLoopsFieldAPI ($d, $loop_jlon);
 
-      &Call::addSuffix ($d, section => $para, suffix => '_SINGLE_COLUMN_FIELD_API');
+      &Call::addSuffix ($d, section => $para, suffix => '_SINGLE_COLUMN_FIELD_API_' . uc ($what));
 
       # Insert OpenMP directive
 
       my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
-      @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($opts{stack});
+      @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
 
       my @first = ('YDCPG_BNDS');
-      push @first, 'YLSTACK' if ($opts{stack});
+      push @first, 'YLSTACK' if ($args{stack});
       
       &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 

@@ -122,20 +122,45 @@ sub getExprFieldAPIMember
   return &getFieldAPIMember ($type, @ct);
 }
   
+sub pointers2FieldAPIPtrHost
+{
+  &pointers2FieldAPIPtr (@_, what => 'host');
+}
+
+sub pointers2FieldAPIPtrDevice
+{
+  &pointers2FieldAPIPtr (@_, what => 'device');
+}
+
 sub pointers2FieldAPIPtr
 {
   my $d = shift;
+  my %args = @_;
+
+  my $s = $args{section} || $d;
 
   my $TI = &getTypeInfo ();
   
   my @T = sort keys (%$TI);
+
+  my $PTR;
+
+  if (lc ($args{what}) eq 'host')
+    {
+      $PTR = 'PTR';
+    }
+  elsif (lc ($args{what}) eq 'device')
+    {
+      $PTR = 'DEVPTR';
+    }
+  die &Dumper (\%args) unless ($PTR);
   
   for my $T (@T)
     {
       my @F = &F ('.//T-decl-stmt[./_T-spec_/derived-T-spec[string(T-N)="?"]]//EN-decl/EN-N/N/n/text()', $T, $d, 1);
       for my $F (@F)
         {
-          my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $d);
+          my @expr = &F ('.//named-E[string(N)="?"][R-LT]', $F, $s);
           for my $expr (@expr)
             {
               my @ct = &F ('./R-LT/component-R/ct', $expr);
@@ -146,7 +171,7 @@ sub pointers2FieldAPIPtr
   
               $ct[-1]->replaceNode (my $ct = &n ("<ct>$f</ct>"));
               my ($rlt) = &F ('./R-LT', $expr);
-              $rlt->insertAfter (my $ptr = &n ("<component-R>%<ct>PTR</ct></component-R>"), $ct->parentNode);
+              $rlt->insertAfter (my $ptr = &n ("<component-R>%<ct>$PTR</ct></component-R>"), $ct->parentNode);
   
               my ($ar) = &F ('following-sibling::ANY-R', $ptr);
   
@@ -185,7 +210,7 @@ sub pointers2FieldAPIPtr
 }
 
 
-sub makeSyncHostContext
+sub makeSyncContext
 {
   my $d = shift;
 
@@ -209,6 +234,11 @@ sub makeSyncHostContext
 }
 
 sub makeSyncHostSection
+{
+  &makeSyncSection (@_, what => 'host');
+}
+
+sub makeSyncSection
 {
   my $d = shift;
   my %args = @_;
@@ -274,7 +304,7 @@ sub makeSyncHostSection
 
   &simplifyReadWriteAssignemnts ($s);
 
-  &changeSimpleAssignmentsToSync ($s);
+  &changeSimpleAssignmentsToSync ($s, what => $args{what});
 
   &Scope::removeWhiteLines ($s);
 
@@ -518,19 +548,22 @@ sub useFieldAPIObjects
 sub changeSimpleAssignmentsToSync
 {
   my $d = shift;
+  my %args = @_;
 
   my @stmt = &F ('.//a-stmt[string(E-1)="ZDUM" or string(E-2)="ZDUM"]', $d);
+
+  my $SYNC = 'SYNC_' . uc ($args{what});
 
   for my $stmt (@stmt)
     {
       my ($E1, $E2) = &F ('./E-1|./E-2', $stmt, 1);
       if ($E2 eq 'ZDUM')
         {
-          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E1)) CALL $E1%SYNC_HOST_RDWR"));
+          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E1)) CALL $E1%${SYNC}_RDWR"));
         }
       else
         {
-          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E2)) CALL $E2%SYNC_HOST_RDONLY"));
+          $stmt->replaceNode (&s ("IF (ASSOCIATED ($E2)) CALL $E2%${SYNC}_RDONLY"));
         }
     }
 }
@@ -539,6 +572,16 @@ sub changeSimpleAssignmentsToSync
 
 sub makeSyncHost
 {
+  &makeSync (@_, what => 'host');
+}
+
+sub makeSyncDevice
+{
+  &makeSync (@_, what => 'device');
+}
+
+sub makeSync
+{
   use Decl;
   use Construct;
   use Inline;
@@ -546,12 +589,13 @@ sub makeSyncHost
   use Construct;
 
   my $d = shift;
+  my %args = @_;
 
   &Decl::forceSingleDecl ($d);
   &Construct::changeIfStatementsInIfConstructs ($d);
   &Inline::inlineContainedSubroutines ($d);
 
-  my $suffix = '_SYNC_HOST';
+  my $suffix = '_SYNC_' . uc ($args{what});
 
   my @en_decl = (&F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="YDCPG_OPTS%KLON"]]', $d),
                  &F ('.//EN-decl[./array-spec/shape-spec-LT/shape-spec[string(upper-bound)="KLON"]]', $d));
@@ -667,7 +711,7 @@ sub makeSyncHost
 
   &simplifyReadWriteAssignemnts ($d);
 
-  &changeSimpleAssignmentsToSync ($d);
+  &changeSimpleAssignmentsToSync ($d, what => $args{what});
 
   &Subroutine::addSuffix ($d, $suffix);
   

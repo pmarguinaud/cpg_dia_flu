@@ -44,7 +44,7 @@ TYPE(STACK)               :: YLSTACK
 TYPE(FIELD_2D_OWNER), POINTER :: YLFO ! For the stack
 
 #include "cpg_dia_flu.intfb.h"
-#include "cpg_dia_flu_single_column_field_api.intfb.h"
+#include "cpg_dia_flu_single_column_field_api_host.intfb.h"
 #include "cpg_dia_flu_sync_host.intfb.h"
 #include "cpg_dia_flu_parallel_view.intfb.h"
 #include "cpg_dia_flu_parallel_field_api.intfb.h"
@@ -184,8 +184,8 @@ DO ITIME = 1, NTIME
         YLCPG_BNDS1 = YLCPG_BNDS
         YLCPG_BNDS1%KIDIA = JLON
         YLCPG_BNDS1%KFDIA = JLON
-        CALL CPG_DIA_FLU_SINGLE_COLUMN_FIELD_API (YLCPG_BNDS1, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
-                                                & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL, YLSTACK)
+        CALL CPG_DIA_FLU_SINGLE_COLUMN_FIELD_API_HOST (YLCPG_BNDS1, YLCPG_OPTS, YLCPG_MISC, YLMF_PHYS_OUT, YLCPG_DYN0, &
+                                                     & YLMF_PHYS_SURF, YLVARS, YLCFU, YLXFU, YLMODEL, YLSTACK)
       ENDDO
 
     ELSE

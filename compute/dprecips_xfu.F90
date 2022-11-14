@@ -1,6 +1,7 @@
 SUBROUTINE DPRECIPS_XFU(KIDIA,KFDIA,KLON,KDTPREC,KSTATS,PDPRECIPS,PXPTYPE,LDRESET)
 
-!=GENERATE= TARGET=SyncHost/SingleColumnFieldAPI/FieldAPI
+!=GENERATE= TARGET=SyncHost/SingleColumnFieldAPIHost/FieldAPIHost
+!=GENERATE= TARGET=SyncDevice/SingleColumnFieldAPIDevice/FieldAPIDevice
 
 !**** *DPRECIPS_XFU*   -  Compute precipitation type diagnostic
 
