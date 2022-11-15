@@ -211,8 +211,8 @@ CONTAINS
     IF (ASSOCIATED (SELF%DEVPTR)) THEN
 #ifdef _OPENACC
       !$acc exit data delete (SELF%DEVPTR)
-      DEALLOCATE (SELF%DEVPTR)
 #endif /* _OPENACC */
+      DEALLOCATE (SELF%DEVPTR)
       NULLIFY (SELF%DEVPTR)
     ENDIF
   END SUBROUTINE ${field_type_name}$_DELETE_DEVICE
@@ -245,7 +245,6 @@ CONTAINS
   CLASS(${field_type_name}$) :: SELF
   INTEGER (KIND=JPIM), INTENT (IN) :: KDIR
   REAL :: START, FINISH
-#ifdef _OPENACC
 
   SELF%LAST_CONTIGUOUS_DIMENSION = ${field_type_name}$_GET_LAST_CONTIGUOUS_DIMENSION (SELF%PTR)
 
@@ -267,7 +266,9 @@ CONTAINS
 
 #:for d in range (0, rank+1)
     SUBROUTINE COPY_DIM${d}$_CONTIGUOUS (HST, DEV, KDIR)
+#ifdef _OPENACC
     USE OPENACC
+#endif
     ${dtype}$, POINTER :: HST (${shapes[rank]}$), DEV (${shapes[rank]}$)
     INTEGER (KIND=JPIM), INTENT (IN) :: KDIR
     INTEGER (KIND=JPIM) :: ISIZE
@@ -284,13 +285,21 @@ CONTAINS
     ${indent}$  ISIZE = KIND (HST) * SIZE (HST (${ar}$))
     #:endif
     ${indent}$  IF (KDIR == NH2D) THEN
+#ifdef _OPENACC
     ${indent}$    !$acc host_data use_device (DEV)
     ${indent}$    CALL ACC_MEMCPY_TO_DEVICE (DEV (${ar}$), HST (${ar}$), ISIZE)
     ${indent}$    !$acc end host_data
+#else
+    ${indent}$    DEV (${ar}$) = HST (${ar}$)
+#endif
     ${indent}$  ELSEIF (KDIR == ND2H) THEN
+#ifdef _OPENACC
     ${indent}$    !$acc host_data use_device (DEV)
     ${indent}$    CALL ACC_MEMCPY_FROM_DEVICE (HST (${ar}$), DEV (${ar}$), ISIZE)
     ${indent}$    !$acc end host_data
+#else
+    ${indent}$    HST (${ar}$) = DEV (${ar}$)
+#endif
     ${indent}$  ENDIF
   #:for e in range (d, rank)
     ${'  ' * (rank - e - 1)}$ENDDO
@@ -298,7 +307,7 @@ CONTAINS
     END SUBROUTINE
 
 #:endfor
-#endif /* _OPENACC */
+
   END SUBROUTINE ${field_type_name}$_COPY
 
 
@@ -310,9 +319,7 @@ CONTAINS
 
     LBOUNDS=LBOUND(SELF%PTR)
     IF (IAND (SELF%ISTATUS, NHSTFRESH) == 0) THEN
-#ifdef _OPENACC
       CALL SELF%COPY (ND2H)
-#endif /* _OPENACC */
       SELF%ISTATUS = IOR (SELF%ISTATUS, NHSTFRESH)
     ENDIF
     PTR (${lbptr (rank)}$) => SELF%PTR (${','.join(':' for _ in range(rank))}$)
@@ -362,15 +369,13 @@ CONTAINS
 
     LBOUNDS=LBOUND(SELF%PTR)
     IF (IAND (SELF%ISTATUS, NDEVFRESH) == 0) THEN
-#ifdef _OPENACC
       IF (.NOT. ASSOCIATED (SELF%DEVPTR)) THEN
         ALLOCATE (SELF%DEVPTR, MOLD=SELF%PTR)
+#ifdef _OPENACC
         !$acc enter data create (SELF%DEVPTR)
+#endif
       ENDIF
       CALL SELF%COPY (NH2D)
-#else
-      SELF%DEVPTR => SELF%PTR
-#endif /* _OPENACC */
       SELF%ISTATUS = IOR (SELF%ISTATUS, NDEVFRESH)
     ENDIF
     PTR (${lbptr (rank)}$) => SELF%DEVPTR (${','.join(':' for _ in range(rank))}$)
