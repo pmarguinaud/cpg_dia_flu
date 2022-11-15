@@ -327,6 +327,61 @@ sub makeBlockSection
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 }
 
+sub makePostSyncSection
+{
+  my $d = shift;
+  my ($para, $outline, $call, $include) = @_;
+
+  my $rename_device_to_host = sub
+  {
+    my $text = shift;
+    my $tt = $text->data;
+    $tt =~ s{(_DEVICE)}{my $host = "_HOST"; lc ($1) eq $1 ? lc ($host) : uc ($host)}eio;
+    $text->setData ($tt);
+  };
+
+  my $tt;
+
+  # Sync routine
+
+  $outline = $outline->cloneNode (1);
+
+  for (&F ('.//call-stmt/procedure-designator/named-E/N/n/text()[contains(string(.),"SYNC_")]', $outline),
+       &F ('.//call-stmt/procedure-designator/named-E/R-LT/component-R/ct[contains(string(.),"SYNC_")]/text()', $outline),
+       &F ('.//include/filename/text()[contains(string(.),"_sync")]', $outline))
+    {
+      $rename_device_to_host->($_);
+    }
+
+  $rename_device_to_host->(&F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline));
+
+  &saveFileWithSubroutineName ($outline);
+
+  # Call statement
+
+  $call = $call->cloneNode (1);
+
+  $rename_device_to_host->(&F ('./procedure-designator/named-E/N/n/text()', $call));
+
+  $para->parentNode->insertAfter ($call, $para);
+  $para->parentNode->insertAfter (&t ("\n"), $para) for (1 .. 2);
+
+  # Include
+  
+  my $include1 = $include->cloneNode (1);
+  $include->parentNode->insertAfter ($include1, $include);
+  $include->parentNode->insertAfter (&t ("\n"), $include);
+
+  $rename_device_to_host->(&F ('./filename/text()', $include1));
+}
+
+sub saveFileWithSubroutineName
+{
+  my $body = shift;
+  my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $body, 1);
+  'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($body->textContent);
+  return $name;
+}
 
 sub makeSyncSection
 {
@@ -348,15 +403,7 @@ sub makeSyncSection
   
   &FieldAPI::makeSync ($outline, what => $what);
   
-  my $save = sub
-  {
-    my $body = shift;
-    my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $body, 1);
-    'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($body->textContent);
-    return $name;
-  };
-
-  $name = $save->($outline);
+  $name = &saveFileWithSubroutineName ($outline);
   
   my ($filename) = &F ('./filename/text()', $include);
   $filename->setData (lc ($name) . '.intfb.h');
@@ -370,47 +417,7 @@ sub makeSyncSection
 
   if ($post eq 'synchost')
     {
-      my $rename_device_to_host = sub
-      {
-        my $text = shift;
-        my $tt = $text->data;
-        $tt =~ s{(_DEVICE)}{my $host = "_HOST"; lc ($1) eq $1 ? lc ($host) : uc ($host)}eio;
-        $text->setData ($tt);
-      };
-
-      my $tt;
-
-      # Sync routine
-
-      $outline = $outline->cloneNode (1);
-
-      for (&F ('.//call-stmt/procedure-designator/named-E/N/n/text()[contains(string(.),"SYNC_")]', $outline),
-           &F ('.//call-stmt/procedure-designator/named-E/R-LT/component-R/ct[contains(string(.),"SYNC_")]/text()', $outline),
-           &F ('.//include/filename/text()[contains(string(.),"_sync")]', $outline))
-        {
-          $rename_device_to_host->($_);
-        }
-
-      $rename_device_to_host->(&F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline));
-
-      $save->($outline);
-
-      # Call statement
-
-      $call = $call->cloneNode (1);
-
-      $rename_device_to_host->(&F ('./procedure-designator/named-E/N/n/text()', $call));
-
-      $para->parentNode->insertAfter ($call, $para);
-      $para->parentNode->insertAfter (&t ("\n"), $para) for (1 .. 2);
-
-      # Include
-      
-      my $include1 = $include->cloneNode (1);
-      $include->parentNode->insertAfter ($include1, $include);
-      $include->parentNode->insertAfter (&t ("\n"), $include);
-
-      $rename_device_to_host->(&F ('./filename/text()', $include1));
+      &makePostSyncSection ($d, $para, $outline, $call, $include);
     }
   elsif ($post)
     {
