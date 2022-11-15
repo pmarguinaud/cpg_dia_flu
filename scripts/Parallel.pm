@@ -479,7 +479,9 @@ sub makeSingleColumnSection
   
   # Insert OpenMP directive
   
-  my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
+  my $PTR = $what eq 'host' ? 'PTR' : 'DEVPTR';
+
+  my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $para, 1);
   @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
   
   my @first = ('YDCPG_BNDS');
