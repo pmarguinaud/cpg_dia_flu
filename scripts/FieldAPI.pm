@@ -696,10 +696,10 @@ sub makeSync
         {
           $proc->setData ($name . $suffix);
         }
+
       next unless (my ($filename) = &F ('.//include/filename[string(.)="?"]/text()', lc ($name) . '.intfb.h', $d));
       $filename->setData (lc ($name) . lc ($suffix) . '.intfb.h');
     }
-
 
   &removeNPROMAIfConstruct ($d, $isNproma);
 

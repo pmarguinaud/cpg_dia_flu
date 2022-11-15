@@ -334,7 +334,6 @@ sub makeSyncSection
   my %args = @_;
   my $para = $args{section};
 
-
   my ($name) = &F ('.//subroutine-N', $d, 1);
   my $i = $args{number};
 
@@ -347,10 +346,17 @@ sub makeSyncSection
   my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
   my ($outline, $call, $include) = @$oc;
   
-  my $sync = &FieldAPI::makeSync ($outline, what => $what);
+  &FieldAPI::makeSync ($outline, what => $what);
   
-  my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
-  'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($outline->textContent);
+  my $save = sub
+  {
+    my $body = shift;
+    my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $body, 1);
+    'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($body->textContent);
+    return $name;
+  };
+
+  $name = $save->($outline);
   
   my ($filename) = &F ('./filename/text()', $include);
   $filename->setData (lc ($name) . '.intfb.h');
@@ -359,6 +365,55 @@ sub makeSyncSection
   $proc->setData ($name);
   
   &Fxtran::fold ($call);
+
+  my $post = lc ($para->getAttribute ('post') || '');
+
+  if ($post eq 'synchost')
+    {
+      my $rename_device_to_host = sub
+      {
+        my $text = shift;
+        my $tt = $text->data;
+        $tt =~ s{(_DEVICE)}{my $host = "_HOST"; lc ($1) eq $1 ? lc ($host) : uc ($host)}eio;
+        $text->setData ($tt);
+      };
+
+      my $tt;
+
+      # Sync routine
+
+      $outline = $outline->cloneNode (1);
+
+      for my $sync (&F ('.//call-stmt/procedure-designator/named-E/R-LT/component-R/ct[starts-with(string(.),"SYNC_")]/text()', $outline))
+        {
+          $rename_device_to_host->($sync);
+        }
+      $rename_device_to_host->(&F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline));
+
+      $save->($outline);
+
+      # Call statement
+
+      $call = $call->cloneNode (1);
+
+      $rename_device_to_host->(&F ('./procedure-designator/named-E/N/n/text()', $call));
+
+      $para->parentNode->insertAfter ($call, $para);
+      $para->parentNode->insertAfter (&t ("\n"), $para) for (1 .. 2);
+
+      # Include
+      
+      my $include1 = $include->cloneNode (1);
+      $include->parentNode->insertAfter ($include1, $include);
+      $include->parentNode->insertAfter (&t ("\n"), $include);
+
+      $rename_device_to_host->(&F ('./filename/text()', $include1));
+    }
+  elsif ($post)
+    {
+      die $post;
+    }
+
 }
 
 sub makeSingleColumnSection

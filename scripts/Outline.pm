@@ -282,7 +282,7 @@ EOF
 
   for my $call (sort keys (%call))
     {
-      $C2->parentNode->insertBefore (&Fxtran::fxtran (statement => '#include "' . lc ($call) . '.intfb.h"'), $C2);
+      $C2->parentNode->insertBefore (&n ("<include>#include &quot;<filename>" . lc ($call) . ".intfb.h</filename>&quot;</include>"), $C2); 
       $C2->parentNode->insertBefore (&t ("\n"), $C2);
     }
   
