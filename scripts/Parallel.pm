@@ -384,10 +384,13 @@ sub makeSyncSection
 
       $outline = $outline->cloneNode (1);
 
-      for my $sync (&F ('.//call-stmt/procedure-designator/named-E/R-LT/component-R/ct[starts-with(string(.),"SYNC_")]/text()', $outline))
+      for (&F ('.//call-stmt/procedure-designator/named-E/N/n/text()[contains(string(.),"SYNC_")]', $outline),
+           &F ('.//call-stmt/procedure-designator/named-E/R-LT/component-R/ct[contains(string(.),"SYNC_")]/text()', $outline),
+           &F ('.//include/filename/text()[contains(string(.),"_sync")]', $outline))
         {
-          $rename_device_to_host->($sync);
+          $rename_device_to_host->($_);
         }
+
       $rename_device_to_host->(&F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline));
 
       $save->($outline);

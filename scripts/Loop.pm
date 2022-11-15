@@ -103,7 +103,7 @@ sub removeJlonLoopsFieldAPI
 
   my @F = sort keys (%T);
 
-  my @ptr = &F ('.//named-E[./R-LT/component-R[string(ct)="PTR"]][not(ancestor::call-stmt)]', $s);
+  my @ptr = &F ('.//named-E[./R-LT/component-R[string(ct)="DEVPTR" or string(ct)="PTR"]][not(ancestor::call-stmt)]', $s);
   
   for my $ptr (@ptr)
     {
