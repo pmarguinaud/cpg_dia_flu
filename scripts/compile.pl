@@ -97,7 +97,7 @@ sub generateSyncDevice
   &saveSubroutine ($d);
 }
 
-sub generateParallelBlockFieldAPI
+sub generateParallelFieldAPI
 {
   shift;
   use Parallel;
@@ -108,25 +108,7 @@ sub generateParallelBlockFieldAPI
 
   return unless (&F ('.//parallel-section', $d));
 
-  &Parallel::makeParallelBlockFieldAPI ($d);
-  &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL_|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
-
-  &saveSubroutine ($d);
-}
-
-sub generateParallelSingleColumnFieldAPI
-{
-  shift;
-  use Parallel;
-  use Stack;
-  use Decl;
-
-  my $d = shift;
-
-  return unless (&F ('.//parallel-section', $d));
-
-  &Parallel::makeParallelSingleColumnFieldAPI ($d, stack => 1);
+  &Parallel::makeParallelFieldAPI ($d, suffix => '_PARALLEL_FIELD_API');
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
   &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL_|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
 

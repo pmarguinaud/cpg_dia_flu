@@ -490,14 +490,4 @@ sub makeParallelFieldAPI
   return 1;
 }
 
-sub makeParallelSingleColumnFieldAPI
-{
-  &makeParallelFieldAPI (@_, suffix => '_PARALLEL_SINGLE_COLUMN_FIELD_API');
-}
-
-sub makeParallelBlockFieldAPI
-{
-  &makeParallelFieldAPI (@_, suffix => '_PARALLEL_BLOCK_FIELD_API');
-}
-
 1;

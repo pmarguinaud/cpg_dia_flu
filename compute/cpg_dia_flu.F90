@@ -2,7 +2,7 @@ SUBROUTINE CPG_DIA_FLU (YDCPG_BNDS, YDCPG_OPTS, YDCPG_MISC, YDMF_PHYS_OUT, YDCPG
 & YDMF_PHYS_SURF, YDVARS, YDCFU, YDXFU, YDMODEL)
 
 !=GENERATE= TARGET=SyncDevice
-!=GENERATE= TARGET=SyncHost/ParallelView/ParallelBlockFieldAPI/SingleColumnFieldAPIHost/FieldAPIHost/ParallelSingleColumnFieldAPI
+!=GENERATE= TARGET=SyncHost/ParallelView/ParallelFieldAPI/SingleColumnFieldAPIHost/FieldAPIHost
 
 USE YOMHOOK                 , ONLY : DR_HOOK, LHOOK
 USE PARKIND1                , ONLY : JPIM, JPRB
