@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TLAP
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TLAP
+END INTERFACE
+
 
 
 CONTAINS
@@ -241,6 +245,77 @@ IF (LRLAPIN) THEN
   !$acc enter data attach (YD%RLAPIN)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TLAP (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TLAP), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LMYMS, LNASM0, LNASM0G, LNASN0, LNSE0L, LNSPZERO, LNVALUE, LRLAPDI, LRLAPIN
+
+LNASN0 = ALLOCATED (YD%NASN0)
+IF (LNASN0) THEN
+  !$acc exit data detach (YD%NASN0)
+  !$acc exit data delete (YD%NASN0)
+ENDIF
+
+LNASM0 = ALLOCATED (YD%NASM0)
+IF (LNASM0) THEN
+  !$acc exit data detach (YD%NASM0)
+  !$acc exit data delete (YD%NASM0)
+ENDIF
+
+LNASM0G = ALLOCATED (YD%NASM0G)
+IF (LNASM0G) THEN
+  !$acc exit data detach (YD%NASM0G)
+  !$acc exit data delete (YD%NASM0G)
+ENDIF
+
+LNVALUE = ALLOCATED (YD%NVALUE)
+IF (LNVALUE) THEN
+  !$acc exit data detach (YD%NVALUE)
+  !$acc exit data delete (YD%NVALUE)
+ENDIF
+
+LMYMS = ALLOCATED (YD%MYMS)
+IF (LMYMS) THEN
+  !$acc exit data detach (YD%MYMS)
+  !$acc exit data delete (YD%MYMS)
+ENDIF
+
+LNSPZERO = ALLOCATED (YD%NSPZERO)
+IF (LNSPZERO) THEN
+  !$acc exit data detach (YD%NSPZERO)
+  !$acc exit data delete (YD%NSPZERO)
+ENDIF
+
+LNSE0L = ALLOCATED (YD%NSE0L)
+IF (LNSE0L) THEN
+  !$acc exit data detach (YD%NSE0L)
+  !$acc exit data delete (YD%NSE0L)
+ENDIF
+
+LRLAPDI = ALLOCATED (YD%RLAPDI)
+IF (LRLAPDI) THEN
+  !$acc exit data detach (YD%RLAPDI)
+  !$acc exit data delete (YD%RLAPDI)
+ENDIF
+
+LRLAPIN = ALLOCATED (YD%RLAPIN)
+IF (LRLAPIN) THEN
+  !$acc exit data detach (YD%RLAPIN)
+  !$acc exit data delete (YD%RLAPIN)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

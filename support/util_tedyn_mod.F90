@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TEDYN
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TEDYN
+END INTERFACE
+
 
 
 CONTAINS
@@ -319,6 +323,100 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TEDYN (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TEDYN), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LRDIDIVE, LRDIGFLE, LRDIPDE, LRDISPE, LRDITE, LRDIVDE, LRDIVORE, LRDSDIVE, LRDSVDE, LRDSVORE
+LOGICAL :: LREFILD, LREFILV
+
+LRDIVORE = ALLOCATED (YD%RDIVORE)
+IF (LRDIVORE) THEN
+  !$acc exit data detach (YD%RDIVORE)
+  !$acc exit data delete (YD%RDIVORE)
+ENDIF
+
+LRDIDIVE = ALLOCATED (YD%RDIDIVE)
+IF (LRDIDIVE) THEN
+  !$acc exit data detach (YD%RDIDIVE)
+  !$acc exit data delete (YD%RDIDIVE)
+ENDIF
+
+LRDITE = ALLOCATED (YD%RDITE)
+IF (LRDITE) THEN
+  !$acc exit data detach (YD%RDITE)
+  !$acc exit data delete (YD%RDITE)
+ENDIF
+
+LRDIGFLE = ALLOCATED (YD%RDIGFLE)
+IF (LRDIGFLE) THEN
+  !$acc exit data detach (YD%RDIGFLE)
+  !$acc exit data delete (YD%RDIGFLE)
+ENDIF
+
+LRDIPDE = ALLOCATED (YD%RDIPDE)
+IF (LRDIPDE) THEN
+  !$acc exit data detach (YD%RDIPDE)
+  !$acc exit data delete (YD%RDIPDE)
+ENDIF
+
+LRDIVDE = ALLOCATED (YD%RDIVDE)
+IF (LRDIVDE) THEN
+  !$acc exit data detach (YD%RDIVDE)
+  !$acc exit data delete (YD%RDIVDE)
+ENDIF
+
+LRDISPE = ALLOCATED (YD%RDISPE)
+IF (LRDISPE) THEN
+  !$acc exit data detach (YD%RDISPE)
+  !$acc exit data delete (YD%RDISPE)
+ENDIF
+
+LRDSVORE = ALLOCATED (YD%RDSVORE)
+IF (LRDSVORE) THEN
+  !$acc exit data detach (YD%RDSVORE)
+  !$acc exit data delete (YD%RDSVORE)
+ENDIF
+
+LRDSDIVE = ALLOCATED (YD%RDSDIVE)
+IF (LRDSDIVE) THEN
+  !$acc exit data detach (YD%RDSDIVE)
+  !$acc exit data delete (YD%RDSDIVE)
+ENDIF
+
+LRDSVDE = ALLOCATED (YD%RDSVDE)
+IF (LRDSVDE) THEN
+  !$acc exit data detach (YD%RDSVDE)
+  !$acc exit data delete (YD%RDSVDE)
+ENDIF
+
+LREFILV = ALLOCATED (YD%REFILV)
+IF (LREFILV) THEN
+  !$acc exit data detach (YD%REFILV)
+  !$acc exit data delete (YD%REFILV)
+ENDIF
+
+LREFILD = ALLOCATED (YD%REFILD)
+IF (LREFILD) THEN
+  !$acc exit data detach (YD%REFILD)
+  !$acc exit data delete (YD%REFILD)
+ENDIF
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

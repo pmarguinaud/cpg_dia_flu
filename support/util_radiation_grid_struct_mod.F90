@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_RADIATION_GRID_STRUCT
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_RADIATION_GRID_STRUCT
+END INTERFACE
+
 
 
 CONTAINS
@@ -520,6 +524,160 @@ IF (LRIPI) THEN
   !$acc enter data attach (YD%RIPI)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_RADIATION_GRID_STRUCT (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (RADIATION_GRID_STRUCT), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LGECLO, LGELAM, LGELAT, LGEMU, LGESLO, LMYMS, LNASM0, LNFRSTLAT, LNLOENG, LNLSTLAT
+LOGICAL :: LNONL, LNPTRFRSTLAT, LNRGRI, LNSTA, LRIPI, LRLATI, LRLATIG, LRMU, LRSQM2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNRGRI = ALLOCATED (YD%NRGRI)
+IF (LNRGRI) THEN
+  !$acc exit data detach (YD%NRGRI)
+  !$acc exit data delete (YD%NRGRI)
+ENDIF
+
+LNLOENG = ALLOCATED (YD%NLOENG)
+IF (LNLOENG) THEN
+  !$acc exit data detach (YD%NLOENG)
+  !$acc exit data delete (YD%NLOENG)
+ENDIF
+
+LNPTRFRSTLAT = ALLOCATED (YD%NPTRFRSTLAT)
+IF (LNPTRFRSTLAT) THEN
+  !$acc exit data detach (YD%NPTRFRSTLAT)
+  !$acc exit data delete (YD%NPTRFRSTLAT)
+ENDIF
+
+LNFRSTLAT = ALLOCATED (YD%NFRSTLAT)
+IF (LNFRSTLAT) THEN
+  !$acc exit data detach (YD%NFRSTLAT)
+  !$acc exit data delete (YD%NFRSTLAT)
+ENDIF
+
+LNLSTLAT = ALLOCATED (YD%NLSTLAT)
+IF (LNLSTLAT) THEN
+  !$acc exit data detach (YD%NLSTLAT)
+  !$acc exit data delete (YD%NLSTLAT)
+ENDIF
+
+LMYMS = ALLOCATED (YD%MYMS)
+IF (LMYMS) THEN
+  !$acc exit data detach (YD%MYMS)
+  !$acc exit data delete (YD%MYMS)
+ENDIF
+
+LNASM0 = ALLOCATED (YD%NASM0)
+IF (LNASM0) THEN
+  !$acc exit data detach (YD%NASM0)
+  !$acc exit data delete (YD%NASM0)
+ENDIF
+
+LNSTA = ALLOCATED (YD%NSTA)
+IF (LNSTA) THEN
+  !$acc exit data detach (YD%NSTA)
+  !$acc exit data delete (YD%NSTA)
+ENDIF
+
+LNONL = ALLOCATED (YD%NONL)
+IF (LNONL) THEN
+  !$acc exit data detach (YD%NONL)
+  !$acc exit data delete (YD%NONL)
+ENDIF
+
+LGELAM = ALLOCATED (YD%GELAM)
+IF (LGELAM) THEN
+  !$acc exit data detach (YD%GELAM)
+  !$acc exit data delete (YD%GELAM)
+ENDIF
+
+LGELAT = ALLOCATED (YD%GELAT)
+IF (LGELAT) THEN
+  !$acc exit data detach (YD%GELAT)
+  !$acc exit data delete (YD%GELAT)
+ENDIF
+
+LGECLO = ALLOCATED (YD%GECLO)
+IF (LGECLO) THEN
+  !$acc exit data detach (YD%GECLO)
+  !$acc exit data delete (YD%GECLO)
+ENDIF
+
+LGESLO = ALLOCATED (YD%GESLO)
+IF (LGESLO) THEN
+  !$acc exit data detach (YD%GESLO)
+  !$acc exit data delete (YD%GESLO)
+ENDIF
+
+LRMU = ALLOCATED (YD%RMU)
+IF (LRMU) THEN
+  !$acc exit data detach (YD%RMU)
+  !$acc exit data delete (YD%RMU)
+ENDIF
+
+LRSQM2 = ALLOCATED (YD%RSQM2)
+IF (LRSQM2) THEN
+  !$acc exit data detach (YD%RSQM2)
+  !$acc exit data delete (YD%RSQM2)
+ENDIF
+
+LRLATIG = ALLOCATED (YD%RLATIG)
+IF (LRLATIG) THEN
+  !$acc exit data detach (YD%RLATIG)
+  !$acc exit data delete (YD%RLATIG)
+ENDIF
+
+LRLATI = ALLOCATED (YD%RLATI)
+IF (LRLATI) THEN
+  !$acc exit data detach (YD%RLATI)
+  !$acc exit data delete (YD%RLATI)
+ENDIF
+
+LGEMU = ALLOCATED (YD%GEMU)
+IF (LGEMU) THEN
+  !$acc exit data detach (YD%GEMU)
+  !$acc exit data delete (YD%GEMU)
+ENDIF
+
+LRIPI = ALLOCATED (YD%RIPI)
+IF (LRIPI) THEN
+  !$acc exit data detach (YD%RIPI)
+  !$acc exit data delete (YD%RIPI)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

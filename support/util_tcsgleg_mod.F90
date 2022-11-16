@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TCSGLEG
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TCSGLEG
+END INTERFACE
+
 
 
 CONTAINS
@@ -262,6 +266,83 @@ IF (LRLATI) THEN
   !$acc enter data attach (YD%RLATI)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TCSGLEG (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TCSGLEG), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LR1MU2, LR1MUA, LR1MUI, LR1QM2, LRACTHE, LRLATI, LRLATIG, LRMU, LRSQM2, LRW
+
+LRW = ALLOCATED (YD%RW)
+IF (LRW) THEN
+  !$acc exit data detach (YD%RW)
+  !$acc exit data delete (YD%RW)
+ENDIF
+
+LRMU = ALLOCATED (YD%RMU)
+IF (LRMU) THEN
+  !$acc exit data detach (YD%RMU)
+  !$acc exit data delete (YD%RMU)
+ENDIF
+
+LR1MU2 = ALLOCATED (YD%R1MU2)
+IF (LR1MU2) THEN
+  !$acc exit data detach (YD%R1MU2)
+  !$acc exit data delete (YD%R1MU2)
+ENDIF
+
+LR1MUI = ALLOCATED (YD%R1MUI)
+IF (LR1MUI) THEN
+  !$acc exit data detach (YD%R1MUI)
+  !$acc exit data delete (YD%R1MUI)
+ENDIF
+
+LR1MUA = ALLOCATED (YD%R1MUA)
+IF (LR1MUA) THEN
+  !$acc exit data detach (YD%R1MUA)
+  !$acc exit data delete (YD%R1MUA)
+ENDIF
+
+LRSQM2 = ALLOCATED (YD%RSQM2)
+IF (LRSQM2) THEN
+  !$acc exit data detach (YD%RSQM2)
+  !$acc exit data delete (YD%RSQM2)
+ENDIF
+
+LR1QM2 = ALLOCATED (YD%R1QM2)
+IF (LR1QM2) THEN
+  !$acc exit data detach (YD%R1QM2)
+  !$acc exit data delete (YD%R1QM2)
+ENDIF
+
+LRACTHE = ALLOCATED (YD%RACTHE)
+IF (LRACTHE) THEN
+  !$acc exit data detach (YD%RACTHE)
+  !$acc exit data delete (YD%RACTHE)
+ENDIF
+
+LRLATIG = ALLOCATED (YD%RLATIG)
+IF (LRLATIG) THEN
+  !$acc exit data detach (YD%RLATIG)
+  !$acc exit data delete (YD%RLATIG)
+ENDIF
+
+LRLATI = ALLOCATED (YD%RLATI)
+IF (LRLATI) THEN
+  !$acc exit data detach (YD%RLATI)
+  !$acc exit data delete (YD%RLATI)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

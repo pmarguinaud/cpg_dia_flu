@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TPHY
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TPHY
+END INTERFACE
+
 
 
 CONTAINS
@@ -686,6 +690,235 @@ CALL COPY (YD%YRDVISI, LDCREATED=.TRUE.)
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TPHY (YD, LDDELETED)
+USE UTIL_TDPRECIPS_MOD
+USE UTIL_TDVISI_MOD
+IMPLICIT NONE
+TYPE (TPHY), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CALL WIPE (YD%YRDPRECIPS, LDDELETED=.TRUE.)
+
+CALL WIPE (YD%YRDVISI, LDDELETED=.TRUE.)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

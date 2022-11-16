@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TTRC
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TTRC
+END INTERFACE
+
 
 
 CONTAINS
@@ -370,6 +374,114 @@ IF (LGMU0_MAX) THEN
   !$acc enter data attach (YD%GMU0_MAX)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TTRC (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TTRC), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LGDEOSI, LGDEOTI, LGDEOTI2, LGEOLT, LGEOXT, LGFLUXC, LGMIXP, LGMU0, LGMU0_MAX, LGMU0_MIN
+LOGICAL :: LGRPROX, LGRSURF, LGUEOSI, LGUEOTI, LGUEOTI2
+
+LGRSURF = ALLOCATED (YD%GRSURF)
+IF (LGRSURF) THEN
+  !$acc exit data detach (YD%GRSURF)
+  !$acc exit data delete (YD%GRSURF)
+ENDIF
+
+LGDEOTI = ALLOCATED (YD%GDEOTI)
+IF (LGDEOTI) THEN
+  !$acc exit data detach (YD%GDEOTI)
+  !$acc exit data delete (YD%GDEOTI)
+ENDIF
+
+LGDEOTI2 = ALLOCATED (YD%GDEOTI2)
+IF (LGDEOTI2) THEN
+  !$acc exit data detach (YD%GDEOTI2)
+  !$acc exit data delete (YD%GDEOTI2)
+ENDIF
+
+LGUEOTI = ALLOCATED (YD%GUEOTI)
+IF (LGUEOTI) THEN
+  !$acc exit data detach (YD%GUEOTI)
+  !$acc exit data delete (YD%GUEOTI)
+ENDIF
+
+LGUEOTI2 = ALLOCATED (YD%GUEOTI2)
+IF (LGUEOTI2) THEN
+  !$acc exit data detach (YD%GUEOTI2)
+  !$acc exit data delete (YD%GUEOTI2)
+ENDIF
+
+LGEOLT = ALLOCATED (YD%GEOLT)
+IF (LGEOLT) THEN
+  !$acc exit data detach (YD%GEOLT)
+  !$acc exit data delete (YD%GEOLT)
+ENDIF
+
+LGEOXT = ALLOCATED (YD%GEOXT)
+IF (LGEOXT) THEN
+  !$acc exit data detach (YD%GEOXT)
+  !$acc exit data delete (YD%GEOXT)
+ENDIF
+
+LGRPROX = ALLOCATED (YD%GRPROX)
+IF (LGRPROX) THEN
+  !$acc exit data detach (YD%GRPROX)
+  !$acc exit data delete (YD%GRPROX)
+ENDIF
+
+LGMIXP = ALLOCATED (YD%GMIXP)
+IF (LGMIXP) THEN
+  !$acc exit data detach (YD%GMIXP)
+  !$acc exit data delete (YD%GMIXP)
+ENDIF
+
+LGFLUXC = ALLOCATED (YD%GFLUXC)
+IF (LGFLUXC) THEN
+  !$acc exit data detach (YD%GFLUXC)
+  !$acc exit data delete (YD%GFLUXC)
+ENDIF
+
+LGDEOSI = ALLOCATED (YD%GDEOSI)
+IF (LGDEOSI) THEN
+  !$acc exit data detach (YD%GDEOSI)
+  !$acc exit data delete (YD%GDEOSI)
+ENDIF
+
+LGUEOSI = ALLOCATED (YD%GUEOSI)
+IF (LGUEOSI) THEN
+  !$acc exit data detach (YD%GUEOSI)
+  !$acc exit data delete (YD%GUEOSI)
+ENDIF
+
+LGMU0 = ALLOCATED (YD%GMU0)
+IF (LGMU0) THEN
+  !$acc exit data detach (YD%GMU0)
+  !$acc exit data delete (YD%GMU0)
+ENDIF
+
+LGMU0_MIN = ALLOCATED (YD%GMU0_MIN)
+IF (LGMU0_MIN) THEN
+  !$acc exit data detach (YD%GMU0_MIN)
+  !$acc exit data delete (YD%GMU0_MIN)
+ENDIF
+
+LGMU0_MAX = ALLOCATED (YD%GMU0_MAX)
+IF (LGMU0_MAX) THEN
+  !$acc exit data detach (YD%GMU0_MAX)
+  !$acc exit data delete (YD%GMU0_MAX)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

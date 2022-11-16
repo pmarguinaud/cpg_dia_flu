@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TVAB
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TVAB
+END INTERFACE
+
 
 
 CONTAINS
@@ -262,6 +266,83 @@ IF (LVRATF) THEN
   !$acc enter data attach (YD%VRATF)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TVAB (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TVAB), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LVAF, LVAH, LVALH, LVBF, LVBH, LVC, LVDELA, LVDELB, LVRATF, LVRATH
+
+LVALH = ALLOCATED (YD%VALH)
+IF (LVALH) THEN
+  !$acc exit data detach (YD%VALH)
+  !$acc exit data delete (YD%VALH)
+ENDIF
+
+LVBH = ALLOCATED (YD%VBH)
+IF (LVBH) THEN
+  !$acc exit data detach (YD%VBH)
+  !$acc exit data delete (YD%VBH)
+ENDIF
+
+LVAH = ALLOCATED (YD%VAH)
+IF (LVAH) THEN
+  !$acc exit data detach (YD%VAH)
+  !$acc exit data delete (YD%VAH)
+ENDIF
+
+LVC = ALLOCATED (YD%VC)
+IF (LVC) THEN
+  !$acc exit data detach (YD%VC)
+  !$acc exit data delete (YD%VC)
+ENDIF
+
+LVAF = ALLOCATED (YD%VAF)
+IF (LVAF) THEN
+  !$acc exit data detach (YD%VAF)
+  !$acc exit data delete (YD%VAF)
+ENDIF
+
+LVBF = ALLOCATED (YD%VBF)
+IF (LVBF) THEN
+  !$acc exit data detach (YD%VBF)
+  !$acc exit data delete (YD%VBF)
+ENDIF
+
+LVDELA = ALLOCATED (YD%VDELA)
+IF (LVDELA) THEN
+  !$acc exit data detach (YD%VDELA)
+  !$acc exit data delete (YD%VDELA)
+ENDIF
+
+LVDELB = ALLOCATED (YD%VDELB)
+IF (LVDELB) THEN
+  !$acc exit data detach (YD%VDELB)
+  !$acc exit data delete (YD%VDELB)
+ENDIF
+
+LVRATH = ALLOCATED (YD%VRATH)
+IF (LVRATH) THEN
+  !$acc exit data detach (YD%VRATH)
+  !$acc exit data delete (YD%VRATH)
+ENDIF
+
+LVRATF = ALLOCATED (YD%VRATF)
+IF (LVRATF) THEN
+  !$acc exit data detach (YD%VRATF)
+  !$acc exit data delete (YD%VRATF)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TGEM
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TGEM
+END INTERFACE
+
 
 
 CONTAINS
@@ -271,6 +275,88 @@ IF (LNTSTAGP) THEN
   !$acc enter data attach (YD%NTSTAGP)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TGEM (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TGEM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LNDGLU, LNGPTOTL, LNLOEN, LNLOENG, LNMEN, LNMENG, LNSTAGP, LNTSTAGP
+
+
+
+
+
+LNGPTOTL = ALLOCATED (YD%NGPTOTL)
+IF (LNGPTOTL) THEN
+  !$acc exit data detach (YD%NGPTOTL)
+  !$acc exit data delete (YD%NGPTOTL)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNLOEN = ALLOCATED (YD%NLOEN)
+IF (LNLOEN) THEN
+  !$acc exit data detach (YD%NLOEN)
+  !$acc exit data delete (YD%NLOEN)
+ENDIF
+
+LNLOENG = ALLOCATED (YD%NLOENG)
+IF (LNLOENG) THEN
+  !$acc exit data detach (YD%NLOENG)
+  !$acc exit data delete (YD%NLOENG)
+ENDIF
+
+LNMEN = ALLOCATED (YD%NMEN)
+IF (LNMEN) THEN
+  !$acc exit data detach (YD%NMEN)
+  !$acc exit data delete (YD%NMEN)
+ENDIF
+
+LNMENG = ALLOCATED (YD%NMENG)
+IF (LNMENG) THEN
+  !$acc exit data detach (YD%NMENG)
+  !$acc exit data delete (YD%NMENG)
+ENDIF
+
+LNDGLU = ALLOCATED (YD%NDGLU)
+IF (LNDGLU) THEN
+  !$acc exit data detach (YD%NDGLU)
+  !$acc exit data delete (YD%NDGLU)
+ENDIF
+
+LNSTAGP = ALLOCATED (YD%NSTAGP)
+IF (LNSTAGP) THEN
+  !$acc exit data detach (YD%NSTAGP)
+  !$acc exit data delete (YD%NSTAGP)
+ENDIF
+
+LNTSTAGP = ALLOCATED (YD%NTSTAGP)
+IF (LNTSTAGP) THEN
+  !$acc exit data detach (YD%NTSTAGP)
+  !$acc exit data delete (YD%NTSTAGP)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

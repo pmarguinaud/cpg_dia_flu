@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TPHY0
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TPHY0
+END INTERFACE
+
 
 
 CONTAINS
@@ -1528,6 +1532,509 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TPHY0 (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TPHY0), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LRHUC, LRN1D, LRQSMOD, LRRC1D, LRSRC1D, LRSURF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRHUC = ALLOCATED (YD%RHUC)
+IF (LRHUC) THEN
+  !$acc exit data detach (YD%RHUC)
+  !$acc exit data delete (YD%RHUC)
+ENDIF
+
+LRQSMOD = ALLOCATED (YD%RQSMOD)
+IF (LRQSMOD) THEN
+  !$acc exit data detach (YD%RQSMOD)
+  !$acc exit data delete (YD%RQSMOD)
+ENDIF
+
+LRSURF = ALLOCATED (YD%RSURF)
+IF (LRSURF) THEN
+  !$acc exit data detach (YD%RSURF)
+  !$acc exit data delete (YD%RSURF)
+ENDIF
+
+LRN1D = ALLOCATED (YD%RN1D)
+IF (LRN1D) THEN
+  !$acc exit data detach (YD%RN1D)
+  !$acc exit data delete (YD%RN1D)
+ENDIF
+
+LRRC1D = ALLOCATED (YD%RRC1D)
+IF (LRRC1D) THEN
+  !$acc exit data detach (YD%RRC1D)
+  !$acc exit data delete (YD%RRC1D)
+ENDIF
+
+LRSRC1D = ALLOCATED (YD%RSRC1D)
+IF (LRSRC1D) THEN
+  !$acc exit data detach (YD%RSRC1D)
+  !$acc exit data delete (YD%RSRC1D)
+ENDIF
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

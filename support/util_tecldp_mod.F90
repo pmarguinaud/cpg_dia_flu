@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TECLDP
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TECLDP
+END INTERFACE
+
 
 
 CONTAINS
@@ -485,6 +489,167 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TECLDP (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TECLDP), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

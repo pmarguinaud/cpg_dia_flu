@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TTOPH
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TTOPH
+END INTERFACE
+
 
 
 CONTAINS
@@ -337,6 +341,111 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TTOPH (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TTOPH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LRMESOQ, LRMESOT, LRMESOU, LRQREL, LRTREL, LRUREL, LRVREL
+
+LRMESOU = ALLOCATED (YD%RMESOU)
+IF (LRMESOU) THEN
+  !$acc exit data detach (YD%RMESOU)
+  !$acc exit data delete (YD%RMESOU)
+ENDIF
+
+LRMESOT = ALLOCATED (YD%RMESOT)
+IF (LRMESOT) THEN
+  !$acc exit data detach (YD%RMESOT)
+  !$acc exit data delete (YD%RMESOT)
+ENDIF
+
+LRMESOQ = ALLOCATED (YD%RMESOQ)
+IF (LRMESOQ) THEN
+  !$acc exit data detach (YD%RMESOQ)
+  !$acc exit data delete (YD%RMESOQ)
+ENDIF
+
+LRUREL = ALLOCATED (YD%RUREL)
+IF (LRUREL) THEN
+  !$acc exit data detach (YD%RUREL)
+  !$acc exit data delete (YD%RUREL)
+ENDIF
+
+LRVREL = ALLOCATED (YD%RVREL)
+IF (LRVREL) THEN
+  !$acc exit data detach (YD%RVREL)
+  !$acc exit data delete (YD%RVREL)
+ENDIF
+
+LRTREL = ALLOCATED (YD%RTREL)
+IF (LRTREL) THEN
+  !$acc exit data detach (YD%RTREL)
+  !$acc exit data delete (YD%RTREL)
+ENDIF
+
+LRQREL = ALLOCATED (YD%RQREL)
+IF (LRQREL) THEN
+  !$acc exit data detach (YD%RQREL)
+  !$acc exit data delete (YD%RQREL)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

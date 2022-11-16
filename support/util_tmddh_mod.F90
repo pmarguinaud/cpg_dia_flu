@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TMDDH
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TMDDH
+END INTERFACE
+
 
 
 CONTAINS
@@ -577,6 +581,188 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TMDDH (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TMDDH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LHDSF, LHDSFDU, LHDSFLA, LNDDHI, LNDDHLA, LNDDHPU, LNLRDDH, LNLXDDH, LNURDDH, LNUXDDH
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNDDHLA = ALLOCATED (YD%NDDHLA)
+IF (LNDDHLA) THEN
+  !$acc exit data detach (YD%NDDHLA)
+  !$acc exit data delete (YD%NDDHLA)
+ENDIF
+
+LNDDHPU = ALLOCATED (YD%NDDHPU)
+IF (LNDDHPU) THEN
+  !$acc exit data detach (YD%NDDHPU)
+  !$acc exit data delete (YD%NDDHPU)
+ENDIF
+
+LNDDHI = ALLOCATED (YD%NDDHI)
+IF (LNDDHI) THEN
+  !$acc exit data detach (YD%NDDHI)
+  !$acc exit data delete (YD%NDDHI)
+ENDIF
+
+LNLRDDH = ALLOCATED (YD%NLRDDH)
+IF (LNLRDDH) THEN
+  !$acc exit data detach (YD%NLRDDH)
+  !$acc exit data delete (YD%NLRDDH)
+ENDIF
+
+LNURDDH = ALLOCATED (YD%NURDDH)
+IF (LNURDDH) THEN
+  !$acc exit data detach (YD%NURDDH)
+  !$acc exit data delete (YD%NURDDH)
+ENDIF
+
+LNLXDDH = ALLOCATED (YD%NLXDDH)
+IF (LNLXDDH) THEN
+  !$acc exit data detach (YD%NLXDDH)
+  !$acc exit data delete (YD%NLXDDH)
+ENDIF
+
+LNUXDDH = ALLOCATED (YD%NUXDDH)
+IF (LNUXDDH) THEN
+  !$acc exit data detach (YD%NUXDDH)
+  !$acc exit data delete (YD%NUXDDH)
+ENDIF
+
+LHDSFLA = ALLOCATED (YD%HDSFLA)
+IF (LHDSFLA) THEN
+  !$acc exit data detach (YD%HDSFLA)
+  !$acc exit data delete (YD%HDSFLA)
+ENDIF
+
+LHDSFDU = ALLOCATED (YD%HDSFDU)
+IF (LHDSFDU) THEN
+  !$acc exit data detach (YD%HDSFDU)
+  !$acc exit data delete (YD%HDSFDU)
+ENDIF
+
+LHDSF = ALLOCATED (YD%HDSF)
+IF (LHDSF) THEN
+  !$acc exit data detach (YD%HDSF)
+  !$acc exit data delete (YD%HDSF)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TDYN
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TDYN
+END INTERFACE
+
 
 
 CONTAINS
@@ -1474,6 +1478,456 @@ IF (LSIBI) THEN
   !$acc enter data attach (YD%SIBI)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TDYN (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TDYN), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LRCORDIF, LRCORDIH, LRCORDIT, LRDHI, LRDHS, LRDIDIV, LRDIGFL, LRDIPD, LRDISP, LRDITG
+LOGICAL :: LRDIVD, LRDIVOR, LRDSDIV, LRDSVD, LRDSVOR, LRKRF, LSIALPH, LSIB, LSIBI, LSIDELP
+LOGICAL :: LSIDPHI, LSIFAC, LSIFACI, LSIHEG, LSIHEG2, LSIHEGB, LSIHEGB2, LSILNPR, LSIMI, LSIMO
+LOGICAL :: LSIRDEL, LSITLAF, LSITLAH, LSITRAM, LSIVP, LSIWEIG, LSI_ILAPKSSI, LSLHDA, LSLHDD0, LSLHD_MASK_T
+LOGICAL :: LSLHD_MASK_U
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRDIVOR = ALLOCATED (YD%RDIVOR)
+IF (LRDIVOR) THEN
+  !$acc exit data detach (YD%RDIVOR)
+  !$acc exit data delete (YD%RDIVOR)
+ENDIF
+
+LRDIDIV = ALLOCATED (YD%RDIDIV)
+IF (LRDIDIV) THEN
+  !$acc exit data detach (YD%RDIDIV)
+  !$acc exit data delete (YD%RDIDIV)
+ENDIF
+
+LRDITG = ALLOCATED (YD%RDITG)
+IF (LRDITG) THEN
+  !$acc exit data detach (YD%RDITG)
+  !$acc exit data delete (YD%RDITG)
+ENDIF
+
+LRDIGFL = ALLOCATED (YD%RDIGFL)
+IF (LRDIGFL) THEN
+  !$acc exit data detach (YD%RDIGFL)
+  !$acc exit data delete (YD%RDIGFL)
+ENDIF
+
+LRDIPD = ALLOCATED (YD%RDIPD)
+IF (LRDIPD) THEN
+  !$acc exit data detach (YD%RDIPD)
+  !$acc exit data delete (YD%RDIPD)
+ENDIF
+
+LRDIVD = ALLOCATED (YD%RDIVD)
+IF (LRDIVD) THEN
+  !$acc exit data detach (YD%RDIVD)
+  !$acc exit data delete (YD%RDIVD)
+ENDIF
+
+LRDISP = ALLOCATED (YD%RDISP)
+IF (LRDISP) THEN
+  !$acc exit data detach (YD%RDISP)
+  !$acc exit data delete (YD%RDISP)
+ENDIF
+
+LRDHI = ALLOCATED (YD%RDHI)
+IF (LRDHI) THEN
+  !$acc exit data detach (YD%RDHI)
+  !$acc exit data delete (YD%RDHI)
+ENDIF
+
+
+
+
+
+
+LSLHDA = ALLOCATED (YD%SLHDA)
+IF (LSLHDA) THEN
+  !$acc exit data detach (YD%SLHDA)
+  !$acc exit data delete (YD%SLHDA)
+ENDIF
+
+
+
+
+
+LSLHDD0 = ALLOCATED (YD%SLHDD0)
+IF (LSLHDD0) THEN
+  !$acc exit data detach (YD%SLHDD0)
+  !$acc exit data delete (YD%SLHDD0)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRDSVOR = ALLOCATED (YD%RDSVOR)
+IF (LRDSVOR) THEN
+  !$acc exit data detach (YD%RDSVOR)
+  !$acc exit data delete (YD%RDSVOR)
+ENDIF
+
+LRDSDIV = ALLOCATED (YD%RDSDIV)
+IF (LRDSDIV) THEN
+  !$acc exit data detach (YD%RDSDIV)
+  !$acc exit data delete (YD%RDSDIV)
+ENDIF
+
+LRDSVD = ALLOCATED (YD%RDSVD)
+IF (LRDSVD) THEN
+  !$acc exit data detach (YD%RDSVD)
+  !$acc exit data delete (YD%RDSVD)
+ENDIF
+
+LRDHS = ALLOCATED (YD%RDHS)
+IF (LRDHS) THEN
+  !$acc exit data detach (YD%RDHS)
+  !$acc exit data delete (YD%RDHS)
+ENDIF
+
+LSLHD_MASK_U = ALLOCATED (YD%SLHD_MASK_U)
+IF (LSLHD_MASK_U) THEN
+  !$acc exit data detach (YD%SLHD_MASK_U)
+  !$acc exit data delete (YD%SLHD_MASK_U)
+ENDIF
+
+LSLHD_MASK_T = ALLOCATED (YD%SLHD_MASK_T)
+IF (LSLHD_MASK_T) THEN
+  !$acc exit data detach (YD%SLHD_MASK_T)
+  !$acc exit data delete (YD%SLHD_MASK_T)
+ENDIF
+
+
+
+
+LRCORDIT = ALLOCATED (YD%RCORDIT)
+IF (LRCORDIT) THEN
+  !$acc exit data detach (YD%RCORDIT)
+  !$acc exit data delete (YD%RCORDIT)
+ENDIF
+
+LRCORDIH = ALLOCATED (YD%RCORDIH)
+IF (LRCORDIH) THEN
+  !$acc exit data detach (YD%RCORDIH)
+  !$acc exit data delete (YD%RCORDIH)
+ENDIF
+
+LRCORDIF = ALLOCATED (YD%RCORDIF)
+IF (LRCORDIF) THEN
+  !$acc exit data detach (YD%RCORDIF)
+  !$acc exit data delete (YD%RCORDIF)
+ENDIF
+
+
+
+
+
+LRKRF = ALLOCATED (YD%RKRF)
+IF (LRKRF) THEN
+  !$acc exit data detach (YD%RKRF)
+  !$acc exit data delete (YD%RKRF)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSIALPH = ALLOCATED (YD%SIALPH)
+IF (LSIALPH) THEN
+  !$acc exit data detach (YD%SIALPH)
+  !$acc exit data delete (YD%SIALPH)
+ENDIF
+
+LSILNPR = ALLOCATED (YD%SILNPR)
+IF (LSILNPR) THEN
+  !$acc exit data detach (YD%SILNPR)
+  !$acc exit data delete (YD%SILNPR)
+ENDIF
+
+LSIDELP = ALLOCATED (YD%SIDELP)
+IF (LSIDELP) THEN
+  !$acc exit data detach (YD%SIDELP)
+  !$acc exit data delete (YD%SIDELP)
+ENDIF
+
+LSIRDEL = ALLOCATED (YD%SIRDEL)
+IF (LSIRDEL) THEN
+  !$acc exit data detach (YD%SIRDEL)
+  !$acc exit data delete (YD%SIRDEL)
+ENDIF
+
+LSITLAH = ALLOCATED (YD%SITLAH)
+IF (LSITLAH) THEN
+  !$acc exit data detach (YD%SITLAH)
+  !$acc exit data delete (YD%SITLAH)
+ENDIF
+
+LSITLAF = ALLOCATED (YD%SITLAF)
+IF (LSITLAF) THEN
+  !$acc exit data detach (YD%SITLAF)
+  !$acc exit data delete (YD%SITLAF)
+ENDIF
+
+LSIDPHI = ALLOCATED (YD%SIDPHI)
+IF (LSIDPHI) THEN
+  !$acc exit data detach (YD%SIDPHI)
+  !$acc exit data delete (YD%SIDPHI)
+ENDIF
+
+LSIWEIG = ALLOCATED (YD%SIWEIG)
+IF (LSIWEIG) THEN
+  !$acc exit data detach (YD%SIWEIG)
+  !$acc exit data delete (YD%SIWEIG)
+ENDIF
+
+LSIB = ALLOCATED (YD%SIB)
+IF (LSIB) THEN
+  !$acc exit data detach (YD%SIB)
+  !$acc exit data delete (YD%SIB)
+ENDIF
+
+LSIMO = ALLOCATED (YD%SIMO)
+IF (LSIMO) THEN
+  !$acc exit data detach (YD%SIMO)
+  !$acc exit data delete (YD%SIMO)
+ENDIF
+
+LSIMI = ALLOCATED (YD%SIMI)
+IF (LSIMI) THEN
+  !$acc exit data detach (YD%SIMI)
+  !$acc exit data delete (YD%SIMI)
+ENDIF
+
+LSIVP = ALLOCATED (YD%SIVP)
+IF (LSIVP) THEN
+  !$acc exit data detach (YD%SIVP)
+  !$acc exit data delete (YD%SIVP)
+ENDIF
+
+LSIHEG = ALLOCATED (YD%SIHEG)
+IF (LSIHEG) THEN
+  !$acc exit data detach (YD%SIHEG)
+  !$acc exit data delete (YD%SIHEG)
+ENDIF
+
+LSIHEG2 = ALLOCATED (YD%SIHEG2)
+IF (LSIHEG2) THEN
+  !$acc exit data detach (YD%SIHEG2)
+  !$acc exit data delete (YD%SIHEG2)
+ENDIF
+
+LSIHEGB = ALLOCATED (YD%SIHEGB)
+IF (LSIHEGB) THEN
+  !$acc exit data detach (YD%SIHEGB)
+  !$acc exit data delete (YD%SIHEGB)
+ENDIF
+
+LSIHEGB2 = ALLOCATED (YD%SIHEGB2)
+IF (LSIHEGB2) THEN
+  !$acc exit data detach (YD%SIHEGB2)
+  !$acc exit data delete (YD%SIHEGB2)
+ENDIF
+
+LSIFAC = ALLOCATED (YD%SIFAC)
+IF (LSIFAC) THEN
+  !$acc exit data detach (YD%SIFAC)
+  !$acc exit data delete (YD%SIFAC)
+ENDIF
+
+LSIFACI = ALLOCATED (YD%SIFACI)
+IF (LSIFACI) THEN
+  !$acc exit data detach (YD%SIFACI)
+  !$acc exit data delete (YD%SIFACI)
+ENDIF
+
+LSI_ILAPKSSI = ALLOCATED (YD%SI_ILAPKSSI)
+IF (LSI_ILAPKSSI) THEN
+  !$acc exit data detach (YD%SI_ILAPKSSI)
+  !$acc exit data delete (YD%SI_ILAPKSSI)
+ENDIF
+
+LSITRAM = ALLOCATED (YD%SITRAM)
+IF (LSITRAM) THEN
+  !$acc exit data detach (YD%SITRAM)
+  !$acc exit data delete (YD%SITRAM)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSIBI = ALLOCATED (YD%SIBI)
+IF (LSIBI) THEN
+  !$acc exit data detach (YD%SIBI)
+  !$acc exit data delete (YD%SIBI)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

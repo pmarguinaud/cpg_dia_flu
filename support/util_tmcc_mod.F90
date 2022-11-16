@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TMCC
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TMCC
+END INTERFACE
+
 
 
 CONTAINS
@@ -627,6 +631,204 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TMCC (YD, LDDELETED)
+USE UTIL_CPLNG_FLD_TYPE_MOD
+IMPLICIT NONE
+TYPE (TMCC), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+INTEGER :: J1
+LOGICAL :: LCLIMR, LCLIMRAER, LCLIMRCO2, LCLIMRCOMPO, LCPLNG_FLD, LOCEANBC, LPARTMASK, LPARTSST0, LRNEMOLVLS, LRNEMOMASK
+LOGICAL :: LZLAKE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LCLIMRCO2 = ALLOCATED (YD%CLIMRCO2)
+IF (LCLIMRCO2) THEN
+  !$acc exit data detach (YD%CLIMRCO2)
+  !$acc exit data delete (YD%CLIMRCO2)
+ENDIF
+
+LCLIMRAER = ALLOCATED (YD%CLIMRAER)
+IF (LCLIMRAER) THEN
+  !$acc exit data detach (YD%CLIMRAER)
+  !$acc exit data delete (YD%CLIMRAER)
+ENDIF
+
+LCLIMRCOMPO = ALLOCATED (YD%CLIMRCOMPO)
+IF (LCLIMRCOMPO) THEN
+  !$acc exit data detach (YD%CLIMRCOMPO)
+  !$acc exit data delete (YD%CLIMRCOMPO)
+ENDIF
+
+LZLAKE = ALLOCATED (YD%ZLAKE)
+IF (LZLAKE) THEN
+  !$acc exit data detach (YD%ZLAKE)
+  !$acc exit data delete (YD%ZLAKE)
+ENDIF
+
+LOCEANBC = ALLOCATED (YD%OCEANBC)
+IF (LOCEANBC) THEN
+  !$acc exit data detach (YD%OCEANBC)
+  !$acc exit data delete (YD%OCEANBC)
+ENDIF
+
+LCLIMR = ALLOCATED (YD%CLIMR)
+IF (LCLIMR) THEN
+  !$acc exit data detach (YD%CLIMR)
+  !$acc exit data delete (YD%CLIMR)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRNEMOLVLS = ALLOCATED (YD%RNEMOLVLS)
+IF (LRNEMOLVLS) THEN
+  !$acc exit data detach (YD%RNEMOLVLS)
+  !$acc exit data delete (YD%RNEMOLVLS)
+ENDIF
+
+LRNEMOMASK = ALLOCATED (YD%RNEMOMASK)
+IF (LRNEMOMASK) THEN
+  !$acc exit data detach (YD%RNEMOMASK)
+  !$acc exit data delete (YD%RNEMOMASK)
+ENDIF
+
+
+
+
+
+
+
+
+LPARTSST0 = ALLOCATED (YD%PARTSST0)
+IF (LPARTSST0) THEN
+  !$acc exit data detach (YD%PARTSST0)
+  !$acc exit data delete (YD%PARTSST0)
+ENDIF
+
+LPARTMASK = ALLOCATED (YD%PARTMASK)
+IF (LPARTMASK) THEN
+  !$acc exit data detach (YD%PARTMASK)
+  !$acc exit data delete (YD%PARTMASK)
+ENDIF
+
+
+LCPLNG_FLD = ALLOCATED (YD%CPLNG_FLD)
+IF (LCPLNG_FLD) THEN
+  !$acc exit data detach (YD%CPLNG_FLD)
+  DO J1 = LBOUND (YD%CPLNG_FLD, 1), UBOUND (YD%CPLNG_FLD, 1)
+    CALL WIPE (YD%CPLNG_FLD (J1), LDDELETED=.TRUE.)
+  ENDDO
+  !$acc exit data delete (YD%CPLNG_FLD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

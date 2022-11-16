@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TRADF
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TRADF
+END INTERFACE
+
 
 
 CONTAINS
@@ -543,6 +547,163 @@ IF (LDERIVATIVELW) THEN
   !$acc enter data attach (YD%DERIVATIVELW)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TRADF (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TRADF), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LDERIVATIVELW, LEDRO, LEMTC, LEMTD, LEMTU, LRMOON, LSRCDIR, LSRFDIR, LSRLWD, LSRLWDC
+LOGICAL :: LSRLWDCS, LSRSWD, LSRSWDC, LSRSWDCS, LSRSWDUV, LSRSWDV, LSRSWPAR, LSRSWPARC, LSRSWTINC, LSRSWUVB
+LOGICAL :: LTAUAER, LTRSC, LTRSW
+
+LEMTD = ALLOCATED (YD%EMTD)
+IF (LEMTD) THEN
+  !$acc exit data detach (YD%EMTD)
+  !$acc exit data delete (YD%EMTD)
+ENDIF
+
+LTRSW = ALLOCATED (YD%TRSW)
+IF (LTRSW) THEN
+  !$acc exit data detach (YD%TRSW)
+  !$acc exit data delete (YD%TRSW)
+ENDIF
+
+LEMTC = ALLOCATED (YD%EMTC)
+IF (LEMTC) THEN
+  !$acc exit data detach (YD%EMTC)
+  !$acc exit data delete (YD%EMTC)
+ENDIF
+
+LTRSC = ALLOCATED (YD%TRSC)
+IF (LTRSC) THEN
+  !$acc exit data detach (YD%TRSC)
+  !$acc exit data delete (YD%TRSC)
+ENDIF
+
+LEMTU = ALLOCATED (YD%EMTU)
+IF (LEMTU) THEN
+  !$acc exit data detach (YD%EMTU)
+  !$acc exit data delete (YD%EMTU)
+ENDIF
+
+LTAUAER = ALLOCATED (YD%TAUAER)
+IF (LTAUAER) THEN
+  !$acc exit data detach (YD%TAUAER)
+  !$acc exit data delete (YD%TAUAER)
+ENDIF
+
+LSRSWD = ALLOCATED (YD%SRSWD)
+IF (LSRSWD) THEN
+  !$acc exit data detach (YD%SRSWD)
+  !$acc exit data delete (YD%SRSWD)
+ENDIF
+
+LSRLWDC = ALLOCATED (YD%SRLWDC)
+IF (LSRLWDC) THEN
+  !$acc exit data detach (YD%SRLWDC)
+  !$acc exit data delete (YD%SRLWDC)
+ENDIF
+
+LSRLWD = ALLOCATED (YD%SRLWD)
+IF (LSRLWD) THEN
+  !$acc exit data detach (YD%SRLWD)
+  !$acc exit data delete (YD%SRLWD)
+ENDIF
+
+LSRSWDC = ALLOCATED (YD%SRSWDC)
+IF (LSRSWDC) THEN
+  !$acc exit data detach (YD%SRSWDC)
+  !$acc exit data delete (YD%SRSWDC)
+ENDIF
+
+LSRSWDCS = ALLOCATED (YD%SRSWDCS)
+IF (LSRSWDCS) THEN
+  !$acc exit data detach (YD%SRSWDCS)
+  !$acc exit data delete (YD%SRSWDCS)
+ENDIF
+
+LSRLWDCS = ALLOCATED (YD%SRLWDCS)
+IF (LSRLWDCS) THEN
+  !$acc exit data detach (YD%SRLWDCS)
+  !$acc exit data delete (YD%SRLWDCS)
+ENDIF
+
+LSRSWDV = ALLOCATED (YD%SRSWDV)
+IF (LSRSWDV) THEN
+  !$acc exit data detach (YD%SRSWDV)
+  !$acc exit data delete (YD%SRSWDV)
+ENDIF
+
+LSRSWDUV = ALLOCATED (YD%SRSWDUV)
+IF (LSRSWDUV) THEN
+  !$acc exit data detach (YD%SRSWDUV)
+  !$acc exit data delete (YD%SRSWDUV)
+ENDIF
+
+LEDRO = ALLOCATED (YD%EDRO)
+IF (LEDRO) THEN
+  !$acc exit data detach (YD%EDRO)
+  !$acc exit data delete (YD%EDRO)
+ENDIF
+
+LSRSWPAR = ALLOCATED (YD%SRSWPAR)
+IF (LSRSWPAR) THEN
+  !$acc exit data detach (YD%SRSWPAR)
+  !$acc exit data delete (YD%SRSWPAR)
+ENDIF
+
+LSRSWUVB = ALLOCATED (YD%SRSWUVB)
+IF (LSRSWUVB) THEN
+  !$acc exit data detach (YD%SRSWUVB)
+  !$acc exit data delete (YD%SRSWUVB)
+ENDIF
+
+LSRSWPARC = ALLOCATED (YD%SRSWPARC)
+IF (LSRSWPARC) THEN
+  !$acc exit data detach (YD%SRSWPARC)
+  !$acc exit data delete (YD%SRSWPARC)
+ENDIF
+
+LSRSWTINC = ALLOCATED (YD%SRSWTINC)
+IF (LSRSWTINC) THEN
+  !$acc exit data detach (YD%SRSWTINC)
+  !$acc exit data delete (YD%SRSWTINC)
+ENDIF
+
+LSRFDIR = ALLOCATED (YD%SRFDIR)
+IF (LSRFDIR) THEN
+  !$acc exit data detach (YD%SRFDIR)
+  !$acc exit data delete (YD%SRFDIR)
+ENDIF
+
+LSRCDIR = ALLOCATED (YD%SRCDIR)
+IF (LSRCDIR) THEN
+  !$acc exit data detach (YD%SRCDIR)
+  !$acc exit data delete (YD%SRCDIR)
+ENDIF
+
+LRMOON = ALLOCATED (YD%RMOON)
+IF (LRMOON) THEN
+  !$acc exit data detach (YD%RMOON)
+  !$acc exit data delete (YD%RMOON)
+ENDIF
+
+LDERIVATIVELW = ASSOCIATED (YD%DERIVATIVELW)
+IF (LDERIVATIVELW) THEN
+  !$acc exit data detach (YD%DERIVATIVELW)
+  !$acc exit data delete (YD%DERIVATIVELW)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

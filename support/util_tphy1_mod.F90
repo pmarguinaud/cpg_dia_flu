@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TPHY1
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TPHY1
+END INTERFACE
+
 
 
 CONTAINS
@@ -368,6 +372,128 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TPHY1 (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TPHY1), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

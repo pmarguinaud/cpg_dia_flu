@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TEPHY
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TEPHY
+END INTERFACE
+
 
 
 CONTAINS
@@ -317,6 +321,111 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TEPHY (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TEPHY), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

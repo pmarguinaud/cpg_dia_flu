@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TLEP
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TLEP
+END INTERFACE
+
 
 
 CONTAINS
@@ -391,6 +395,120 @@ IF (LMVALUE) THEN
   !$acc enter data attach (YD%MVALUE)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TLEP (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TLEP), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LMVALUE, LNCPL2M, LNCPL2N, LNCPL4M, LNCPL4N, LNCPLM, LNCPLN, LNESM0, LNESM0G, LNESPZERO
+LOGICAL :: LNPME, LNPNE, LRLEPDIM, LRLEPDIN, LRLEPINM, LRLEPINN
+
+LNCPL2M = ALLOCATED (YD%NCPL2M)
+IF (LNCPL2M) THEN
+  !$acc exit data detach (YD%NCPL2M)
+  !$acc exit data delete (YD%NCPL2M)
+ENDIF
+
+LNCPL4M = ALLOCATED (YD%NCPL4M)
+IF (LNCPL4M) THEN
+  !$acc exit data detach (YD%NCPL4M)
+  !$acc exit data delete (YD%NCPL4M)
+ENDIF
+
+LNCPLM = ALLOCATED (YD%NCPLM)
+IF (LNCPLM) THEN
+  !$acc exit data detach (YD%NCPLM)
+  !$acc exit data delete (YD%NCPLM)
+ENDIF
+
+LNCPL2N = ALLOCATED (YD%NCPL2N)
+IF (LNCPL2N) THEN
+  !$acc exit data detach (YD%NCPL2N)
+  !$acc exit data delete (YD%NCPL2N)
+ENDIF
+
+LNCPL4N = ALLOCATED (YD%NCPL4N)
+IF (LNCPL4N) THEN
+  !$acc exit data detach (YD%NCPL4N)
+  !$acc exit data delete (YD%NCPL4N)
+ENDIF
+
+LNCPLN = ALLOCATED (YD%NCPLN)
+IF (LNCPLN) THEN
+  !$acc exit data detach (YD%NCPLN)
+  !$acc exit data delete (YD%NCPLN)
+ENDIF
+
+LRLEPDIN = ALLOCATED (YD%RLEPDIN)
+IF (LRLEPDIN) THEN
+  !$acc exit data detach (YD%RLEPDIN)
+  !$acc exit data delete (YD%RLEPDIN)
+ENDIF
+
+LRLEPINN = ALLOCATED (YD%RLEPINN)
+IF (LRLEPINN) THEN
+  !$acc exit data detach (YD%RLEPINN)
+  !$acc exit data delete (YD%RLEPINN)
+ENDIF
+
+LRLEPDIM = ALLOCATED (YD%RLEPDIM)
+IF (LRLEPDIM) THEN
+  !$acc exit data detach (YD%RLEPDIM)
+  !$acc exit data delete (YD%RLEPDIM)
+ENDIF
+
+LRLEPINM = ALLOCATED (YD%RLEPINM)
+IF (LRLEPINM) THEN
+  !$acc exit data detach (YD%RLEPINM)
+  !$acc exit data delete (YD%RLEPINM)
+ENDIF
+
+LNESM0 = ALLOCATED (YD%NESM0)
+IF (LNESM0) THEN
+  !$acc exit data detach (YD%NESM0)
+  !$acc exit data delete (YD%NESM0)
+ENDIF
+
+LNESPZERO = ALLOCATED (YD%NESPZERO)
+IF (LNESPZERO) THEN
+  !$acc exit data detach (YD%NESPZERO)
+  !$acc exit data delete (YD%NESPZERO)
+ENDIF
+
+LNESM0G = ALLOCATED (YD%NESM0G)
+IF (LNESM0G) THEN
+  !$acc exit data detach (YD%NESM0G)
+  !$acc exit data delete (YD%NESM0G)
+ENDIF
+
+LNPME = ALLOCATED (YD%NPME)
+IF (LNPME) THEN
+  !$acc exit data detach (YD%NPME)
+  !$acc exit data delete (YD%NPME)
+ENDIF
+
+LNPNE = ALLOCATED (YD%NPNE)
+IF (LNPNE) THEN
+  !$acc exit data detach (YD%NPNE)
+  !$acc exit data delete (YD%NPNE)
+ENDIF
+
+LMVALUE = ALLOCATED (YD%MVALUE)
+IF (LMVALUE) THEN
+  !$acc exit data detach (YD%MVALUE)
+  !$acc exit data delete (YD%MVALUE)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TERAD
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TERAD
+END INTERFACE
+
 
 
 CONTAINS
@@ -552,6 +556,185 @@ ENDIF
 
 CALL COPY (YD%YSPECTPLANCK, LDCREATED=.TRUE.)
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TERAD (YD, LDDELETED)
+USE UTIL_TSPECTRALPLANCK_MOD
+IMPLICIT NONE
+TYPE (TERAD), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LCVDAEBC, LCVDAEDU, LCVDAEOM, LCVDAESS, LCVDAESU
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LCVDAESS = ALLOCATED (YD%CVDAESS)
+IF (LCVDAESS) THEN
+  !$acc exit data detach (YD%CVDAESS)
+  !$acc exit data delete (YD%CVDAESS)
+ENDIF
+
+LCVDAEDU = ALLOCATED (YD%CVDAEDU)
+IF (LCVDAEDU) THEN
+  !$acc exit data detach (YD%CVDAEDU)
+  !$acc exit data delete (YD%CVDAEDU)
+ENDIF
+
+LCVDAEOM = ALLOCATED (YD%CVDAEOM)
+IF (LCVDAEOM) THEN
+  !$acc exit data detach (YD%CVDAEOM)
+  !$acc exit data delete (YD%CVDAEOM)
+ENDIF
+
+LCVDAEBC = ALLOCATED (YD%CVDAEBC)
+IF (LCVDAEBC) THEN
+  !$acc exit data detach (YD%CVDAEBC)
+  !$acc exit data delete (YD%CVDAEBC)
+ENDIF
+
+LCVDAESU = ALLOCATED (YD%CVDAESU)
+IF (LCVDAESU) THEN
+  !$acc exit data detach (YD%CVDAESU)
+  !$acc exit data delete (YD%CVDAESU)
+ENDIF
+
+CALL WIPE (YD%YSPECTPLANCK, LDDELETED=.TRUE.)
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

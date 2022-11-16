@@ -17,10 +17,10 @@ use Fxtran;
 sub process_decl
 {
   my ($opts, $en_decl, $sname, $prefix, 
-      $BODY_SAVE, $BODY_LOAD, $BODY_COPY, $BODY_SIZE, 
+      $BODY_SAVE, $BODY_LOAD, $BODY_COPY, $BODY_WIPE, $BODY_SIZE, 
       $U, $J, $L, $B, $en_decl_hash) = @_;
 
-  my (@BODY_SAVE, @BODY_LOAD, @BODY_COPY, @BODY_SIZE);
+  my (@BODY_SAVE, @BODY_LOAD, @BODY_COPY, @BODY_WIPE, @BODY_SIZE);
   my (%U, %J, %L, %B);
 
   my $stmt = &Fxtran::stmt ($en_decl);
@@ -70,6 +70,7 @@ sub process_decl
       my $func = $attr{POINTER} ? 'ASSOCIATED' : 'ALLOCATED';
       push @BODY_SAVE, "L$name = $func ($prefix$name)\n";
       push @BODY_COPY, "L$name = $func ($prefix$name)\n";
+      push @BODY_WIPE, "L$name = $func ($prefix$name)\n";
       push @BODY_SIZE, "L$name = $func ($prefix$name)\n";
       push @BODY_SAVE, "WRITE (KLUN) L$name\n";
       push @BODY_LOAD, "READ (KLUN) L$name\n";
@@ -77,6 +78,7 @@ sub process_decl
       push @BODY_SAVE, "IF (L$name) THEN\n";
       push @BODY_LOAD, "IF (L$name) THEN\n";
       push @BODY_COPY, "IF (L$name) THEN\n";
+      push @BODY_WIPE, "IF (L$name) THEN\n";
       push @BODY_SIZE, "IF (L$name) THEN\n";
       if (@ss)
         {
@@ -93,7 +95,8 @@ sub process_decl
           push @BODY_LOAD, "ALLOCATE ($prefix$name)\n" unless ($tname && grep { $_ eq $tname } @{ $opts->{'no-allocate'} });
         }
       push @BODY_COPY, "!\$acc enter data create ($prefix$name)\n";
-      push @BODY_COPY, "!\$acc update device ($prefix$name)\n",
+      push @BODY_COPY, "!\$acc update device ($prefix$name)\n";
+      push @BODY_WIPE, "!\$acc exit data detach ($prefix$name)\n";
     }
   
 
@@ -122,6 +125,7 @@ sub process_decl
           push @BODY_SAVE, $do;
           push @BODY_LOAD, $do;
           push @BODY_COPY, $do;
+          push @BODY_WIPE, $do;
           push @BODY_SIZE, $do;
         }
       my @J = map { "J$_"  } (1 .. $#ss+1);
@@ -134,6 +138,8 @@ sub process_decl
                    . "CALL LOAD (KLUN, $prefix$name" . $J . ")\n";
       push @BODY_COPY, ('  ' x scalar (@ss)) 
                    . "CALL COPY ($prefix$name" . $J . ", LDCREATED=.TRUE.)\n";
+      push @BODY_WIPE, ('  ' x scalar (@ss)) 
+                   . "CALL WIPE ($prefix$name" . $J . ", LDDELETED=.TRUE.)\n";
       push @BODY_SIZE, ('  ' x scalar (@ss))
                    . "ISIZE = SIZE ($prefix$name" . $J . ", CDPATH//'%$name', $LDPRINT)\n", 
                      "JSIZE = JSIZE + ISIZE\n",
@@ -143,6 +149,7 @@ sub process_decl
           push @BODY_SAVE, "ENDDO\n";
           push @BODY_LOAD, "ENDDO\n";
           push @BODY_COPY, "ENDDO\n";
+          push @BODY_WIPE, "ENDDO\n";
           push @BODY_SIZE, "ENDDO\n";
         }
       push @BODY_SIZE, 
@@ -162,15 +169,19 @@ sub process_decl
       push @BODY_LOAD, "ENDIF\n";
       push @BODY_COPY, "!\$acc enter data attach ($prefix$name)\n";
       push @BODY_COPY, "ENDIF\n";
+      push @BODY_WIPE, "!\$acc exit data delete ($prefix$name)\n";
+      push @BODY_WIPE, "ENDIF\n";
       push @BODY_SIZE, "ENDIF\n";
     }
   push @BODY_COPY, "\n";
+  push @BODY_WIPE, "\n";
 
 RETURN:
   
   push @$BODY_SAVE, @BODY_SAVE;
   push @$BODY_LOAD, @BODY_LOAD;
   push @$BODY_COPY, @BODY_COPY;
+  push @$BODY_WIPE, @BODY_WIPE;
   push @$BODY_SIZE, @BODY_SIZE;
 
   %$U = (%$U, %U); %$J = (%$J, %J); 
@@ -230,15 +241,17 @@ sub process_types
       my ($INTERFACE_SAVE, $CONTAINS_SAVE) = ('', '');
       my ($INTERFACE_LOAD, $CONTAINS_LOAD) = ('', '');
       my ($INTERFACE_COPY, $CONTAINS_COPY) = ('', '');
+      my ($INTERFACE_WIPE, $CONTAINS_WIPE) = ('', '');
       my ($INTERFACE_SIZE, $CONTAINS_SIZE) = ('', '');
   
   
       $INTERFACE_SAVE .= "MODULE PROCEDURE SAVE_$name\n";
       $INTERFACE_LOAD .= "MODULE PROCEDURE LOAD_$name\n";
       $INTERFACE_COPY .= "MODULE PROCEDURE COPY_$name\n";
+      $INTERFACE_WIPE .= "MODULE PROCEDURE WIPE_$name\n";
       $INTERFACE_SIZE .= "MODULE PROCEDURE SIZE_$name\n";
   
-      my (@BODY_SAVE, @BODY_LOAD, @BODY_COPY, @BODY_SIZE);
+      my (@BODY_SAVE, @BODY_LOAD, @BODY_COPY, @BODY_WIPE, @BODY_SIZE);
 
       push @BODY_COPY, "LLCREATED = .FALSE.\n",
                        "IF (PRESENT (LDCREATED)) THEN\n",
@@ -248,18 +261,18 @@ sub process_types
                        "!\$acc enter data create (YD)\n",
                        "!\$acc update device (YD)\n",
                        "ENDIF\n";
-                       
       push @BODY_SIZE, 'KSIZE = 0';
 
       if ($extends)
         {
-          for (\@BODY_SAVE, \@BODY_LOAD, \@BODY_COPY, \@BODY_SIZE)
+          for (\@BODY_SAVE, \@BODY_LOAD, \@BODY_COPY, \@BODY_WIPE, \@BODY_SIZE)
             {
               push @$_, "YLSUPER => YD\n";
             }
           push @BODY_SAVE, "CALL SAVE_$extends (KLUN, YLSUPER)\n";
           push @BODY_LOAD, "CALL LOAD_$extends (KLUN, YLSUPER)\n";
           push @BODY_COPY, "CALL COPY_$extends (YLSUPER, LDCREATED=.TRUE.)\n";
+          push @BODY_WIPE, "CALL WIPE_$extends (YLSUPER, LDDELETED=.TRUE.)\n";
           push @BODY_SIZE, "KSIZE = KSIZE + SIZE_$extends (YLSUPER, CDPATH, LDPRINT)\n";
         }
     
@@ -275,18 +288,28 @@ sub process_types
       for my $en_decl (@en_decl)
         {
           &process_decl ($opts, $en_decl, "$tname%", 'YD%', 
-                         \@BODY_SAVE, \@BODY_LOAD, \@BODY_COPY, \@BODY_SIZE, 
+                         \@BODY_SAVE, \@BODY_LOAD, \@BODY_COPY, \@BODY_WIPE, \@BODY_SIZE, 
                          \%U, \%J, \%L, \%B, \%en_decl);
         }
+
+      push @BODY_WIPE, "LLDELETED = .FALSE.\n",
+                       "IF (PRESENT (LDDELETED)) THEN\n", 
+                       "LLDELETED = LDDELETED\n",
+                       "ENDIF",
+                       "IF (.NOT. LLDELETED) THEN\n",
+                       "!\$acc exit data delete (YD)\n",
+                       "ENDIF\n";
+                       
   
       my $DECL_SAVE = '';
       my $DECL_LOAD = '';
       my $DECL_COPY = "LOGICAL :: LLCREATED\n";
+      my $DECL_WIPE = "LOGICAL :: LLDELETED\n";
       my $DECL_SIZE = "INTEGER*8 :: ISIZE, JSIZE\n";
 
       if ($extends)
         {
-          for ($DECL_SAVE, $DECL_LOAD, $DECL_COPY, $DECL_SIZE)
+          for ($DECL_SAVE, $DECL_LOAD, $DECL_COPY, $DECL_WIPE, $DECL_SIZE)
             {
               $_ .= "CLASS ($extends), POINTER :: YLSUPER\n";
             }
@@ -297,6 +320,7 @@ sub process_types
           $DECL_SAVE .= "INTEGER :: " . join (', ', sort keys (%J)) . "\n";
           $DECL_LOAD .= "INTEGER :: " . join (', ', sort keys (%J)) . "\n";
           $DECL_COPY .= "INTEGER :: " . join (', ', sort keys (%J)) . "\n";
+          $DECL_WIPE .= "INTEGER :: " . join (', ', sort keys (%J)) . "\n";
           $DECL_SIZE .= "INTEGER :: " . join (', ', sort keys (%J)) . "\n";
         }
       if (%B)
@@ -311,6 +335,7 @@ sub process_types
               $DECL_SAVE .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
               $DECL_LOAD .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
               $DECL_COPY .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
+              $DECL_WIPE .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
               $DECL_SIZE .= "LOGICAL :: " . join (', ', map { "L$_" } @l) . "\n";
             }
         }
@@ -323,6 +348,7 @@ sub process_types
       my $USE_SAVE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
       my $USE_LOAD = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
       my $USE_COPY = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
+      my $USE_WIPE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
       my $USE_SIZE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
   
 
@@ -331,10 +357,11 @@ sub process_types
           $USE_SAVE .= "USE UTIL_${extends}_MOD, ONLY : $extends, SAVE_$extends\n";
           $USE_LOAD .= "USE UTIL_${extends}_MOD, ONLY : $extends, LOAD_$extends\n";
           $USE_COPY .= "USE UTIL_${extends}_MOD, ONLY : $extends, COPY_$extends\n";
+          $USE_WIPE .= "USE UTIL_${extends}_MOD, ONLY : $extends, WIPE_$extends\n";
           $USE_SIZE .= "USE UTIL_${extends}_MOD, ONLY : $extends, SIZE_$extends\n";
         }
 
-      for ($USE_SAVE, $USE_SAVE, $USE_COPY, $USE_SIZE, $DECL_SAVE, $DECL_LOAD)
+      for ($USE_SAVE, $USE_SAVE, $USE_COPY, $USE_WIPE, $USE_SIZE, $DECL_SAVE, $DECL_LOAD)
         {
           chomp ($_);
         }
@@ -365,6 +392,14 @@ $type ($name), INTENT (IN), TARGET :: YD
 LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
 EOF
 
+      $CONTAINS_WIPE .= << "EOF";
+SUBROUTINE WIPE_$name (YD, LDDELETED)
+$USE_WIPE
+IMPLICIT NONE
+$type ($name), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+EOF
+
       $CONTAINS_SIZE .= << "EOF";
 INTEGER*8 FUNCTION SIZE_$name (YD, CDPATH, LDPRINT) RESULT (KSIZE)
 $USE_SIZE
@@ -377,15 +412,17 @@ EOF
       &indent (@BODY_SAVE);
       &indent (@BODY_LOAD);
       &indent (@BODY_COPY);
+      &indent (@BODY_WIPE);
       &indent (@BODY_SIZE);
 
 
       $CONTAINS_SAVE .= $DECL_SAVE . "\n" . join ("\n", @BODY_SAVE, '') . "END SUBROUTINE\n";
       $CONTAINS_LOAD .= $DECL_LOAD . "\n" . join ("\n", @BODY_LOAD, '') . "END SUBROUTINE\n";
       $CONTAINS_COPY .= $DECL_COPY . "\n" . join ("\n", @BODY_COPY, '') . "END SUBROUTINE\n";
+      $CONTAINS_WIPE .= $DECL_WIPE . "\n" . join ("\n", @BODY_WIPE, '') . "END SUBROUTINE\n";
       $CONTAINS_SIZE .= $DECL_SIZE . "\n" . join ("\n", @BODY_SIZE, '') . "END FUNCTION\n";
 
-      for ($CONTAINS_SAVE, $CONTAINS_SAVE, $CONTAINS_COPY, $CONTAINS_SIZE, $INTERFACE_SAVE, $INTERFACE_LOAD, $INTERFACE_COPY, $INTERFACE_SIZE)
+      for ($CONTAINS_SAVE, $CONTAINS_SAVE, $CONTAINS_COPY, $CONTAINS_WIPE, $CONTAINS_SIZE, $INTERFACE_SAVE, $INTERFACE_LOAD, $INTERFACE_COPY, $INTERFACE_WIPE, $INTERFACE_SIZE)
         {
           chomp ($_);
         }
@@ -395,11 +432,13 @@ EOF
       $CONTAINS_SAVE = '' unless ($opts->{save});
       $CONTAINS_LOAD = '' unless ($opts->{load});
       $CONTAINS_COPY = '' unless ($opts->{copy});
+      $CONTAINS_WIPE = '' unless ($opts->{wipe});
       $CONTAINS_SIZE = '' unless ($opts->{size});
 
       $INTERFACE_SAVE = "INTERFACE SAVE\n$INTERFACE_SAVE\nEND INTERFACE\n";
       $INTERFACE_LOAD = "INTERFACE LOAD\n$INTERFACE_LOAD\nEND INTERFACE\n";
       $INTERFACE_COPY = "INTERFACE COPY\n$INTERFACE_COPY\nEND INTERFACE\n";
+      $INTERFACE_WIPE = "INTERFACE WIPE\n$INTERFACE_WIPE\nEND INTERFACE\n";
       $INTERFACE_SIZE = "INTERFACE SIZE\n$INTERFACE_SIZE\nEND INTERFACE\n";
 
       if ($abstract)
@@ -407,12 +446,14 @@ EOF
           $INTERFACE_SAVE = "";
           $INTERFACE_LOAD = "";
           $INTERFACE_COPY = "";
+          $INTERFACE_WIPE = "";
           $INTERFACE_SIZE = "";
         }
   
       $INTERFACE_SAVE = '' unless ($opts->{save});
       $INTERFACE_LOAD = '' unless ($opts->{load});
       $INTERFACE_COPY = '' unless ($opts->{copy});
+      $INTERFACE_WIPE = '' unless ($opts->{wipe});
       $INTERFACE_SIZE = '' unless ($opts->{size});
 
       push @file, "util_${n}_mod.F90";
@@ -425,6 +466,7 @@ USE $mod, ONLY : $name
 $INTERFACE_SAVE
 $INTERFACE_LOAD
 $INTERFACE_COPY
+$INTERFACE_WIPE
 $INTERFACE_SIZE
 
 CONTAINS
@@ -434,6 +476,8 @@ $CONTAINS_SAVE
 $CONTAINS_LOAD
 
 $CONTAINS_COPY
+
+$CONTAINS_WIPE
 
 $CONTAINS_SIZE
 
@@ -511,7 +555,7 @@ my %opts = qw (dir .);
   'skip-components=s' => \$opts{'skip-components'}, 'skip-types=s' => \$opts{'skip-types'},
   'only-components=s' => \$opts{'only-components'}, 'only-types=s' => \$opts{'only-types'},
   'dir=s' => \$opts{dir}, 'out=s' => \$opts{out},
-  size => \$opts{size}, save => \$opts{save}, load => \$opts{load}, copy => \$opts{copy},
+  size => \$opts{size}, save => \$opts{save}, load => \$opts{load}, copy => \$opts{copy}, wipe => \$opts{wipe},
   'no-allocate=s' => \$opts{'no-allocate'}, 'module-map=s' => \$opts{'module-map'},
   'field-api' => \$opts{'field-api'}, 'field-api-class=s' => \$opts{'field-api-class'},
   'tmp=s' => \$opts{tmp},

@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TPARAR
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TPARAR
+END INTERFACE
+
 
 
 CONTAINS
@@ -439,6 +443,151 @@ ENDIF
 
 
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TPARAR (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TPARAR), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LXSW_BANDS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LXSW_BANDS = ALLOCATED (YD%XSW_BANDS)
+IF (LXSW_BANDS) THEN
+  !$acc exit data detach (YD%XSW_BANDS)
+  !$acc exit data delete (YD%XSW_BANDS)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

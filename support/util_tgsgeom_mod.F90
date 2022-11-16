@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TGSGEOM
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TGSGEOM
+END INTERFACE
+
 
 
 CONTAINS
@@ -515,6 +519,144 @@ IF (LNUNIQUEGP) THEN
   !$acc enter data attach (YD%NUNIQUEGP)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TGSGEOM (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TGSGEOM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LGAW, LGECLO, LGELAM, LGELAT, LGEMU, LGESLO, LGM, LGMAPPA, LGNORDL, LGNORDLCL
+LOGICAL :: LGNORDM, LGNORDMCL, LGNORDMCM, LGOMVRL, LGOMVRM, LGSQM2, LNGPLAT, LNUNIQUEGP, LRCORI, LRCORIC
+
+LRCORI = ASSOCIATED (YD%RCORI)
+IF (LRCORI) THEN
+  !$acc exit data detach (YD%RCORI)
+  !$acc exit data delete (YD%RCORI)
+ENDIF
+
+LRCORIC = ASSOCIATED (YD%RCORIC)
+IF (LRCORIC) THEN
+  !$acc exit data detach (YD%RCORIC)
+  !$acc exit data delete (YD%RCORIC)
+ENDIF
+
+LGEMU = ASSOCIATED (YD%GEMU)
+IF (LGEMU) THEN
+  !$acc exit data detach (YD%GEMU)
+  !$acc exit data delete (YD%GEMU)
+ENDIF
+
+LGSQM2 = ASSOCIATED (YD%GSQM2)
+IF (LGSQM2) THEN
+  !$acc exit data detach (YD%GSQM2)
+  !$acc exit data delete (YD%GSQM2)
+ENDIF
+
+LGELAM = ASSOCIATED (YD%GELAM)
+IF (LGELAM) THEN
+  !$acc exit data detach (YD%GELAM)
+  !$acc exit data delete (YD%GELAM)
+ENDIF
+
+LGELAT = ASSOCIATED (YD%GELAT)
+IF (LGELAT) THEN
+  !$acc exit data detach (YD%GELAT)
+  !$acc exit data delete (YD%GELAT)
+ENDIF
+
+LGECLO = ASSOCIATED (YD%GECLO)
+IF (LGECLO) THEN
+  !$acc exit data detach (YD%GECLO)
+  !$acc exit data delete (YD%GECLO)
+ENDIF
+
+LGESLO = ASSOCIATED (YD%GESLO)
+IF (LGESLO) THEN
+  !$acc exit data detach (YD%GESLO)
+  !$acc exit data delete (YD%GESLO)
+ENDIF
+
+LGM = ASSOCIATED (YD%GM)
+IF (LGM) THEN
+  !$acc exit data detach (YD%GM)
+  !$acc exit data delete (YD%GM)
+ENDIF
+
+LGMAPPA = ASSOCIATED (YD%GMAPPA)
+IF (LGMAPPA) THEN
+  !$acc exit data detach (YD%GMAPPA)
+  !$acc exit data delete (YD%GMAPPA)
+ENDIF
+
+LGOMVRL = ASSOCIATED (YD%GOMVRL)
+IF (LGOMVRL) THEN
+  !$acc exit data detach (YD%GOMVRL)
+  !$acc exit data delete (YD%GOMVRL)
+ENDIF
+
+LGOMVRM = ASSOCIATED (YD%GOMVRM)
+IF (LGOMVRM) THEN
+  !$acc exit data detach (YD%GOMVRM)
+  !$acc exit data delete (YD%GOMVRM)
+ENDIF
+
+LGNORDL = ASSOCIATED (YD%GNORDL)
+IF (LGNORDL) THEN
+  !$acc exit data detach (YD%GNORDL)
+  !$acc exit data delete (YD%GNORDL)
+ENDIF
+
+LGNORDM = ASSOCIATED (YD%GNORDM)
+IF (LGNORDM) THEN
+  !$acc exit data detach (YD%GNORDM)
+  !$acc exit data delete (YD%GNORDM)
+ENDIF
+
+LGNORDLCL = ASSOCIATED (YD%GNORDLCL)
+IF (LGNORDLCL) THEN
+  !$acc exit data detach (YD%GNORDLCL)
+  !$acc exit data delete (YD%GNORDLCL)
+ENDIF
+
+LGNORDMCL = ASSOCIATED (YD%GNORDMCL)
+IF (LGNORDMCL) THEN
+  !$acc exit data detach (YD%GNORDMCL)
+  !$acc exit data delete (YD%GNORDMCL)
+ENDIF
+
+LGNORDMCM = ASSOCIATED (YD%GNORDMCM)
+IF (LGNORDMCM) THEN
+  !$acc exit data detach (YD%GNORDMCM)
+  !$acc exit data delete (YD%GNORDMCM)
+ENDIF
+
+LGAW = ASSOCIATED (YD%GAW)
+IF (LGAW) THEN
+  !$acc exit data detach (YD%GAW)
+  !$acc exit data delete (YD%GAW)
+ENDIF
+
+LNGPLAT = ASSOCIATED (YD%NGPLAT)
+IF (LNGPLAT) THEN
+  !$acc exit data detach (YD%NGPLAT)
+  !$acc exit data delete (YD%NGPLAT)
+ENDIF
+
+LNUNIQUEGP = ASSOCIATED (YD%NUNIQUEGP)
+IF (LNUNIQUEGP) THEN
+  !$acc exit data detach (YD%NUNIQUEGP)
+  !$acc exit data delete (YD%NUNIQUEGP)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

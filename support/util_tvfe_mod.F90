@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TVFE
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TVFE
+END INTERFACE
+
 
 
 CONTAINS
@@ -433,6 +437,132 @@ IF (LRDERGW) THEN
   !$acc enter data attach (YD%RDERGW)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TVFE (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TVFE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LD_RINTBF11, LD_RINTE, LRDDERBF01, LRDDERI, LRDERB, LRDERBF00, LRDERBF01, LRDERBF10, LRDERBF11, LRDERBH00
+LOGICAL :: LRDERBH01, LRDERGW, LRDERI, LRINTBF00, LRINTBF11, LRINTE, LRINTGW, LVFE_KNOT
+
+LVFE_KNOT = ALLOCATED (YD%VFE_KNOT)
+IF (LVFE_KNOT) THEN
+  !$acc exit data detach (YD%VFE_KNOT)
+  !$acc exit data delete (YD%VFE_KNOT)
+ENDIF
+
+LRINTE = ALLOCATED (YD%RINTE)
+IF (LRINTE) THEN
+  !$acc exit data detach (YD%RINTE)
+  !$acc exit data delete (YD%RINTE)
+ENDIF
+
+LRINTBF00 = ALLOCATED (YD%RINTBF00)
+IF (LRINTBF00) THEN
+  !$acc exit data detach (YD%RINTBF00)
+  !$acc exit data delete (YD%RINTBF00)
+ENDIF
+
+LRINTBF11 = ALLOCATED (YD%RINTBF11)
+IF (LRINTBF11) THEN
+  !$acc exit data detach (YD%RINTBF11)
+  !$acc exit data delete (YD%RINTBF11)
+ENDIF
+
+LD_RINTE = ALLOCATED (YD%D_RINTE)
+IF (LD_RINTE) THEN
+  !$acc exit data detach (YD%D_RINTE)
+  !$acc exit data delete (YD%D_RINTE)
+ENDIF
+
+LD_RINTBF11 = ALLOCATED (YD%D_RINTBF11)
+IF (LD_RINTBF11) THEN
+  !$acc exit data detach (YD%D_RINTBF11)
+  !$acc exit data delete (YD%D_RINTBF11)
+ENDIF
+
+LRDERI = ALLOCATED (YD%RDERI)
+IF (LRDERI) THEN
+  !$acc exit data detach (YD%RDERI)
+  !$acc exit data delete (YD%RDERI)
+ENDIF
+
+LRDERB = ALLOCATED (YD%RDERB)
+IF (LRDERB) THEN
+  !$acc exit data detach (YD%RDERB)
+  !$acc exit data delete (YD%RDERB)
+ENDIF
+
+LRDERBF00 = ALLOCATED (YD%RDERBF00)
+IF (LRDERBF00) THEN
+  !$acc exit data detach (YD%RDERBF00)
+  !$acc exit data delete (YD%RDERBF00)
+ENDIF
+
+LRDERBF01 = ALLOCATED (YD%RDERBF01)
+IF (LRDERBF01) THEN
+  !$acc exit data detach (YD%RDERBF01)
+  !$acc exit data delete (YD%RDERBF01)
+ENDIF
+
+LRDERBF10 = ALLOCATED (YD%RDERBF10)
+IF (LRDERBF10) THEN
+  !$acc exit data detach (YD%RDERBF10)
+  !$acc exit data delete (YD%RDERBF10)
+ENDIF
+
+LRDERBF11 = ALLOCATED (YD%RDERBF11)
+IF (LRDERBF11) THEN
+  !$acc exit data detach (YD%RDERBF11)
+  !$acc exit data delete (YD%RDERBF11)
+ENDIF
+
+LRDERBH00 = ALLOCATED (YD%RDERBH00)
+IF (LRDERBH00) THEN
+  !$acc exit data detach (YD%RDERBH00)
+  !$acc exit data delete (YD%RDERBH00)
+ENDIF
+
+LRDERBH01 = ALLOCATED (YD%RDERBH01)
+IF (LRDERBH01) THEN
+  !$acc exit data detach (YD%RDERBH01)
+  !$acc exit data delete (YD%RDERBH01)
+ENDIF
+
+LRDDERI = ALLOCATED (YD%RDDERI)
+IF (LRDDERI) THEN
+  !$acc exit data detach (YD%RDDERI)
+  !$acc exit data delete (YD%RDDERI)
+ENDIF
+
+LRDDERBF01 = ALLOCATED (YD%RDDERBF01)
+IF (LRDDERBF01) THEN
+  !$acc exit data detach (YD%RDDERBF01)
+  !$acc exit data delete (YD%RDDERBF01)
+ENDIF
+
+LRINTGW = ALLOCATED (YD%RINTGW)
+IF (LRINTGW) THEN
+  !$acc exit data detach (YD%RINTGW)
+  !$acc exit data delete (YD%RINTGW)
+ENDIF
+
+LRDERGW = ALLOCATED (YD%RDERGW)
+IF (LRDERGW) THEN
+  !$acc exit data detach (YD%RDERGW)
+  !$acc exit data delete (YD%RDERGW)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_SL_STRUCT
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_SL_STRUCT
+END INTERFACE
+
 
 
 CONTAINS
@@ -679,6 +683,208 @@ IF (LNLOENG) THEN
   !$acc enter data attach (YD%NLOENG)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_SL_STRUCT (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (SL_STRUCT), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LDIST1GP, LLCOMPLAT, LLSLCOMM, LLSLCORE, LMASK_SL1, LMASK_SL2, LMASK_SL2T, LMASK_SLD, LMASK_SLTOT, LNLATGLO
+LOGICAL :: LNLOENG, LNSLCOMM, LNSLCORE, LNSLEXT, LNSLMAP, LNSLOFF, LNSLONL, LNSLPTSEAST, LNSLPTSWEST, LNSLRECVPOS
+LOGICAL :: LNSLRECVPTR, LNSLSENDPOS, LNSLSENDPTR, LNSLSTA
+
+
+
+LNSLSTA = ALLOCATED (YD%NSLSTA)
+IF (LNSLSTA) THEN
+  !$acc exit data detach (YD%NSLSTA)
+  !$acc exit data delete (YD%NSLSTA)
+ENDIF
+
+LNSLONL = ALLOCATED (YD%NSLONL)
+IF (LNSLONL) THEN
+  !$acc exit data detach (YD%NSLONL)
+  !$acc exit data delete (YD%NSLONL)
+ENDIF
+
+LNSLOFF = ALLOCATED (YD%NSLOFF)
+IF (LNSLOFF) THEN
+  !$acc exit data detach (YD%NSLOFF)
+  !$acc exit data delete (YD%NSLOFF)
+ENDIF
+
+LNSLPTSWEST = ALLOCATED (YD%NSLPTSWEST)
+IF (LNSLPTSWEST) THEN
+  !$acc exit data detach (YD%NSLPTSWEST)
+  !$acc exit data delete (YD%NSLPTSWEST)
+ENDIF
+
+LNSLPTSEAST = ALLOCATED (YD%NSLPTSEAST)
+IF (LNSLPTSEAST) THEN
+  !$acc exit data detach (YD%NSLPTSEAST)
+  !$acc exit data delete (YD%NSLPTSEAST)
+ENDIF
+
+LNSLEXT = ALLOCATED (YD%NSLEXT)
+IF (LNSLEXT) THEN
+  !$acc exit data detach (YD%NSLEXT)
+  !$acc exit data delete (YD%NSLEXT)
+ENDIF
+
+LLCOMPLAT = ALLOCATED (YD%LCOMPLAT)
+IF (LLCOMPLAT) THEN
+  !$acc exit data detach (YD%LCOMPLAT)
+  !$acc exit data delete (YD%LCOMPLAT)
+ENDIF
+
+LNLATGLO = ALLOCATED (YD%NLATGLO)
+IF (LNLATGLO) THEN
+  !$acc exit data detach (YD%NLATGLO)
+  !$acc exit data delete (YD%NLATGLO)
+ENDIF
+
+LDIST1GP = ALLOCATED (YD%DIST1GP)
+IF (LDIST1GP) THEN
+  !$acc exit data detach (YD%DIST1GP)
+  !$acc exit data delete (YD%DIST1GP)
+ENDIF
+
+LNSLSENDPOS = ALLOCATED (YD%NSLSENDPOS)
+IF (LNSLSENDPOS) THEN
+  !$acc exit data detach (YD%NSLSENDPOS)
+  !$acc exit data delete (YD%NSLSENDPOS)
+ENDIF
+
+LNSLRECVPOS = ALLOCATED (YD%NSLRECVPOS)
+IF (LNSLRECVPOS) THEN
+  !$acc exit data detach (YD%NSLRECVPOS)
+  !$acc exit data delete (YD%NSLRECVPOS)
+ENDIF
+
+LNSLSENDPTR = ALLOCATED (YD%NSLSENDPTR)
+IF (LNSLSENDPTR) THEN
+  !$acc exit data detach (YD%NSLSENDPTR)
+  !$acc exit data delete (YD%NSLSENDPTR)
+ENDIF
+
+LNSLRECVPTR = ALLOCATED (YD%NSLRECVPTR)
+IF (LNSLRECVPTR) THEN
+  !$acc exit data detach (YD%NSLRECVPTR)
+  !$acc exit data delete (YD%NSLRECVPTR)
+ENDIF
+
+LNSLCOMM = ALLOCATED (YD%NSLCOMM)
+IF (LNSLCOMM) THEN
+  !$acc exit data detach (YD%NSLCOMM)
+  !$acc exit data delete (YD%NSLCOMM)
+ENDIF
+
+LLSLCOMM = ALLOCATED (YD%LSLCOMM)
+IF (LLSLCOMM) THEN
+  !$acc exit data detach (YD%LSLCOMM)
+  !$acc exit data delete (YD%LSLCOMM)
+ENDIF
+
+
+
+
+
+
+
+
+
+LMASK_SL1 = ALLOCATED (YD%MASK_SL1)
+IF (LMASK_SL1) THEN
+  !$acc exit data detach (YD%MASK_SL1)
+  !$acc exit data delete (YD%MASK_SL1)
+ENDIF
+
+LMASK_SL2 = ALLOCATED (YD%MASK_SL2)
+IF (LMASK_SL2) THEN
+  !$acc exit data detach (YD%MASK_SL2)
+  !$acc exit data delete (YD%MASK_SL2)
+ENDIF
+
+LMASK_SL2T = ALLOCATED (YD%MASK_SL2T)
+IF (LMASK_SL2T) THEN
+  !$acc exit data detach (YD%MASK_SL2T)
+  !$acc exit data delete (YD%MASK_SL2T)
+ENDIF
+
+LMASK_SLD = ALLOCATED (YD%MASK_SLD)
+IF (LMASK_SLD) THEN
+  !$acc exit data detach (YD%MASK_SLD)
+  !$acc exit data delete (YD%MASK_SLD)
+ENDIF
+
+
+
+
+
+
+
+
+
+LNSLMAP = ALLOCATED (YD%NSLMAP)
+IF (LNSLMAP) THEN
+  !$acc exit data detach (YD%NSLMAP)
+  !$acc exit data delete (YD%NSLMAP)
+ENDIF
+
+LNSLCORE = ALLOCATED (YD%NSLCORE)
+IF (LNSLCORE) THEN
+  !$acc exit data detach (YD%NSLCORE)
+  !$acc exit data delete (YD%NSLCORE)
+ENDIF
+
+LLSLCORE = ALLOCATED (YD%LSLCORE)
+IF (LLSLCORE) THEN
+  !$acc exit data detach (YD%LSLCORE)
+  !$acc exit data delete (YD%LSLCORE)
+ENDIF
+
+LMASK_SLTOT = ALLOCATED (YD%MASK_SLTOT)
+IF (LMASK_SLTOT) THEN
+  !$acc exit data detach (YD%MASK_SLTOT)
+  !$acc exit data delete (YD%MASK_SLTOT)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNLOENG = ALLOCATED (YD%NLOENG)
+IF (LNLOENG) THEN
+  !$acc exit data detach (YD%NLOENG)
+  !$acc exit data delete (YD%NLOENG)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

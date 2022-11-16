@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TSTA
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TSTA
+END INTERFACE
+
 
 
 CONTAINS
@@ -220,6 +224,71 @@ IF (LSVETAF) THEN
   !$acc enter data attach (YD%SVETAF)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TSTA (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TSTA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LSTDEN, LSTPHI, LSTPRE, LSTPREH, LSTTEM, LSTZ, LSVETAF, LSVETAH
+
+LSTPREH = ALLOCATED (YD%STPREH)
+IF (LSTPREH) THEN
+  !$acc exit data detach (YD%STPREH)
+  !$acc exit data delete (YD%STPREH)
+ENDIF
+
+LSTPRE = ALLOCATED (YD%STPRE)
+IF (LSTPRE) THEN
+  !$acc exit data detach (YD%STPRE)
+  !$acc exit data delete (YD%STPRE)
+ENDIF
+
+LSTPHI = ALLOCATED (YD%STPHI)
+IF (LSTPHI) THEN
+  !$acc exit data detach (YD%STPHI)
+  !$acc exit data delete (YD%STPHI)
+ENDIF
+
+LSTTEM = ALLOCATED (YD%STTEM)
+IF (LSTTEM) THEN
+  !$acc exit data detach (YD%STTEM)
+  !$acc exit data delete (YD%STTEM)
+ENDIF
+
+LSTDEN = ALLOCATED (YD%STDEN)
+IF (LSTDEN) THEN
+  !$acc exit data detach (YD%STDEN)
+  !$acc exit data delete (YD%STDEN)
+ENDIF
+
+LSTZ = ALLOCATED (YD%STZ)
+IF (LSTZ) THEN
+  !$acc exit data detach (YD%STZ)
+  !$acc exit data delete (YD%STZ)
+ENDIF
+
+LSVETAH = ALLOCATED (YD%SVETAH)
+IF (LSVETAH) THEN
+  !$acc exit data detach (YD%SVETAH)
+  !$acc exit data delete (YD%SVETAH)
+ENDIF
+
+LSVETAF = ALLOCATED (YD%SVETAF)
+IF (LSVETAF) THEN
+  !$acc exit data detach (YD%SVETAF)
+  !$acc exit data delete (YD%SVETAF)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

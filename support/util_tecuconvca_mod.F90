@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TECUCONVCA
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TECUCONVCA
+END INTERFACE
+
 
 
 CONTAINS
@@ -604,6 +608,185 @@ IF (LSLDDLAT) THEN
   !$acc enter data attach (YD%SLDDLAT)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TECUCONVCA (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TECUCONVCA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LNBEW, LNBLS, LNBNS, LNBSS, LNCELLCU, LNFERTCU, LNRNBLS, LNRNBSS, LRCAPECONVCA, LRCUCONVCA
+LOGICAL :: LRLATDEP, LRLATLONNBLS, LRLATLONNBSS, LRLONDEP, LRNLCONVCA, LRWASALIVE, LRWGHTCU, LSLDDLAT, LSLDLAT, LSLDLONG
+LOGICAL :: LSLLAT, LSLLONG
+
+
+
+
+LNCELLCU = ALLOCATED (YD%NCELLCU)
+IF (LNCELLCU) THEN
+  !$acc exit data detach (YD%NCELLCU)
+  !$acc exit data delete (YD%NCELLCU)
+ENDIF
+
+LNFERTCU = ALLOCATED (YD%NFERTCU)
+IF (LNFERTCU) THEN
+  !$acc exit data detach (YD%NFERTCU)
+  !$acc exit data delete (YD%NFERTCU)
+ENDIF
+
+LNBLS = ALLOCATED (YD%NBLS)
+IF (LNBLS) THEN
+  !$acc exit data detach (YD%NBLS)
+  !$acc exit data delete (YD%NBLS)
+ENDIF
+
+LNBSS = ALLOCATED (YD%NBSS)
+IF (LNBSS) THEN
+  !$acc exit data detach (YD%NBSS)
+  !$acc exit data delete (YD%NBSS)
+ENDIF
+
+LNRNBLS = ALLOCATED (YD%NRNBLS)
+IF (LNRNBLS) THEN
+  !$acc exit data detach (YD%NRNBLS)
+  !$acc exit data delete (YD%NRNBLS)
+ENDIF
+
+LNRNBSS = ALLOCATED (YD%NRNBSS)
+IF (LNRNBSS) THEN
+  !$acc exit data detach (YD%NRNBSS)
+  !$acc exit data delete (YD%NRNBSS)
+ENDIF
+
+LNBEW = ALLOCATED (YD%NBEW)
+IF (LNBEW) THEN
+  !$acc exit data detach (YD%NBEW)
+  !$acc exit data delete (YD%NBEW)
+ENDIF
+
+LNBNS = ALLOCATED (YD%NBNS)
+IF (LNBNS) THEN
+  !$acc exit data detach (YD%NBNS)
+  !$acc exit data delete (YD%NBNS)
+ENDIF
+
+LRCUCONVCA = ALLOCATED (YD%RCUCONVCA)
+IF (LRCUCONVCA) THEN
+  !$acc exit data detach (YD%RCUCONVCA)
+  !$acc exit data delete (YD%RCUCONVCA)
+ENDIF
+
+LRNLCONVCA = ALLOCATED (YD%RNLCONVCA)
+IF (LRNLCONVCA) THEN
+  !$acc exit data detach (YD%RNLCONVCA)
+  !$acc exit data delete (YD%RNLCONVCA)
+ENDIF
+
+LRCAPECONVCA = ALLOCATED (YD%RCAPECONVCA)
+IF (LRCAPECONVCA) THEN
+  !$acc exit data detach (YD%RCAPECONVCA)
+  !$acc exit data delete (YD%RCAPECONVCA)
+ENDIF
+
+LRWASALIVE = ALLOCATED (YD%RWASALIVE)
+IF (LRWASALIVE) THEN
+  !$acc exit data detach (YD%RWASALIVE)
+  !$acc exit data delete (YD%RWASALIVE)
+ENDIF
+
+LRWGHTCU = ALLOCATED (YD%RWGHTCU)
+IF (LRWGHTCU) THEN
+  !$acc exit data detach (YD%RWGHTCU)
+  !$acc exit data delete (YD%RWGHTCU)
+ENDIF
+
+LRLATLONNBLS = ALLOCATED (YD%RLATLONNBLS)
+IF (LRLATLONNBLS) THEN
+  !$acc exit data detach (YD%RLATLONNBLS)
+  !$acc exit data delete (YD%RLATLONNBLS)
+ENDIF
+
+LRLATLONNBSS = ALLOCATED (YD%RLATLONNBSS)
+IF (LRLATLONNBSS) THEN
+  !$acc exit data detach (YD%RLATLONNBSS)
+  !$acc exit data delete (YD%RLATLONNBSS)
+ENDIF
+
+
+
+
+
+
+
+LRLONDEP = ALLOCATED (YD%RLONDEP)
+IF (LRLONDEP) THEN
+  !$acc exit data detach (YD%RLONDEP)
+  !$acc exit data delete (YD%RLONDEP)
+ENDIF
+
+LRLATDEP = ALLOCATED (YD%RLATDEP)
+IF (LRLATDEP) THEN
+  !$acc exit data detach (YD%RLATDEP)
+  !$acc exit data delete (YD%RLATDEP)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSLLONG = ALLOCATED (YD%SLLONG)
+IF (LSLLONG) THEN
+  !$acc exit data detach (YD%SLLONG)
+  !$acc exit data delete (YD%SLLONG)
+ENDIF
+
+LSLLAT = ALLOCATED (YD%SLLAT)
+IF (LSLLAT) THEN
+  !$acc exit data detach (YD%SLLAT)
+  !$acc exit data delete (YD%SLLAT)
+ENDIF
+
+LSLDLONG = ALLOCATED (YD%SLDLONG)
+IF (LSLDLONG) THEN
+  !$acc exit data detach (YD%SLDLONG)
+  !$acc exit data delete (YD%SLDLONG)
+ENDIF
+
+LSLDLAT = ALLOCATED (YD%SLDLAT)
+IF (LSLDLAT) THEN
+  !$acc exit data detach (YD%SLDLAT)
+  !$acc exit data delete (YD%SLDLAT)
+ENDIF
+
+LSLDDLAT = ALLOCATED (YD%SLDDLAT)
+IF (LSLDDLAT) THEN
+  !$acc exit data detach (YD%SLDDLAT)
+  !$acc exit data delete (YD%SLDDLAT)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

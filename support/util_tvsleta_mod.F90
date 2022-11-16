@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TVSLETA
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TVSLETA
+END INTERFACE
+
 
 
 CONTAINS
@@ -268,6 +272,85 @@ IF (LNVAUTH) THEN
   !$acc enter data attach (YD%NVAUTH)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TVSLETA (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TVSLETA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LGAMMA_WENO, LNVAUTF, LNVAUTH, LVCUICO, LVCUICOH, LVRDETAR, LVSLD, LVSLDH, LVSLDW, LVSLDWH
+
+LVCUICO = ALLOCATED (YD%VCUICO)
+IF (LVCUICO) THEN
+  !$acc exit data detach (YD%VCUICO)
+  !$acc exit data delete (YD%VCUICO)
+ENDIF
+
+LVCUICOH = ALLOCATED (YD%VCUICOH)
+IF (LVCUICOH) THEN
+  !$acc exit data detach (YD%VCUICOH)
+  !$acc exit data delete (YD%VCUICOH)
+ENDIF
+
+LVSLD = ALLOCATED (YD%VSLD)
+IF (LVSLD) THEN
+  !$acc exit data detach (YD%VSLD)
+  !$acc exit data delete (YD%VSLD)
+ENDIF
+
+LVSLDH = ALLOCATED (YD%VSLDH)
+IF (LVSLDH) THEN
+  !$acc exit data detach (YD%VSLDH)
+  !$acc exit data delete (YD%VSLDH)
+ENDIF
+
+LVSLDW = ALLOCATED (YD%VSLDW)
+IF (LVSLDW) THEN
+  !$acc exit data detach (YD%VSLDW)
+  !$acc exit data delete (YD%VSLDW)
+ENDIF
+
+LVSLDWH = ALLOCATED (YD%VSLDWH)
+IF (LVSLDWH) THEN
+  !$acc exit data detach (YD%VSLDWH)
+  !$acc exit data delete (YD%VSLDWH)
+ENDIF
+
+LGAMMA_WENO = ALLOCATED (YD%GAMMA_WENO)
+IF (LGAMMA_WENO) THEN
+  !$acc exit data detach (YD%GAMMA_WENO)
+  !$acc exit data delete (YD%GAMMA_WENO)
+ENDIF
+
+LVRDETAR = ALLOCATED (YD%VRDETAR)
+IF (LVRDETAR) THEN
+  !$acc exit data detach (YD%VRDETAR)
+  !$acc exit data delete (YD%VRDETAR)
+ENDIF
+
+
+
+LNVAUTF = ALLOCATED (YD%NVAUTF)
+IF (LNVAUTF) THEN
+  !$acc exit data detach (YD%NVAUTF)
+  !$acc exit data delete (YD%NVAUTF)
+ENDIF
+
+LNVAUTH = ALLOCATED (YD%NVAUTH)
+IF (LNVAUTH) THEN
+  !$acc exit data detach (YD%NVAUTH)
+  !$acc exit data delete (YD%NVAUTH)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_TSTOPH
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_TSTOPH
+END INTERFACE
+
 
 
 CONTAINS
@@ -910,6 +914,279 @@ IF (LRVP_MUL_T) THEN
   !$acc enter data attach (YD%RVP_MUL_T)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_TSTOPH (YD, LDDELETED)
+
+IMPLICIT NONE
+TYPE (TSTOPH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LALPHA_STO, LALPHA_STO_T, LGPSTREAM, LGPTEMP, LGPTOTDISS, LGPTOTDISS_SMOOTH, LGPVELPOT, LGPVORTGRAD, LMCELL, LNIMRAN
+LOGICAL :: LONEMINALPHA_NFRSPBS, LONEMINALPHA_NFRSPBS_T, LRSMOOTH, LRSTOPHCA, LRVP_MUL, LRVP_MULFACT, LRVP_MULFACT_T, LRVP_MUL_T, LRWGHT, LSPDP
+LOGICAL :: LSPG_AMP, LSPG_AMP_T, LSPSTREAM, LSPSTREAM_FORC, LSPTEMP, LSPTEMP_FORC, LSPVELPOT, LSPVELPOT_FORC, LSQRTCORR, LTAPER_FACT
+
+LRSTOPHCA = ALLOCATED (YD%RSTOPHCA)
+IF (LRSTOPHCA) THEN
+  !$acc exit data detach (YD%RSTOPHCA)
+  !$acc exit data delete (YD%RSTOPHCA)
+ENDIF
+
+LSQRTCORR = ALLOCATED (YD%SQRTCORR)
+IF (LSQRTCORR) THEN
+  !$acc exit data detach (YD%SQRTCORR)
+  !$acc exit data delete (YD%SQRTCORR)
+ENDIF
+
+LSPSTREAM = ALLOCATED (YD%SPSTREAM)
+IF (LSPSTREAM) THEN
+  !$acc exit data detach (YD%SPSTREAM)
+  !$acc exit data delete (YD%SPSTREAM)
+ENDIF
+
+LSPVELPOT = ALLOCATED (YD%SPVELPOT)
+IF (LSPVELPOT) THEN
+  !$acc exit data detach (YD%SPVELPOT)
+  !$acc exit data delete (YD%SPVELPOT)
+ENDIF
+
+LSPSTREAM_FORC = ALLOCATED (YD%SPSTREAM_FORC)
+IF (LSPSTREAM_FORC) THEN
+  !$acc exit data detach (YD%SPSTREAM_FORC)
+  !$acc exit data delete (YD%SPSTREAM_FORC)
+ENDIF
+
+LSPVELPOT_FORC = ALLOCATED (YD%SPVELPOT_FORC)
+IF (LSPVELPOT_FORC) THEN
+  !$acc exit data detach (YD%SPVELPOT_FORC)
+  !$acc exit data delete (YD%SPVELPOT_FORC)
+ENDIF
+
+LSPG_AMP = ALLOCATED (YD%SPG_AMP)
+IF (LSPG_AMP) THEN
+  !$acc exit data detach (YD%SPG_AMP)
+  !$acc exit data delete (YD%SPG_AMP)
+ENDIF
+
+LALPHA_STO = ALLOCATED (YD%ALPHA_STO)
+IF (LALPHA_STO) THEN
+  !$acc exit data detach (YD%ALPHA_STO)
+  !$acc exit data delete (YD%ALPHA_STO)
+ENDIF
+
+LONEMINALPHA_NFRSPBS = ALLOCATED (YD%ONEMINALPHA_NFRSPBS)
+IF (LONEMINALPHA_NFRSPBS) THEN
+  !$acc exit data detach (YD%ONEMINALPHA_NFRSPBS)
+  !$acc exit data delete (YD%ONEMINALPHA_NFRSPBS)
+ENDIF
+
+LRSMOOTH = ALLOCATED (YD%RSMOOTH)
+IF (LRSMOOTH) THEN
+  !$acc exit data detach (YD%RSMOOTH)
+  !$acc exit data delete (YD%RSMOOTH)
+ENDIF
+
+LGPSTREAM = ALLOCATED (YD%GPSTREAM)
+IF (LGPSTREAM) THEN
+  !$acc exit data detach (YD%GPSTREAM)
+  !$acc exit data delete (YD%GPSTREAM)
+ENDIF
+
+LGPVELPOT = ALLOCATED (YD%GPVELPOT)
+IF (LGPVELPOT) THEN
+  !$acc exit data detach (YD%GPVELPOT)
+  !$acc exit data delete (YD%GPVELPOT)
+ENDIF
+
+LGPTOTDISS = ALLOCATED (YD%GPTOTDISS)
+IF (LGPTOTDISS) THEN
+  !$acc exit data detach (YD%GPTOTDISS)
+  !$acc exit data delete (YD%GPTOTDISS)
+ENDIF
+
+LGPTOTDISS_SMOOTH = ALLOCATED (YD%GPTOTDISS_SMOOTH)
+IF (LGPTOTDISS_SMOOTH) THEN
+  !$acc exit data detach (YD%GPTOTDISS_SMOOTH)
+  !$acc exit data delete (YD%GPTOTDISS_SMOOTH)
+ENDIF
+
+LGPVORTGRAD = ALLOCATED (YD%GPVORTGRAD)
+IF (LGPVORTGRAD) THEN
+  !$acc exit data detach (YD%GPVORTGRAD)
+  !$acc exit data delete (YD%GPVORTGRAD)
+ENDIF
+
+LMCELL = ALLOCATED (YD%MCELL)
+IF (LMCELL) THEN
+  !$acc exit data detach (YD%MCELL)
+  !$acc exit data delete (YD%MCELL)
+ENDIF
+
+LRWGHT = ALLOCATED (YD%RWGHT)
+IF (LRWGHT) THEN
+  !$acc exit data detach (YD%RWGHT)
+  !$acc exit data delete (YD%RWGHT)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSPDP = ALLOCATED (YD%SPDP)
+IF (LSPDP) THEN
+  !$acc exit data detach (YD%SPDP)
+  !$acc exit data delete (YD%SPDP)
+ENDIF
+
+LNIMRAN = ALLOCATED (YD%NIMRAN)
+IF (LNIMRAN) THEN
+  !$acc exit data detach (YD%NIMRAN)
+  !$acc exit data delete (YD%NIMRAN)
+ENDIF
+
+
+
+
+
+
+LRVP_MULFACT = ALLOCATED (YD%RVP_MULFACT)
+IF (LRVP_MULFACT) THEN
+  !$acc exit data detach (YD%RVP_MULFACT)
+  !$acc exit data delete (YD%RVP_MULFACT)
+ENDIF
+
+
+
+
+
+
+
+LRVP_MUL = ALLOCATED (YD%RVP_MUL)
+IF (LRVP_MUL) THEN
+  !$acc exit data detach (YD%RVP_MUL)
+  !$acc exit data delete (YD%RVP_MUL)
+ENDIF
+
+
+
+
+
+
+
+LTAPER_FACT = ALLOCATED (YD%TAPER_FACT)
+IF (LTAPER_FACT) THEN
+  !$acc exit data detach (YD%TAPER_FACT)
+  !$acc exit data delete (YD%TAPER_FACT)
+ENDIF
+
+
+
+
+LSPTEMP = ALLOCATED (YD%SPTEMP)
+IF (LSPTEMP) THEN
+  !$acc exit data detach (YD%SPTEMP)
+  !$acc exit data delete (YD%SPTEMP)
+ENDIF
+
+LSPTEMP_FORC = ALLOCATED (YD%SPTEMP_FORC)
+IF (LSPTEMP_FORC) THEN
+  !$acc exit data detach (YD%SPTEMP_FORC)
+  !$acc exit data delete (YD%SPTEMP_FORC)
+ENDIF
+
+LSPG_AMP_T = ALLOCATED (YD%SPG_AMP_T)
+IF (LSPG_AMP_T) THEN
+  !$acc exit data detach (YD%SPG_AMP_T)
+  !$acc exit data delete (YD%SPG_AMP_T)
+ENDIF
+
+LALPHA_STO_T = ALLOCATED (YD%ALPHA_STO_T)
+IF (LALPHA_STO_T) THEN
+  !$acc exit data detach (YD%ALPHA_STO_T)
+  !$acc exit data delete (YD%ALPHA_STO_T)
+ENDIF
+
+LONEMINALPHA_NFRSPBS_T = ALLOCATED (YD%ONEMINALPHA_NFRSPBS_T)
+IF (LONEMINALPHA_NFRSPBS_T) THEN
+  !$acc exit data detach (YD%ONEMINALPHA_NFRSPBS_T)
+  !$acc exit data delete (YD%ONEMINALPHA_NFRSPBS_T)
+ENDIF
+
+LGPTEMP = ALLOCATED (YD%GPTEMP)
+IF (LGPTEMP) THEN
+  !$acc exit data detach (YD%GPTEMP)
+  !$acc exit data delete (YD%GPTEMP)
+ENDIF
+
+
+
+
+
+LRVP_MULFACT_T = ALLOCATED (YD%RVP_MULFACT_T)
+IF (LRVP_MULFACT_T) THEN
+  !$acc exit data detach (YD%RVP_MULFACT_T)
+  !$acc exit data delete (YD%RVP_MULFACT_T)
+ENDIF
+
+
+
+
+
+
+
+LRVP_MUL_T = ALLOCATED (YD%RVP_MUL_T)
+IF (LRVP_MUL_T) THEN
+  !$acc exit data detach (YD%RVP_MUL_T)
+  !$acc exit data delete (YD%RVP_MUL_T)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 
