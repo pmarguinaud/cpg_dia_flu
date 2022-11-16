@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TVSLETA
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TVSLETA
+END INTERFACE
 
 
 
@@ -177,7 +180,95 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TVSLETA (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TVSLETA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LGAMMA_WENO, LNVAUTF, LNVAUTH, LVCUICO, LVCUICOH, LVRDETAR, LVSLD, LVSLDH, LVSLDW, LVSLDWH
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LVCUICO = ALLOCATED (YD%VCUICO)
+IF (LVCUICO) THEN
+  !$acc enter data create (YD%VCUICO)
+  !$acc update device (YD%VCUICO)
+  !$acc enter data attach (YD%VCUICO)
+ENDIF
+
+LVCUICOH = ALLOCATED (YD%VCUICOH)
+IF (LVCUICOH) THEN
+  !$acc enter data create (YD%VCUICOH)
+  !$acc update device (YD%VCUICOH)
+  !$acc enter data attach (YD%VCUICOH)
+ENDIF
+
+LVSLD = ALLOCATED (YD%VSLD)
+IF (LVSLD) THEN
+  !$acc enter data create (YD%VSLD)
+  !$acc update device (YD%VSLD)
+  !$acc enter data attach (YD%VSLD)
+ENDIF
+
+LVSLDH = ALLOCATED (YD%VSLDH)
+IF (LVSLDH) THEN
+  !$acc enter data create (YD%VSLDH)
+  !$acc update device (YD%VSLDH)
+  !$acc enter data attach (YD%VSLDH)
+ENDIF
+
+LVSLDW = ALLOCATED (YD%VSLDW)
+IF (LVSLDW) THEN
+  !$acc enter data create (YD%VSLDW)
+  !$acc update device (YD%VSLDW)
+  !$acc enter data attach (YD%VSLDW)
+ENDIF
+
+LVSLDWH = ALLOCATED (YD%VSLDWH)
+IF (LVSLDWH) THEN
+  !$acc enter data create (YD%VSLDWH)
+  !$acc update device (YD%VSLDWH)
+  !$acc enter data attach (YD%VSLDWH)
+ENDIF
+
+LGAMMA_WENO = ALLOCATED (YD%GAMMA_WENO)
+IF (LGAMMA_WENO) THEN
+  !$acc enter data create (YD%GAMMA_WENO)
+  !$acc update device (YD%GAMMA_WENO)
+  !$acc enter data attach (YD%GAMMA_WENO)
+ENDIF
+
+LVRDETAR = ALLOCATED (YD%VRDETAR)
+IF (LVRDETAR) THEN
+  !$acc enter data create (YD%VRDETAR)
+  !$acc update device (YD%VRDETAR)
+  !$acc enter data attach (YD%VRDETAR)
+ENDIF
+
+
+
+LNVAUTF = ALLOCATED (YD%NVAUTF)
+IF (LNVAUTF) THEN
+  !$acc enter data create (YD%NVAUTF)
+  !$acc update device (YD%NVAUTF)
+  !$acc enter data attach (YD%NVAUTF)
+ENDIF
+
+LNVAUTH = ALLOCATED (YD%NVAUTH)
+IF (LNVAUTH) THEN
+  !$acc enter data create (YD%NVAUTH)
+  !$acc update device (YD%NVAUTH)
+  !$acc enter data attach (YD%NVAUTH)
+ENDIF
+
+END SUBROUTINE
 
 
 

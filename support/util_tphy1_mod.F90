@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TPHY1
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TPHY1
+END INTERFACE
 
 
 
@@ -244,7 +247,128 @@ READ (KLUN) YD%NCHSP
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TPHY1 (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TPHY1), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

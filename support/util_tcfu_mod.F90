@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TCFU
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TCFU
+END INTERFACE
 
 
 
@@ -1026,7 +1029,723 @@ CALL LOAD (KLUN, YD%YWS)
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TCFU (YD, LDCREATED)
+USE UTIL_FIELD_MOD
+USE UTIL_FLUXES_DESCRIPTOR_MOD
+USE UTIL_TCFU_KEYS_MOD, ONLY : TCFU_KEYS, COPY_TCFU_KEYS
+IMPLICIT NONE
+TYPE (TCFU), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+CLASS (TCFU_KEYS), POINTER :: YLSUPER
+LOGICAL :: LF_FCCQL, LF_FCCQN, LF_FCHSP, LF_FCL, LF_FCLL, LF_FCLN, LF_FCS, LF_FCSQL, LF_FCSQN, LF_FDICQ
+LOGICAL :: LF_FDICS, LF_FDISH, LF_FDITQ, LF_FDITS, LF_FDUTP, LF_FEVL, LF_FEVN, LF_FEVV, LF_FGEL, LF_FGELS
+LOGICAL :: LF_FLASH, LF_FLWSP, LF_FNEB, LF_FNEBT, LF_FONTE, LF_FPLCG, LF_FPLCH, LF_FPLCL, LF_FPLCN, LF_FPLSG
+LOGICAL :: LF_FPLSH, LF_FPLSL, LF_FPLSN, LF_FRSDNI, LF_FRSGNI, LF_FRSO, LF_FRSOC0, LF_FRSOC1, LF_FRSODS, LF_FRSOLU
+LOGICAL :: LF_FRSOPS, LF_FRSOPT, LF_FRTH, LF_FRTHC0, LF_FRTHC1, LF_FRTHDS, LF_FTOPH, LF_FTR, LF_NEBBAS, LF_NEBCON
+LOGICAL :: LF_NEBHAU, LF_NEBMOY, LF_OZONT, LF_QICE, LF_QLI, LF_QTOT, LF_RUISL, LF_RUISP, LF_RUISS, LF_SNS
+LOGICAL :: LF_SPRES, LF_STRCU, LF_STRCV, LF_STRDU, LF_STRDV, LF_STRTU, LF_STRTV, LF_WS
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+YLSUPER => YD
+CALL COPY_TCFU_KEYS (YLSUPER, LDCREATED=.TRUE.)
+
+
+
+
+
+
+
+
+
+LF_FCCQL = ASSOCIATED (YD%F_FCCQL)
+IF (LF_FCCQL) THEN
+  !$acc enter data create (YD%F_FCCQL)
+  !$acc update device (YD%F_FCCQL)
+  CALL COPY (YD%F_FCCQL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCCQL)
+ENDIF
+
+CALL COPY (YD%YFCCQL, LDCREATED=.TRUE.)
+
+LF_FCCQN = ASSOCIATED (YD%F_FCCQN)
+IF (LF_FCCQN) THEN
+  !$acc enter data create (YD%F_FCCQN)
+  !$acc update device (YD%F_FCCQN)
+  CALL COPY (YD%F_FCCQN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCCQN)
+ENDIF
+
+CALL COPY (YD%YFCCQN, LDCREATED=.TRUE.)
+
+LF_FCHSP = ASSOCIATED (YD%F_FCHSP)
+IF (LF_FCHSP) THEN
+  !$acc enter data create (YD%F_FCHSP)
+  !$acc update device (YD%F_FCHSP)
+  CALL COPY (YD%F_FCHSP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCHSP)
+ENDIF
+
+CALL COPY (YD%YFCHSP, LDCREATED=.TRUE.)
+
+LF_FCL = ASSOCIATED (YD%F_FCL)
+IF (LF_FCL) THEN
+  !$acc enter data create (YD%F_FCL)
+  !$acc update device (YD%F_FCL)
+  CALL COPY (YD%F_FCL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCL)
+ENDIF
+
+CALL COPY (YD%YFCL, LDCREATED=.TRUE.)
+
+LF_FCLL = ASSOCIATED (YD%F_FCLL)
+IF (LF_FCLL) THEN
+  !$acc enter data create (YD%F_FCLL)
+  !$acc update device (YD%F_FCLL)
+  CALL COPY (YD%F_FCLL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCLL)
+ENDIF
+
+CALL COPY (YD%YFCLL, LDCREATED=.TRUE.)
+
+LF_FCLN = ASSOCIATED (YD%F_FCLN)
+IF (LF_FCLN) THEN
+  !$acc enter data create (YD%F_FCLN)
+  !$acc update device (YD%F_FCLN)
+  CALL COPY (YD%F_FCLN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCLN)
+ENDIF
+
+CALL COPY (YD%YFCLN, LDCREATED=.TRUE.)
+
+LF_FCSQL = ASSOCIATED (YD%F_FCSQL)
+IF (LF_FCSQL) THEN
+  !$acc enter data create (YD%F_FCSQL)
+  !$acc update device (YD%F_FCSQL)
+  CALL COPY (YD%F_FCSQL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCSQL)
+ENDIF
+
+CALL COPY (YD%YFCSQL, LDCREATED=.TRUE.)
+
+LF_FCSQN = ASSOCIATED (YD%F_FCSQN)
+IF (LF_FCSQN) THEN
+  !$acc enter data create (YD%F_FCSQN)
+  !$acc update device (YD%F_FCSQN)
+  CALL COPY (YD%F_FCSQN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCSQN)
+ENDIF
+
+CALL COPY (YD%YFCSQN, LDCREATED=.TRUE.)
+
+LF_FCS = ASSOCIATED (YD%F_FCS)
+IF (LF_FCS) THEN
+  !$acc enter data create (YD%F_FCS)
+  !$acc update device (YD%F_FCS)
+  CALL COPY (YD%F_FCS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FCS)
+ENDIF
+
+CALL COPY (YD%YFCS, LDCREATED=.TRUE.)
+
+LF_FDICQ = ASSOCIATED (YD%F_FDICQ)
+IF (LF_FDICQ) THEN
+  !$acc enter data create (YD%F_FDICQ)
+  !$acc update device (YD%F_FDICQ)
+  CALL COPY (YD%F_FDICQ, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FDICQ)
+ENDIF
+
+CALL COPY (YD%YFDICQ, LDCREATED=.TRUE.)
+
+LF_FDICS = ASSOCIATED (YD%F_FDICS)
+IF (LF_FDICS) THEN
+  !$acc enter data create (YD%F_FDICS)
+  !$acc update device (YD%F_FDICS)
+  CALL COPY (YD%F_FDICS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FDICS)
+ENDIF
+
+CALL COPY (YD%YFDICS, LDCREATED=.TRUE.)
+
+LF_FDISH = ASSOCIATED (YD%F_FDISH)
+IF (LF_FDISH) THEN
+  !$acc enter data create (YD%F_FDISH)
+  !$acc update device (YD%F_FDISH)
+  CALL COPY (YD%F_FDISH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FDISH)
+ENDIF
+
+CALL COPY (YD%YFDISH, LDCREATED=.TRUE.)
+
+LF_FDITQ = ASSOCIATED (YD%F_FDITQ)
+IF (LF_FDITQ) THEN
+  !$acc enter data create (YD%F_FDITQ)
+  !$acc update device (YD%F_FDITQ)
+  CALL COPY (YD%F_FDITQ, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FDITQ)
+ENDIF
+
+CALL COPY (YD%YFDITQ, LDCREATED=.TRUE.)
+
+LF_FDITS = ASSOCIATED (YD%F_FDITS)
+IF (LF_FDITS) THEN
+  !$acc enter data create (YD%F_FDITS)
+  !$acc update device (YD%F_FDITS)
+  CALL COPY (YD%F_FDITS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FDITS)
+ENDIF
+
+CALL COPY (YD%YFDITS, LDCREATED=.TRUE.)
+
+LF_FDUTP = ASSOCIATED (YD%F_FDUTP)
+IF (LF_FDUTP) THEN
+  !$acc enter data create (YD%F_FDUTP)
+  !$acc update device (YD%F_FDUTP)
+  CALL COPY (YD%F_FDUTP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FDUTP)
+ENDIF
+
+CALL COPY (YD%YFDUTP, LDCREATED=.TRUE.)
+
+LF_FEVL = ASSOCIATED (YD%F_FEVL)
+IF (LF_FEVL) THEN
+  !$acc enter data create (YD%F_FEVL)
+  !$acc update device (YD%F_FEVL)
+  CALL COPY (YD%F_FEVL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FEVL)
+ENDIF
+
+CALL COPY (YD%YFEVL, LDCREATED=.TRUE.)
+
+LF_FEVN = ASSOCIATED (YD%F_FEVN)
+IF (LF_FEVN) THEN
+  !$acc enter data create (YD%F_FEVN)
+  !$acc update device (YD%F_FEVN)
+  CALL COPY (YD%F_FEVN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FEVN)
+ENDIF
+
+CALL COPY (YD%YFEVN, LDCREATED=.TRUE.)
+
+LF_FEVV = ASSOCIATED (YD%F_FEVV)
+IF (LF_FEVV) THEN
+  !$acc enter data create (YD%F_FEVV)
+  !$acc update device (YD%F_FEVV)
+  CALL COPY (YD%F_FEVV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FEVV)
+ENDIF
+
+CALL COPY (YD%YFEVV, LDCREATED=.TRUE.)
+
+LF_FGEL = ASSOCIATED (YD%F_FGEL)
+IF (LF_FGEL) THEN
+  !$acc enter data create (YD%F_FGEL)
+  !$acc update device (YD%F_FGEL)
+  CALL COPY (YD%F_FGEL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FGEL)
+ENDIF
+
+CALL COPY (YD%YFGEL, LDCREATED=.TRUE.)
+
+LF_FGELS = ASSOCIATED (YD%F_FGELS)
+IF (LF_FGELS) THEN
+  !$acc enter data create (YD%F_FGELS)
+  !$acc update device (YD%F_FGELS)
+  CALL COPY (YD%F_FGELS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FGELS)
+ENDIF
+
+CALL COPY (YD%YFGELS, LDCREATED=.TRUE.)
+
+LF_FLASH = ASSOCIATED (YD%F_FLASH)
+IF (LF_FLASH) THEN
+  !$acc enter data create (YD%F_FLASH)
+  !$acc update device (YD%F_FLASH)
+  CALL COPY (YD%F_FLASH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FLASH)
+ENDIF
+
+CALL COPY (YD%YFLASH, LDCREATED=.TRUE.)
+
+LF_FLWSP = ASSOCIATED (YD%F_FLWSP)
+IF (LF_FLWSP) THEN
+  !$acc enter data create (YD%F_FLWSP)
+  !$acc update device (YD%F_FLWSP)
+  CALL COPY (YD%F_FLWSP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FLWSP)
+ENDIF
+
+CALL COPY (YD%YFLWSP, LDCREATED=.TRUE.)
+
+LF_FNEB = ASSOCIATED (YD%F_FNEB)
+IF (LF_FNEB) THEN
+  !$acc enter data create (YD%F_FNEB)
+  !$acc update device (YD%F_FNEB)
+  CALL COPY (YD%F_FNEB, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FNEB)
+ENDIF
+
+CALL COPY (YD%YFNEB, LDCREATED=.TRUE.)
+
+LF_FNEBT = ASSOCIATED (YD%F_FNEBT)
+IF (LF_FNEBT) THEN
+  !$acc enter data create (YD%F_FNEBT)
+  !$acc update device (YD%F_FNEBT)
+  CALL COPY (YD%F_FNEBT, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FNEBT)
+ENDIF
+
+CALL COPY (YD%YFNEBT, LDCREATED=.TRUE.)
+
+LF_FONTE = ASSOCIATED (YD%F_FONTE)
+IF (LF_FONTE) THEN
+  !$acc enter data create (YD%F_FONTE)
+  !$acc update device (YD%F_FONTE)
+  CALL COPY (YD%F_FONTE, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FONTE)
+ENDIF
+
+CALL COPY (YD%YFONTE, LDCREATED=.TRUE.)
+
+LF_FPLCG = ASSOCIATED (YD%F_FPLCG)
+IF (LF_FPLCG) THEN
+  !$acc enter data create (YD%F_FPLCG)
+  !$acc update device (YD%F_FPLCG)
+  CALL COPY (YD%F_FPLCG, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLCG)
+ENDIF
+
+CALL COPY (YD%YFPLCG, LDCREATED=.TRUE.)
+
+LF_FPLCH = ASSOCIATED (YD%F_FPLCH)
+IF (LF_FPLCH) THEN
+  !$acc enter data create (YD%F_FPLCH)
+  !$acc update device (YD%F_FPLCH)
+  CALL COPY (YD%F_FPLCH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLCH)
+ENDIF
+
+CALL COPY (YD%YFPLCH, LDCREATED=.TRUE.)
+
+LF_FPLCL = ASSOCIATED (YD%F_FPLCL)
+IF (LF_FPLCL) THEN
+  !$acc enter data create (YD%F_FPLCL)
+  !$acc update device (YD%F_FPLCL)
+  CALL COPY (YD%F_FPLCL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLCL)
+ENDIF
+
+CALL COPY (YD%YFPLCL, LDCREATED=.TRUE.)
+
+LF_FPLCN = ASSOCIATED (YD%F_FPLCN)
+IF (LF_FPLCN) THEN
+  !$acc enter data create (YD%F_FPLCN)
+  !$acc update device (YD%F_FPLCN)
+  CALL COPY (YD%F_FPLCN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLCN)
+ENDIF
+
+CALL COPY (YD%YFPLCN, LDCREATED=.TRUE.)
+
+LF_FPLSG = ASSOCIATED (YD%F_FPLSG)
+IF (LF_FPLSG) THEN
+  !$acc enter data create (YD%F_FPLSG)
+  !$acc update device (YD%F_FPLSG)
+  CALL COPY (YD%F_FPLSG, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLSG)
+ENDIF
+
+CALL COPY (YD%YFPLSG, LDCREATED=.TRUE.)
+
+LF_FPLSH = ASSOCIATED (YD%F_FPLSH)
+IF (LF_FPLSH) THEN
+  !$acc enter data create (YD%F_FPLSH)
+  !$acc update device (YD%F_FPLSH)
+  CALL COPY (YD%F_FPLSH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLSH)
+ENDIF
+
+CALL COPY (YD%YFPLSH, LDCREATED=.TRUE.)
+
+LF_FPLSL = ASSOCIATED (YD%F_FPLSL)
+IF (LF_FPLSL) THEN
+  !$acc enter data create (YD%F_FPLSL)
+  !$acc update device (YD%F_FPLSL)
+  CALL COPY (YD%F_FPLSL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLSL)
+ENDIF
+
+CALL COPY (YD%YFPLSL, LDCREATED=.TRUE.)
+
+LF_FPLSN = ASSOCIATED (YD%F_FPLSN)
+IF (LF_FPLSN) THEN
+  !$acc enter data create (YD%F_FPLSN)
+  !$acc update device (YD%F_FPLSN)
+  CALL COPY (YD%F_FPLSN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FPLSN)
+ENDIF
+
+CALL COPY (YD%YFPLSN, LDCREATED=.TRUE.)
+
+LF_FRSDNI = ASSOCIATED (YD%F_FRSDNI)
+IF (LF_FRSDNI) THEN
+  !$acc enter data create (YD%F_FRSDNI)
+  !$acc update device (YD%F_FRSDNI)
+  CALL COPY (YD%F_FRSDNI, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSDNI)
+ENDIF
+
+CALL COPY (YD%YFRSDNI, LDCREATED=.TRUE.)
+
+LF_FRSGNI = ASSOCIATED (YD%F_FRSGNI)
+IF (LF_FRSGNI) THEN
+  !$acc enter data create (YD%F_FRSGNI)
+  !$acc update device (YD%F_FRSGNI)
+  CALL COPY (YD%F_FRSGNI, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSGNI)
+ENDIF
+
+CALL COPY (YD%YFRSGNI, LDCREATED=.TRUE.)
+
+LF_FRSOC0 = ASSOCIATED (YD%F_FRSOC0)
+IF (LF_FRSOC0) THEN
+  !$acc enter data create (YD%F_FRSOC0)
+  !$acc update device (YD%F_FRSOC0)
+  CALL COPY (YD%F_FRSOC0, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSOC0)
+ENDIF
+
+CALL COPY (YD%YFRSOC0, LDCREATED=.TRUE.)
+
+LF_FRSOC1 = ASSOCIATED (YD%F_FRSOC1)
+IF (LF_FRSOC1) THEN
+  !$acc enter data create (YD%F_FRSOC1)
+  !$acc update device (YD%F_FRSOC1)
+  CALL COPY (YD%F_FRSOC1, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSOC1)
+ENDIF
+
+CALL COPY (YD%YFRSOC1, LDCREATED=.TRUE.)
+
+LF_FRSODS = ASSOCIATED (YD%F_FRSODS)
+IF (LF_FRSODS) THEN
+  !$acc enter data create (YD%F_FRSODS)
+  !$acc update device (YD%F_FRSODS)
+  CALL COPY (YD%F_FRSODS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSODS)
+ENDIF
+
+CALL COPY (YD%YFRSODS, LDCREATED=.TRUE.)
+
+LF_FRSOLU = ASSOCIATED (YD%F_FRSOLU)
+IF (LF_FRSOLU) THEN
+  !$acc enter data create (YD%F_FRSOLU)
+  !$acc update device (YD%F_FRSOLU)
+  CALL COPY (YD%F_FRSOLU, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSOLU)
+ENDIF
+
+CALL COPY (YD%YFRSOLU, LDCREATED=.TRUE.)
+
+LF_FRSOPS = ASSOCIATED (YD%F_FRSOPS)
+IF (LF_FRSOPS) THEN
+  !$acc enter data create (YD%F_FRSOPS)
+  !$acc update device (YD%F_FRSOPS)
+  CALL COPY (YD%F_FRSOPS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSOPS)
+ENDIF
+
+CALL COPY (YD%YFRSOPS, LDCREATED=.TRUE.)
+
+LF_FRSOPT = ASSOCIATED (YD%F_FRSOPT)
+IF (LF_FRSOPT) THEN
+  !$acc enter data create (YD%F_FRSOPT)
+  !$acc update device (YD%F_FRSOPT)
+  CALL COPY (YD%F_FRSOPT, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSOPT)
+ENDIF
+
+CALL COPY (YD%YFRSOPT, LDCREATED=.TRUE.)
+
+LF_FRSO = ASSOCIATED (YD%F_FRSO)
+IF (LF_FRSO) THEN
+  !$acc enter data create (YD%F_FRSO)
+  !$acc update device (YD%F_FRSO)
+  CALL COPY (YD%F_FRSO, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRSO)
+ENDIF
+
+CALL COPY (YD%YFRSO, LDCREATED=.TRUE.)
+
+LF_FRTHC0 = ASSOCIATED (YD%F_FRTHC0)
+IF (LF_FRTHC0) THEN
+  !$acc enter data create (YD%F_FRTHC0)
+  !$acc update device (YD%F_FRTHC0)
+  CALL COPY (YD%F_FRTHC0, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRTHC0)
+ENDIF
+
+CALL COPY (YD%YFRTHC0, LDCREATED=.TRUE.)
+
+LF_FRTHC1 = ASSOCIATED (YD%F_FRTHC1)
+IF (LF_FRTHC1) THEN
+  !$acc enter data create (YD%F_FRTHC1)
+  !$acc update device (YD%F_FRTHC1)
+  CALL COPY (YD%F_FRTHC1, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRTHC1)
+ENDIF
+
+CALL COPY (YD%YFRTHC1, LDCREATED=.TRUE.)
+
+LF_FRTHDS = ASSOCIATED (YD%F_FRTHDS)
+IF (LF_FRTHDS) THEN
+  !$acc enter data create (YD%F_FRTHDS)
+  !$acc update device (YD%F_FRTHDS)
+  CALL COPY (YD%F_FRTHDS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRTHDS)
+ENDIF
+
+CALL COPY (YD%YFRTHDS, LDCREATED=.TRUE.)
+
+LF_FRTH = ASSOCIATED (YD%F_FRTH)
+IF (LF_FRTH) THEN
+  !$acc enter data create (YD%F_FRTH)
+  !$acc update device (YD%F_FRTH)
+  CALL COPY (YD%F_FRTH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FRTH)
+ENDIF
+
+CALL COPY (YD%YFRTH, LDCREATED=.TRUE.)
+
+LF_FTOPH = ASSOCIATED (YD%F_FTOPH)
+IF (LF_FTOPH) THEN
+  !$acc enter data create (YD%F_FTOPH)
+  !$acc update device (YD%F_FTOPH)
+  CALL COPY (YD%F_FTOPH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FTOPH)
+ENDIF
+
+CALL COPY (YD%YFTOPH, LDCREATED=.TRUE.)
+
+LF_FTR = ASSOCIATED (YD%F_FTR)
+IF (LF_FTR) THEN
+  !$acc enter data create (YD%F_FTR)
+  !$acc update device (YD%F_FTR)
+  CALL COPY (YD%F_FTR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FTR)
+ENDIF
+
+CALL COPY (YD%YFTR, LDCREATED=.TRUE.)
+
+LF_NEBBAS = ASSOCIATED (YD%F_NEBBAS)
+IF (LF_NEBBAS) THEN
+  !$acc enter data create (YD%F_NEBBAS)
+  !$acc update device (YD%F_NEBBAS)
+  CALL COPY (YD%F_NEBBAS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_NEBBAS)
+ENDIF
+
+CALL COPY (YD%YNEBBAS, LDCREATED=.TRUE.)
+
+LF_NEBCON = ASSOCIATED (YD%F_NEBCON)
+IF (LF_NEBCON) THEN
+  !$acc enter data create (YD%F_NEBCON)
+  !$acc update device (YD%F_NEBCON)
+  CALL COPY (YD%F_NEBCON, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_NEBCON)
+ENDIF
+
+CALL COPY (YD%YNEBCON, LDCREATED=.TRUE.)
+
+LF_NEBHAU = ASSOCIATED (YD%F_NEBHAU)
+IF (LF_NEBHAU) THEN
+  !$acc enter data create (YD%F_NEBHAU)
+  !$acc update device (YD%F_NEBHAU)
+  CALL COPY (YD%F_NEBHAU, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_NEBHAU)
+ENDIF
+
+CALL COPY (YD%YNEBHAU, LDCREATED=.TRUE.)
+
+LF_NEBMOY = ASSOCIATED (YD%F_NEBMOY)
+IF (LF_NEBMOY) THEN
+  !$acc enter data create (YD%F_NEBMOY)
+  !$acc update device (YD%F_NEBMOY)
+  CALL COPY (YD%F_NEBMOY, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_NEBMOY)
+ENDIF
+
+CALL COPY (YD%YNEBMOY, LDCREATED=.TRUE.)
+
+LF_OZONT = ASSOCIATED (YD%F_OZONT)
+IF (LF_OZONT) THEN
+  !$acc enter data create (YD%F_OZONT)
+  !$acc update device (YD%F_OZONT)
+  CALL COPY (YD%F_OZONT, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_OZONT)
+ENDIF
+
+CALL COPY (YD%YOZONT, LDCREATED=.TRUE.)
+
+LF_QICE = ASSOCIATED (YD%F_QICE)
+IF (LF_QICE) THEN
+  !$acc enter data create (YD%F_QICE)
+  !$acc update device (YD%F_QICE)
+  CALL COPY (YD%F_QICE, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QICE)
+ENDIF
+
+CALL COPY (YD%YQICE, LDCREATED=.TRUE.)
+
+LF_QLI = ASSOCIATED (YD%F_QLI)
+IF (LF_QLI) THEN
+  !$acc enter data create (YD%F_QLI)
+  !$acc update device (YD%F_QLI)
+  CALL COPY (YD%F_QLI, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QLI)
+ENDIF
+
+CALL COPY (YD%YQLI, LDCREATED=.TRUE.)
+
+LF_QTOT = ASSOCIATED (YD%F_QTOT)
+IF (LF_QTOT) THEN
+  !$acc enter data create (YD%F_QTOT)
+  !$acc update device (YD%F_QTOT)
+  CALL COPY (YD%F_QTOT, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QTOT)
+ENDIF
+
+CALL COPY (YD%YQTOT, LDCREATED=.TRUE.)
+
+LF_RUISL = ASSOCIATED (YD%F_RUISL)
+IF (LF_RUISL) THEN
+  !$acc enter data create (YD%F_RUISL)
+  !$acc update device (YD%F_RUISL)
+  CALL COPY (YD%F_RUISL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RUISL)
+ENDIF
+
+CALL COPY (YD%YRUISL, LDCREATED=.TRUE.)
+
+LF_RUISP = ASSOCIATED (YD%F_RUISP)
+IF (LF_RUISP) THEN
+  !$acc enter data create (YD%F_RUISP)
+  !$acc update device (YD%F_RUISP)
+  CALL COPY (YD%F_RUISP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RUISP)
+ENDIF
+
+CALL COPY (YD%YRUISP, LDCREATED=.TRUE.)
+
+LF_RUISS = ASSOCIATED (YD%F_RUISS)
+IF (LF_RUISS) THEN
+  !$acc enter data create (YD%F_RUISS)
+  !$acc update device (YD%F_RUISS)
+  CALL COPY (YD%F_RUISS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RUISS)
+ENDIF
+
+CALL COPY (YD%YRUISS, LDCREATED=.TRUE.)
+
+LF_SNS = ASSOCIATED (YD%F_SNS)
+IF (LF_SNS) THEN
+  !$acc enter data create (YD%F_SNS)
+  !$acc update device (YD%F_SNS)
+  CALL COPY (YD%F_SNS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_SNS)
+ENDIF
+
+CALL COPY (YD%YSNS, LDCREATED=.TRUE.)
+
+LF_SPRES = ASSOCIATED (YD%F_SPRES)
+IF (LF_SPRES) THEN
+  !$acc enter data create (YD%F_SPRES)
+  !$acc update device (YD%F_SPRES)
+  CALL COPY (YD%F_SPRES, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_SPRES)
+ENDIF
+
+CALL COPY (YD%YSPRES, LDCREATED=.TRUE.)
+
+LF_STRCU = ASSOCIATED (YD%F_STRCU)
+IF (LF_STRCU) THEN
+  !$acc enter data create (YD%F_STRCU)
+  !$acc update device (YD%F_STRCU)
+  CALL COPY (YD%F_STRCU, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_STRCU)
+ENDIF
+
+CALL COPY (YD%YSTRCU, LDCREATED=.TRUE.)
+
+LF_STRCV = ASSOCIATED (YD%F_STRCV)
+IF (LF_STRCV) THEN
+  !$acc enter data create (YD%F_STRCV)
+  !$acc update device (YD%F_STRCV)
+  CALL COPY (YD%F_STRCV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_STRCV)
+ENDIF
+
+CALL COPY (YD%YSTRCV, LDCREATED=.TRUE.)
+
+LF_STRDU = ASSOCIATED (YD%F_STRDU)
+IF (LF_STRDU) THEN
+  !$acc enter data create (YD%F_STRDU)
+  !$acc update device (YD%F_STRDU)
+  CALL COPY (YD%F_STRDU, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_STRDU)
+ENDIF
+
+CALL COPY (YD%YSTRDU, LDCREATED=.TRUE.)
+
+LF_STRDV = ASSOCIATED (YD%F_STRDV)
+IF (LF_STRDV) THEN
+  !$acc enter data create (YD%F_STRDV)
+  !$acc update device (YD%F_STRDV)
+  CALL COPY (YD%F_STRDV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_STRDV)
+ENDIF
+
+CALL COPY (YD%YSTRDV, LDCREATED=.TRUE.)
+
+LF_STRTU = ASSOCIATED (YD%F_STRTU)
+IF (LF_STRTU) THEN
+  !$acc enter data create (YD%F_STRTU)
+  !$acc update device (YD%F_STRTU)
+  CALL COPY (YD%F_STRTU, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_STRTU)
+ENDIF
+
+CALL COPY (YD%YSTRTU, LDCREATED=.TRUE.)
+
+LF_STRTV = ASSOCIATED (YD%F_STRTV)
+IF (LF_STRTV) THEN
+  !$acc enter data create (YD%F_STRTV)
+  !$acc update device (YD%F_STRTV)
+  CALL COPY (YD%F_STRTV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_STRTV)
+ENDIF
+
+CALL COPY (YD%YSTRTV, LDCREATED=.TRUE.)
+
+LF_WS = ASSOCIATED (YD%F_WS)
+IF (LF_WS) THEN
+  !$acc enter data create (YD%F_WS)
+  !$acc update device (YD%F_WS)
+  CALL COPY (YD%F_WS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_WS)
+ENDIF
+
+CALL COPY (YD%YWS, LDCREATED=.TRUE.)
+
+END SUBROUTINE
 
 
 

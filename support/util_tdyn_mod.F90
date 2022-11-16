@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TDYN
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TDYN
+END INTERFACE
 
 
 
@@ -981,7 +984,497 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TDYN (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TDYN), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LRCORDIF, LRCORDIH, LRCORDIT, LRDHI, LRDHS, LRDIDIV, LRDIGFL, LRDIPD, LRDISP, LRDITG
+LOGICAL :: LRDIVD, LRDIVOR, LRDSDIV, LRDSVD, LRDSVOR, LRKRF, LSIALPH, LSIB, LSIBI, LSIDELP
+LOGICAL :: LSIDPHI, LSIFAC, LSIFACI, LSIHEG, LSIHEG2, LSIHEGB, LSIHEGB2, LSILNPR, LSIMI, LSIMO
+LOGICAL :: LSIRDEL, LSITLAF, LSITLAH, LSITRAM, LSIVP, LSIWEIG, LSI_ILAPKSSI, LSLHDA, LSLHDD0, LSLHD_MASK_T
+LOGICAL :: LSLHD_MASK_U
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRDIVOR = ALLOCATED (YD%RDIVOR)
+IF (LRDIVOR) THEN
+  !$acc enter data create (YD%RDIVOR)
+  !$acc update device (YD%RDIVOR)
+  !$acc enter data attach (YD%RDIVOR)
+ENDIF
+
+LRDIDIV = ALLOCATED (YD%RDIDIV)
+IF (LRDIDIV) THEN
+  !$acc enter data create (YD%RDIDIV)
+  !$acc update device (YD%RDIDIV)
+  !$acc enter data attach (YD%RDIDIV)
+ENDIF
+
+LRDITG = ALLOCATED (YD%RDITG)
+IF (LRDITG) THEN
+  !$acc enter data create (YD%RDITG)
+  !$acc update device (YD%RDITG)
+  !$acc enter data attach (YD%RDITG)
+ENDIF
+
+LRDIGFL = ALLOCATED (YD%RDIGFL)
+IF (LRDIGFL) THEN
+  !$acc enter data create (YD%RDIGFL)
+  !$acc update device (YD%RDIGFL)
+  !$acc enter data attach (YD%RDIGFL)
+ENDIF
+
+LRDIPD = ALLOCATED (YD%RDIPD)
+IF (LRDIPD) THEN
+  !$acc enter data create (YD%RDIPD)
+  !$acc update device (YD%RDIPD)
+  !$acc enter data attach (YD%RDIPD)
+ENDIF
+
+LRDIVD = ALLOCATED (YD%RDIVD)
+IF (LRDIVD) THEN
+  !$acc enter data create (YD%RDIVD)
+  !$acc update device (YD%RDIVD)
+  !$acc enter data attach (YD%RDIVD)
+ENDIF
+
+LRDISP = ALLOCATED (YD%RDISP)
+IF (LRDISP) THEN
+  !$acc enter data create (YD%RDISP)
+  !$acc update device (YD%RDISP)
+  !$acc enter data attach (YD%RDISP)
+ENDIF
+
+LRDHI = ALLOCATED (YD%RDHI)
+IF (LRDHI) THEN
+  !$acc enter data create (YD%RDHI)
+  !$acc update device (YD%RDHI)
+  !$acc enter data attach (YD%RDHI)
+ENDIF
+
+
+
+
+
+
+LSLHDA = ALLOCATED (YD%SLHDA)
+IF (LSLHDA) THEN
+  !$acc enter data create (YD%SLHDA)
+  !$acc update device (YD%SLHDA)
+  !$acc enter data attach (YD%SLHDA)
+ENDIF
+
+
+
+
+
+LSLHDD0 = ALLOCATED (YD%SLHDD0)
+IF (LSLHDD0) THEN
+  !$acc enter data create (YD%SLHDD0)
+  !$acc update device (YD%SLHDD0)
+  !$acc enter data attach (YD%SLHDD0)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRDSVOR = ALLOCATED (YD%RDSVOR)
+IF (LRDSVOR) THEN
+  !$acc enter data create (YD%RDSVOR)
+  !$acc update device (YD%RDSVOR)
+  !$acc enter data attach (YD%RDSVOR)
+ENDIF
+
+LRDSDIV = ALLOCATED (YD%RDSDIV)
+IF (LRDSDIV) THEN
+  !$acc enter data create (YD%RDSDIV)
+  !$acc update device (YD%RDSDIV)
+  !$acc enter data attach (YD%RDSDIV)
+ENDIF
+
+LRDSVD = ALLOCATED (YD%RDSVD)
+IF (LRDSVD) THEN
+  !$acc enter data create (YD%RDSVD)
+  !$acc update device (YD%RDSVD)
+  !$acc enter data attach (YD%RDSVD)
+ENDIF
+
+LRDHS = ALLOCATED (YD%RDHS)
+IF (LRDHS) THEN
+  !$acc enter data create (YD%RDHS)
+  !$acc update device (YD%RDHS)
+  !$acc enter data attach (YD%RDHS)
+ENDIF
+
+LSLHD_MASK_U = ALLOCATED (YD%SLHD_MASK_U)
+IF (LSLHD_MASK_U) THEN
+  !$acc enter data create (YD%SLHD_MASK_U)
+  !$acc update device (YD%SLHD_MASK_U)
+  !$acc enter data attach (YD%SLHD_MASK_U)
+ENDIF
+
+LSLHD_MASK_T = ALLOCATED (YD%SLHD_MASK_T)
+IF (LSLHD_MASK_T) THEN
+  !$acc enter data create (YD%SLHD_MASK_T)
+  !$acc update device (YD%SLHD_MASK_T)
+  !$acc enter data attach (YD%SLHD_MASK_T)
+ENDIF
+
+
+
+
+LRCORDIT = ALLOCATED (YD%RCORDIT)
+IF (LRCORDIT) THEN
+  !$acc enter data create (YD%RCORDIT)
+  !$acc update device (YD%RCORDIT)
+  !$acc enter data attach (YD%RCORDIT)
+ENDIF
+
+LRCORDIH = ALLOCATED (YD%RCORDIH)
+IF (LRCORDIH) THEN
+  !$acc enter data create (YD%RCORDIH)
+  !$acc update device (YD%RCORDIH)
+  !$acc enter data attach (YD%RCORDIH)
+ENDIF
+
+LRCORDIF = ALLOCATED (YD%RCORDIF)
+IF (LRCORDIF) THEN
+  !$acc enter data create (YD%RCORDIF)
+  !$acc update device (YD%RCORDIF)
+  !$acc enter data attach (YD%RCORDIF)
+ENDIF
+
+
+
+
+
+LRKRF = ALLOCATED (YD%RKRF)
+IF (LRKRF) THEN
+  !$acc enter data create (YD%RKRF)
+  !$acc update device (YD%RKRF)
+  !$acc enter data attach (YD%RKRF)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSIALPH = ALLOCATED (YD%SIALPH)
+IF (LSIALPH) THEN
+  !$acc enter data create (YD%SIALPH)
+  !$acc update device (YD%SIALPH)
+  !$acc enter data attach (YD%SIALPH)
+ENDIF
+
+LSILNPR = ALLOCATED (YD%SILNPR)
+IF (LSILNPR) THEN
+  !$acc enter data create (YD%SILNPR)
+  !$acc update device (YD%SILNPR)
+  !$acc enter data attach (YD%SILNPR)
+ENDIF
+
+LSIDELP = ALLOCATED (YD%SIDELP)
+IF (LSIDELP) THEN
+  !$acc enter data create (YD%SIDELP)
+  !$acc update device (YD%SIDELP)
+  !$acc enter data attach (YD%SIDELP)
+ENDIF
+
+LSIRDEL = ALLOCATED (YD%SIRDEL)
+IF (LSIRDEL) THEN
+  !$acc enter data create (YD%SIRDEL)
+  !$acc update device (YD%SIRDEL)
+  !$acc enter data attach (YD%SIRDEL)
+ENDIF
+
+LSITLAH = ALLOCATED (YD%SITLAH)
+IF (LSITLAH) THEN
+  !$acc enter data create (YD%SITLAH)
+  !$acc update device (YD%SITLAH)
+  !$acc enter data attach (YD%SITLAH)
+ENDIF
+
+LSITLAF = ALLOCATED (YD%SITLAF)
+IF (LSITLAF) THEN
+  !$acc enter data create (YD%SITLAF)
+  !$acc update device (YD%SITLAF)
+  !$acc enter data attach (YD%SITLAF)
+ENDIF
+
+LSIDPHI = ALLOCATED (YD%SIDPHI)
+IF (LSIDPHI) THEN
+  !$acc enter data create (YD%SIDPHI)
+  !$acc update device (YD%SIDPHI)
+  !$acc enter data attach (YD%SIDPHI)
+ENDIF
+
+LSIWEIG = ALLOCATED (YD%SIWEIG)
+IF (LSIWEIG) THEN
+  !$acc enter data create (YD%SIWEIG)
+  !$acc update device (YD%SIWEIG)
+  !$acc enter data attach (YD%SIWEIG)
+ENDIF
+
+LSIB = ALLOCATED (YD%SIB)
+IF (LSIB) THEN
+  !$acc enter data create (YD%SIB)
+  !$acc update device (YD%SIB)
+  !$acc enter data attach (YD%SIB)
+ENDIF
+
+LSIMO = ALLOCATED (YD%SIMO)
+IF (LSIMO) THEN
+  !$acc enter data create (YD%SIMO)
+  !$acc update device (YD%SIMO)
+  !$acc enter data attach (YD%SIMO)
+ENDIF
+
+LSIMI = ALLOCATED (YD%SIMI)
+IF (LSIMI) THEN
+  !$acc enter data create (YD%SIMI)
+  !$acc update device (YD%SIMI)
+  !$acc enter data attach (YD%SIMI)
+ENDIF
+
+LSIVP = ALLOCATED (YD%SIVP)
+IF (LSIVP) THEN
+  !$acc enter data create (YD%SIVP)
+  !$acc update device (YD%SIVP)
+  !$acc enter data attach (YD%SIVP)
+ENDIF
+
+LSIHEG = ALLOCATED (YD%SIHEG)
+IF (LSIHEG) THEN
+  !$acc enter data create (YD%SIHEG)
+  !$acc update device (YD%SIHEG)
+  !$acc enter data attach (YD%SIHEG)
+ENDIF
+
+LSIHEG2 = ALLOCATED (YD%SIHEG2)
+IF (LSIHEG2) THEN
+  !$acc enter data create (YD%SIHEG2)
+  !$acc update device (YD%SIHEG2)
+  !$acc enter data attach (YD%SIHEG2)
+ENDIF
+
+LSIHEGB = ALLOCATED (YD%SIHEGB)
+IF (LSIHEGB) THEN
+  !$acc enter data create (YD%SIHEGB)
+  !$acc update device (YD%SIHEGB)
+  !$acc enter data attach (YD%SIHEGB)
+ENDIF
+
+LSIHEGB2 = ALLOCATED (YD%SIHEGB2)
+IF (LSIHEGB2) THEN
+  !$acc enter data create (YD%SIHEGB2)
+  !$acc update device (YD%SIHEGB2)
+  !$acc enter data attach (YD%SIHEGB2)
+ENDIF
+
+LSIFAC = ALLOCATED (YD%SIFAC)
+IF (LSIFAC) THEN
+  !$acc enter data create (YD%SIFAC)
+  !$acc update device (YD%SIFAC)
+  !$acc enter data attach (YD%SIFAC)
+ENDIF
+
+LSIFACI = ALLOCATED (YD%SIFACI)
+IF (LSIFACI) THEN
+  !$acc enter data create (YD%SIFACI)
+  !$acc update device (YD%SIFACI)
+  !$acc enter data attach (YD%SIFACI)
+ENDIF
+
+LSI_ILAPKSSI = ALLOCATED (YD%SI_ILAPKSSI)
+IF (LSI_ILAPKSSI) THEN
+  !$acc enter data create (YD%SI_ILAPKSSI)
+  !$acc update device (YD%SI_ILAPKSSI)
+  !$acc enter data attach (YD%SI_ILAPKSSI)
+ENDIF
+
+LSITRAM = ALLOCATED (YD%SITRAM)
+IF (LSITRAM) THEN
+  !$acc enter data create (YD%SITRAM)
+  !$acc update device (YD%SITRAM)
+  !$acc enter data attach (YD%SITRAM)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSIBI = ALLOCATED (YD%SIBI)
+IF (LSIBI) THEN
+  !$acc enter data create (YD%SIBI)
+  !$acc update device (YD%SIBI)
+  !$acc enter data attach (YD%SIBI)
+ENDIF
+
+END SUBROUTINE
 
 
 

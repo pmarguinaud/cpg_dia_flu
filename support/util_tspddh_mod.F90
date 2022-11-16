@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TSPDDH
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TSPDDH
+END INTERFACE
 
 
 
@@ -203,7 +206,108 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TSPDDH (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TSPDDH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LSPTNDHD_DIV, LSPTNDHD_GFL, LSPTNDHD_SNHX, LSPTNDHD_SPD, LSPTNDHD_SVD, LSPTNDHD_T, LSPTNDHD_VOR, LSPTNDSI_DIV, LSPTNDSI_SPD, LSPTNDSI_SVD
+LOGICAL :: LSPTNDSI_T, LSPTNDSI_VOR
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LSPTNDHD_VOR = ALLOCATED (YD%SPTNDHD_VOR)
+IF (LSPTNDHD_VOR) THEN
+  !$acc enter data create (YD%SPTNDHD_VOR)
+  !$acc update device (YD%SPTNDHD_VOR)
+  !$acc enter data attach (YD%SPTNDHD_VOR)
+ENDIF
+
+LSPTNDHD_DIV = ALLOCATED (YD%SPTNDHD_DIV)
+IF (LSPTNDHD_DIV) THEN
+  !$acc enter data create (YD%SPTNDHD_DIV)
+  !$acc update device (YD%SPTNDHD_DIV)
+  !$acc enter data attach (YD%SPTNDHD_DIV)
+ENDIF
+
+LSPTNDHD_T = ALLOCATED (YD%SPTNDHD_T)
+IF (LSPTNDHD_T) THEN
+  !$acc enter data create (YD%SPTNDHD_T)
+  !$acc update device (YD%SPTNDHD_T)
+  !$acc enter data attach (YD%SPTNDHD_T)
+ENDIF
+
+LSPTNDHD_SPD = ALLOCATED (YD%SPTNDHD_SPD)
+IF (LSPTNDHD_SPD) THEN
+  !$acc enter data create (YD%SPTNDHD_SPD)
+  !$acc update device (YD%SPTNDHD_SPD)
+  !$acc enter data attach (YD%SPTNDHD_SPD)
+ENDIF
+
+LSPTNDHD_SVD = ALLOCATED (YD%SPTNDHD_SVD)
+IF (LSPTNDHD_SVD) THEN
+  !$acc enter data create (YD%SPTNDHD_SVD)
+  !$acc update device (YD%SPTNDHD_SVD)
+  !$acc enter data attach (YD%SPTNDHD_SVD)
+ENDIF
+
+LSPTNDHD_SNHX = ALLOCATED (YD%SPTNDHD_SNHX)
+IF (LSPTNDHD_SNHX) THEN
+  !$acc enter data create (YD%SPTNDHD_SNHX)
+  !$acc update device (YD%SPTNDHD_SNHX)
+  !$acc enter data attach (YD%SPTNDHD_SNHX)
+ENDIF
+
+LSPTNDHD_GFL = ALLOCATED (YD%SPTNDHD_GFL)
+IF (LSPTNDHD_GFL) THEN
+  !$acc enter data create (YD%SPTNDHD_GFL)
+  !$acc update device (YD%SPTNDHD_GFL)
+  !$acc enter data attach (YD%SPTNDHD_GFL)
+ENDIF
+
+LSPTNDSI_VOR = ALLOCATED (YD%SPTNDSI_VOR)
+IF (LSPTNDSI_VOR) THEN
+  !$acc enter data create (YD%SPTNDSI_VOR)
+  !$acc update device (YD%SPTNDSI_VOR)
+  !$acc enter data attach (YD%SPTNDSI_VOR)
+ENDIF
+
+LSPTNDSI_DIV = ALLOCATED (YD%SPTNDSI_DIV)
+IF (LSPTNDSI_DIV) THEN
+  !$acc enter data create (YD%SPTNDSI_DIV)
+  !$acc update device (YD%SPTNDSI_DIV)
+  !$acc enter data attach (YD%SPTNDSI_DIV)
+ENDIF
+
+LSPTNDSI_T = ALLOCATED (YD%SPTNDSI_T)
+IF (LSPTNDSI_T) THEN
+  !$acc enter data create (YD%SPTNDSI_T)
+  !$acc update device (YD%SPTNDSI_T)
+  !$acc enter data attach (YD%SPTNDSI_T)
+ENDIF
+
+LSPTNDSI_SPD = ALLOCATED (YD%SPTNDSI_SPD)
+IF (LSPTNDSI_SPD) THEN
+  !$acc enter data create (YD%SPTNDSI_SPD)
+  !$acc update device (YD%SPTNDSI_SPD)
+  !$acc enter data attach (YD%SPTNDSI_SPD)
+ENDIF
+
+LSPTNDSI_SVD = ALLOCATED (YD%SPTNDSI_SVD)
+IF (LSPTNDSI_SVD) THEN
+  !$acc enter data create (YD%SPTNDSI_SVD)
+  !$acc update device (YD%SPTNDSI_SVD)
+  !$acc enter data attach (YD%SPTNDSI_SVD)
+ENDIF
+
+END SUBROUTINE
 
 
 

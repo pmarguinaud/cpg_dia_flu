@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TVETA
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TVETA
+END INTERFACE
 
 
 
@@ -103,7 +106,58 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TVETA (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TVETA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LVETAF, LVETAH, LVFE_ETAF, LVFE_ETAH, LVFE_RDETAH
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LVETAH = ALLOCATED (YD%VETAH)
+IF (LVETAH) THEN
+  !$acc enter data create (YD%VETAH)
+  !$acc update device (YD%VETAH)
+  !$acc enter data attach (YD%VETAH)
+ENDIF
+
+LVFE_ETAH = ALLOCATED (YD%VFE_ETAH)
+IF (LVFE_ETAH) THEN
+  !$acc enter data create (YD%VFE_ETAH)
+  !$acc update device (YD%VFE_ETAH)
+  !$acc enter data attach (YD%VFE_ETAH)
+ENDIF
+
+LVETAF = ALLOCATED (YD%VETAF)
+IF (LVETAF) THEN
+  !$acc enter data create (YD%VETAF)
+  !$acc update device (YD%VETAF)
+  !$acc enter data attach (YD%VETAF)
+ENDIF
+
+LVFE_ETAF = ALLOCATED (YD%VFE_ETAF)
+IF (LVFE_ETAF) THEN
+  !$acc enter data create (YD%VFE_ETAF)
+  !$acc update device (YD%VFE_ETAF)
+  !$acc enter data attach (YD%VFE_ETAF)
+ENDIF
+
+LVFE_RDETAH = ALLOCATED (YD%VFE_RDETAH)
+IF (LVFE_RDETAH) THEN
+  !$acc enter data create (YD%VFE_RDETAH)
+  !$acc update device (YD%VFE_RDETAH)
+  !$acc enter data attach (YD%VFE_RDETAH)
+ENDIF
+
+END SUBROUTINE
 
 
 

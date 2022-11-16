@@ -1,11 +1,6 @@
 $VAR1 = {
-          'comp' => {
-                      'P' => [
-                             'F_P',
-                             1
-                           ]
-                    },
+          'comp' => {},
           'name' => 'STACK',
           'super' => undef,
-          'update_view' => 1
+          'update_view' => 0
         };

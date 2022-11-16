@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TGEM
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TGEM
+END INTERFACE
 
 
 
@@ -179,7 +182,96 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TGEM (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TGEM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LNDGLU, LNGPTOTL, LNLOEN, LNLOENG, LNMEN, LNMENG, LNSTAGP, LNTSTAGP
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+LNGPTOTL = ALLOCATED (YD%NGPTOTL)
+IF (LNGPTOTL) THEN
+  !$acc enter data create (YD%NGPTOTL)
+  !$acc update device (YD%NGPTOTL)
+  !$acc enter data attach (YD%NGPTOTL)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNLOEN = ALLOCATED (YD%NLOEN)
+IF (LNLOEN) THEN
+  !$acc enter data create (YD%NLOEN)
+  !$acc update device (YD%NLOEN)
+  !$acc enter data attach (YD%NLOEN)
+ENDIF
+
+LNLOENG = ALLOCATED (YD%NLOENG)
+IF (LNLOENG) THEN
+  !$acc enter data create (YD%NLOENG)
+  !$acc update device (YD%NLOENG)
+  !$acc enter data attach (YD%NLOENG)
+ENDIF
+
+LNMEN = ALLOCATED (YD%NMEN)
+IF (LNMEN) THEN
+  !$acc enter data create (YD%NMEN)
+  !$acc update device (YD%NMEN)
+  !$acc enter data attach (YD%NMEN)
+ENDIF
+
+LNMENG = ALLOCATED (YD%NMENG)
+IF (LNMENG) THEN
+  !$acc enter data create (YD%NMENG)
+  !$acc update device (YD%NMENG)
+  !$acc enter data attach (YD%NMENG)
+ENDIF
+
+LNDGLU = ALLOCATED (YD%NDGLU)
+IF (LNDGLU) THEN
+  !$acc enter data create (YD%NDGLU)
+  !$acc update device (YD%NDGLU)
+  !$acc enter data attach (YD%NDGLU)
+ENDIF
+
+LNSTAGP = ALLOCATED (YD%NSTAGP)
+IF (LNSTAGP) THEN
+  !$acc enter data create (YD%NSTAGP)
+  !$acc update device (YD%NSTAGP)
+  !$acc enter data attach (YD%NSTAGP)
+ENDIF
+
+LNTSTAGP = ALLOCATED (YD%NTSTAGP)
+IF (LNTSTAGP) THEN
+  !$acc enter data create (YD%NTSTAGP)
+  !$acc update device (YD%NTSTAGP)
+  !$acc enter data attach (YD%NTSTAGP)
+ENDIF
+
+END SUBROUTINE
 
 
 

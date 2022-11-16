@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TLEP
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TLEP
+END INTERFACE
 
 
 
@@ -259,7 +262,136 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TLEP (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TLEP), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LMVALUE, LNCPL2M, LNCPL2N, LNCPL4M, LNCPL4N, LNCPLM, LNCPLN, LNESM0, LNESM0G, LNESPZERO
+LOGICAL :: LNPME, LNPNE, LRLEPDIM, LRLEPDIN, LRLEPINM, LRLEPINN
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LNCPL2M = ALLOCATED (YD%NCPL2M)
+IF (LNCPL2M) THEN
+  !$acc enter data create (YD%NCPL2M)
+  !$acc update device (YD%NCPL2M)
+  !$acc enter data attach (YD%NCPL2M)
+ENDIF
+
+LNCPL4M = ALLOCATED (YD%NCPL4M)
+IF (LNCPL4M) THEN
+  !$acc enter data create (YD%NCPL4M)
+  !$acc update device (YD%NCPL4M)
+  !$acc enter data attach (YD%NCPL4M)
+ENDIF
+
+LNCPLM = ALLOCATED (YD%NCPLM)
+IF (LNCPLM) THEN
+  !$acc enter data create (YD%NCPLM)
+  !$acc update device (YD%NCPLM)
+  !$acc enter data attach (YD%NCPLM)
+ENDIF
+
+LNCPL2N = ALLOCATED (YD%NCPL2N)
+IF (LNCPL2N) THEN
+  !$acc enter data create (YD%NCPL2N)
+  !$acc update device (YD%NCPL2N)
+  !$acc enter data attach (YD%NCPL2N)
+ENDIF
+
+LNCPL4N = ALLOCATED (YD%NCPL4N)
+IF (LNCPL4N) THEN
+  !$acc enter data create (YD%NCPL4N)
+  !$acc update device (YD%NCPL4N)
+  !$acc enter data attach (YD%NCPL4N)
+ENDIF
+
+LNCPLN = ALLOCATED (YD%NCPLN)
+IF (LNCPLN) THEN
+  !$acc enter data create (YD%NCPLN)
+  !$acc update device (YD%NCPLN)
+  !$acc enter data attach (YD%NCPLN)
+ENDIF
+
+LRLEPDIN = ALLOCATED (YD%RLEPDIN)
+IF (LRLEPDIN) THEN
+  !$acc enter data create (YD%RLEPDIN)
+  !$acc update device (YD%RLEPDIN)
+  !$acc enter data attach (YD%RLEPDIN)
+ENDIF
+
+LRLEPINN = ALLOCATED (YD%RLEPINN)
+IF (LRLEPINN) THEN
+  !$acc enter data create (YD%RLEPINN)
+  !$acc update device (YD%RLEPINN)
+  !$acc enter data attach (YD%RLEPINN)
+ENDIF
+
+LRLEPDIM = ALLOCATED (YD%RLEPDIM)
+IF (LRLEPDIM) THEN
+  !$acc enter data create (YD%RLEPDIM)
+  !$acc update device (YD%RLEPDIM)
+  !$acc enter data attach (YD%RLEPDIM)
+ENDIF
+
+LRLEPINM = ALLOCATED (YD%RLEPINM)
+IF (LRLEPINM) THEN
+  !$acc enter data create (YD%RLEPINM)
+  !$acc update device (YD%RLEPINM)
+  !$acc enter data attach (YD%RLEPINM)
+ENDIF
+
+LNESM0 = ALLOCATED (YD%NESM0)
+IF (LNESM0) THEN
+  !$acc enter data create (YD%NESM0)
+  !$acc update device (YD%NESM0)
+  !$acc enter data attach (YD%NESM0)
+ENDIF
+
+LNESPZERO = ALLOCATED (YD%NESPZERO)
+IF (LNESPZERO) THEN
+  !$acc enter data create (YD%NESPZERO)
+  !$acc update device (YD%NESPZERO)
+  !$acc enter data attach (YD%NESPZERO)
+ENDIF
+
+LNESM0G = ALLOCATED (YD%NESM0G)
+IF (LNESM0G) THEN
+  !$acc enter data create (YD%NESM0G)
+  !$acc update device (YD%NESM0G)
+  !$acc enter data attach (YD%NESM0G)
+ENDIF
+
+LNPME = ALLOCATED (YD%NPME)
+IF (LNPME) THEN
+  !$acc enter data create (YD%NPME)
+  !$acc update device (YD%NPME)
+  !$acc enter data attach (YD%NPME)
+ENDIF
+
+LNPNE = ALLOCATED (YD%NPNE)
+IF (LNPNE) THEN
+  !$acc enter data create (YD%NPNE)
+  !$acc update device (YD%NPNE)
+  !$acc enter data attach (YD%NPNE)
+ENDIF
+
+LMVALUE = ALLOCATED (YD%MVALUE)
+IF (LMVALUE) THEN
+  !$acc enter data create (YD%MVALUE)
+  !$acc update device (YD%MVALUE)
+  !$acc enter data attach (YD%MVALUE)
+ENDIF
+
+END SUBROUTINE
 
 
 

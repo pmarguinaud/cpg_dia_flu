@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TEDYN
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TEDYN
+END INTERFACE
 
 
 
@@ -211,7 +214,112 @@ READ (KLUN) YD%TCDIS
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TEDYN (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TEDYN), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LRDIDIVE, LRDIGFLE, LRDIPDE, LRDISPE, LRDITE, LRDIVDE, LRDIVORE, LRDSDIVE, LRDSVDE, LRDSVORE
+LOGICAL :: LREFILD, LREFILV
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRDIVORE = ALLOCATED (YD%RDIVORE)
+IF (LRDIVORE) THEN
+  !$acc enter data create (YD%RDIVORE)
+  !$acc update device (YD%RDIVORE)
+  !$acc enter data attach (YD%RDIVORE)
+ENDIF
+
+LRDIDIVE = ALLOCATED (YD%RDIDIVE)
+IF (LRDIDIVE) THEN
+  !$acc enter data create (YD%RDIDIVE)
+  !$acc update device (YD%RDIDIVE)
+  !$acc enter data attach (YD%RDIDIVE)
+ENDIF
+
+LRDITE = ALLOCATED (YD%RDITE)
+IF (LRDITE) THEN
+  !$acc enter data create (YD%RDITE)
+  !$acc update device (YD%RDITE)
+  !$acc enter data attach (YD%RDITE)
+ENDIF
+
+LRDIGFLE = ALLOCATED (YD%RDIGFLE)
+IF (LRDIGFLE) THEN
+  !$acc enter data create (YD%RDIGFLE)
+  !$acc update device (YD%RDIGFLE)
+  !$acc enter data attach (YD%RDIGFLE)
+ENDIF
+
+LRDIPDE = ALLOCATED (YD%RDIPDE)
+IF (LRDIPDE) THEN
+  !$acc enter data create (YD%RDIPDE)
+  !$acc update device (YD%RDIPDE)
+  !$acc enter data attach (YD%RDIPDE)
+ENDIF
+
+LRDIVDE = ALLOCATED (YD%RDIVDE)
+IF (LRDIVDE) THEN
+  !$acc enter data create (YD%RDIVDE)
+  !$acc update device (YD%RDIVDE)
+  !$acc enter data attach (YD%RDIVDE)
+ENDIF
+
+LRDISPE = ALLOCATED (YD%RDISPE)
+IF (LRDISPE) THEN
+  !$acc enter data create (YD%RDISPE)
+  !$acc update device (YD%RDISPE)
+  !$acc enter data attach (YD%RDISPE)
+ENDIF
+
+LRDSVORE = ALLOCATED (YD%RDSVORE)
+IF (LRDSVORE) THEN
+  !$acc enter data create (YD%RDSVORE)
+  !$acc update device (YD%RDSVORE)
+  !$acc enter data attach (YD%RDSVORE)
+ENDIF
+
+LRDSDIVE = ALLOCATED (YD%RDSDIVE)
+IF (LRDSDIVE) THEN
+  !$acc enter data create (YD%RDSDIVE)
+  !$acc update device (YD%RDSDIVE)
+  !$acc enter data attach (YD%RDSDIVE)
+ENDIF
+
+LRDSVDE = ALLOCATED (YD%RDSVDE)
+IF (LRDSVDE) THEN
+  !$acc enter data create (YD%RDSVDE)
+  !$acc update device (YD%RDSVDE)
+  !$acc enter data attach (YD%RDSVDE)
+ENDIF
+
+LREFILV = ALLOCATED (YD%REFILV)
+IF (LREFILV) THEN
+  !$acc enter data create (YD%REFILV)
+  !$acc update device (YD%REFILV)
+  !$acc enter data attach (YD%REFILV)
+ENDIF
+
+LREFILD = ALLOCATED (YD%REFILD)
+IF (LREFILD) THEN
+  !$acc enter data create (YD%REFILD)
+  !$acc update device (YD%REFILD)
+  !$acc enter data attach (YD%REFILD)
+ENDIF
+
+
+
+
+
+END SUBROUTINE
 
 
 

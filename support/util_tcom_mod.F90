@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TCOM
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TCOM
+END INTERFACE
 
 
 
@@ -107,7 +110,60 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TCOM (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TCOM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LGTTLIN, LOMLDTH, LSSTMSK, LSSTPRE, LTRAFLX
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+LOMLDTH = ALLOCATED (YD%OMLDTH)
+IF (LOMLDTH) THEN
+  !$acc enter data create (YD%OMLDTH)
+  !$acc update device (YD%OMLDTH)
+  !$acc enter data attach (YD%OMLDTH)
+ENDIF
+
+LGTTLIN = ALLOCATED (YD%GTTLIN)
+IF (LGTTLIN) THEN
+  !$acc enter data create (YD%GTTLIN)
+  !$acc update device (YD%GTTLIN)
+  !$acc enter data attach (YD%GTTLIN)
+ENDIF
+
+LSSTPRE = ALLOCATED (YD%SSTPRE)
+IF (LSSTPRE) THEN
+  !$acc enter data create (YD%SSTPRE)
+  !$acc update device (YD%SSTPRE)
+  !$acc enter data attach (YD%SSTPRE)
+ENDIF
+
+LSSTMSK = ALLOCATED (YD%SSTMSK)
+IF (LSSTMSK) THEN
+  !$acc enter data create (YD%SSTMSK)
+  !$acc update device (YD%SSTMSK)
+  !$acc enter data attach (YD%SSTMSK)
+ENDIF
+
+
+LTRAFLX = ALLOCATED (YD%TRAFLX)
+IF (LTRAFLX) THEN
+  !$acc enter data create (YD%TRAFLX)
+  !$acc update device (YD%TRAFLX)
+  !$acc enter data attach (YD%TRAFLX)
+ENDIF
+
+END SUBROUTINE
 
 
 

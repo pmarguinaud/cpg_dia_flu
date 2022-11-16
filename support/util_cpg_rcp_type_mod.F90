@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_CPG_RCP_TYPE
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_CPG_RCP_TYPE
+END INTERFACE
 
 
 
@@ -80,7 +83,51 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_CPG_RCP_TYPE (YD, LDCREATED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (CPG_RCP_TYPE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LF_CP, LF_KAP, LF_R
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+LF_CP = ASSOCIATED (YD%F_CP)
+IF (LF_CP) THEN
+  !$acc enter data create (YD%F_CP)
+  !$acc update device (YD%F_CP)
+  CALL COPY (YD%F_CP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_CP)
+ENDIF
+
+
+LF_R = ASSOCIATED (YD%F_R)
+IF (LF_R) THEN
+  !$acc enter data create (YD%F_R)
+  !$acc update device (YD%F_R)
+  CALL COPY (YD%F_R, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_R)
+ENDIF
+
+
+LF_KAP = ASSOCIATED (YD%F_KAP)
+IF (LF_KAP) THEN
+  !$acc enter data create (YD%F_KAP)
+  !$acc update device (YD%F_KAP)
+  CALL COPY (YD%F_KAP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_KAP)
+ENDIF
+
+END SUBROUTINE
 
 
 

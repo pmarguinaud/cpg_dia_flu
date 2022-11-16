@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_CPG_XYB_TYPE
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_CPG_XYB_TYPE
+END INTERFACE
 
 
 
@@ -136,7 +139,87 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_CPG_XYB_TYPE (YD, LDCREATED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (CPG_XYB_TYPE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LF_ALPH, LF_DELP, LF_LNPR, LF_RDELP, LF_RPP, LF_RPRE, LF_RTGR
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+LF_DELP = ASSOCIATED (YD%F_DELP)
+IF (LF_DELP) THEN
+  !$acc enter data create (YD%F_DELP)
+  !$acc update device (YD%F_DELP)
+  CALL COPY (YD%F_DELP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_DELP)
+ENDIF
+
+
+LF_RDELP = ASSOCIATED (YD%F_RDELP)
+IF (LF_RDELP) THEN
+  !$acc enter data create (YD%F_RDELP)
+  !$acc update device (YD%F_RDELP)
+  CALL COPY (YD%F_RDELP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RDELP)
+ENDIF
+
+
+LF_LNPR = ASSOCIATED (YD%F_LNPR)
+IF (LF_LNPR) THEN
+  !$acc enter data create (YD%F_LNPR)
+  !$acc update device (YD%F_LNPR)
+  CALL COPY (YD%F_LNPR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_LNPR)
+ENDIF
+
+
+LF_ALPH = ASSOCIATED (YD%F_ALPH)
+IF (LF_ALPH) THEN
+  !$acc enter data create (YD%F_ALPH)
+  !$acc update device (YD%F_ALPH)
+  CALL COPY (YD%F_ALPH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_ALPH)
+ENDIF
+
+
+LF_RTGR = ASSOCIATED (YD%F_RTGR)
+IF (LF_RTGR) THEN
+  !$acc enter data create (YD%F_RTGR)
+  !$acc update device (YD%F_RTGR)
+  CALL COPY (YD%F_RTGR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RTGR)
+ENDIF
+
+
+LF_RPRE = ASSOCIATED (YD%F_RPRE)
+IF (LF_RPRE) THEN
+  !$acc enter data create (YD%F_RPRE)
+  !$acc update device (YD%F_RPRE)
+  CALL COPY (YD%F_RPRE, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RPRE)
+ENDIF
+
+
+LF_RPP = ASSOCIATED (YD%F_RPP)
+IF (LF_RPP) THEN
+  !$acc enter data create (YD%F_RPP)
+  !$acc update device (YD%F_RPP)
+  CALL COPY (YD%F_RPP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RPP)
+ENDIF
+
+END SUBROUTINE
 
 
 

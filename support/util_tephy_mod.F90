@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TEPHY
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TEPHY
+END INTERFACE
 
 
 
@@ -210,7 +213,111 @@ READ (KLUN) YD%LRAD_CLOUD_INHOMOG
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TEPHY (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TEPHY), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

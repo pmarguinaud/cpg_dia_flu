@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TOROG_BLOCKED
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TOROG_BLOCKED
+END INTERFACE
 
 
 
@@ -117,7 +120,65 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TOROG_BLOCKED (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TOROG_BLOCKED), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LOROG, LOROGL, LOROGLL, LOROGLM, LOROGM, LOROGMM
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LOROG = ALLOCATED (YD%OROG)
+IF (LOROG) THEN
+  !$acc enter data create (YD%OROG)
+  !$acc update device (YD%OROG)
+  !$acc enter data attach (YD%OROG)
+ENDIF
+
+LOROGL = ALLOCATED (YD%OROGL)
+IF (LOROGL) THEN
+  !$acc enter data create (YD%OROGL)
+  !$acc update device (YD%OROGL)
+  !$acc enter data attach (YD%OROGL)
+ENDIF
+
+LOROGM = ALLOCATED (YD%OROGM)
+IF (LOROGM) THEN
+  !$acc enter data create (YD%OROGM)
+  !$acc update device (YD%OROGM)
+  !$acc enter data attach (YD%OROGM)
+ENDIF
+
+LOROGLL = ALLOCATED (YD%OROGLL)
+IF (LOROGLL) THEN
+  !$acc enter data create (YD%OROGLL)
+  !$acc update device (YD%OROGLL)
+  !$acc enter data attach (YD%OROGLL)
+ENDIF
+
+LOROGMM = ALLOCATED (YD%OROGMM)
+IF (LOROGMM) THEN
+  !$acc enter data create (YD%OROGMM)
+  !$acc update device (YD%OROGMM)
+  !$acc enter data attach (YD%OROGMM)
+ENDIF
+
+LOROGLM = ALLOCATED (YD%OROGLM)
+IF (LOROGLM) THEN
+  !$acc enter data create (YD%OROGLM)
+  !$acc update device (YD%OROGLM)
+  !$acc enter data attach (YD%OROGLM)
+ENDIF
+
+END SUBROUTINE
 
 
 

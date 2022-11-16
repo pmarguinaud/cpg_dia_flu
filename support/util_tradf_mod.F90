@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TRADF
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TRADF
+END INTERFACE
 
 
 
@@ -361,7 +364,186 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TRADF (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TRADF), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LDERIVATIVELW, LEDRO, LEMTC, LEMTD, LEMTU, LRMOON, LSRCDIR, LSRFDIR, LSRLWD, LSRLWDC
+LOGICAL :: LSRLWDCS, LSRSWD, LSRSWDC, LSRSWDCS, LSRSWDUV, LSRSWDV, LSRSWPAR, LSRSWPARC, LSRSWTINC, LSRSWUVB
+LOGICAL :: LTAUAER, LTRSC, LTRSW
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LEMTD = ALLOCATED (YD%EMTD)
+IF (LEMTD) THEN
+  !$acc enter data create (YD%EMTD)
+  !$acc update device (YD%EMTD)
+  !$acc enter data attach (YD%EMTD)
+ENDIF
+
+LTRSW = ALLOCATED (YD%TRSW)
+IF (LTRSW) THEN
+  !$acc enter data create (YD%TRSW)
+  !$acc update device (YD%TRSW)
+  !$acc enter data attach (YD%TRSW)
+ENDIF
+
+LEMTC = ALLOCATED (YD%EMTC)
+IF (LEMTC) THEN
+  !$acc enter data create (YD%EMTC)
+  !$acc update device (YD%EMTC)
+  !$acc enter data attach (YD%EMTC)
+ENDIF
+
+LTRSC = ALLOCATED (YD%TRSC)
+IF (LTRSC) THEN
+  !$acc enter data create (YD%TRSC)
+  !$acc update device (YD%TRSC)
+  !$acc enter data attach (YD%TRSC)
+ENDIF
+
+LEMTU = ALLOCATED (YD%EMTU)
+IF (LEMTU) THEN
+  !$acc enter data create (YD%EMTU)
+  !$acc update device (YD%EMTU)
+  !$acc enter data attach (YD%EMTU)
+ENDIF
+
+LTAUAER = ALLOCATED (YD%TAUAER)
+IF (LTAUAER) THEN
+  !$acc enter data create (YD%TAUAER)
+  !$acc update device (YD%TAUAER)
+  !$acc enter data attach (YD%TAUAER)
+ENDIF
+
+LSRSWD = ALLOCATED (YD%SRSWD)
+IF (LSRSWD) THEN
+  !$acc enter data create (YD%SRSWD)
+  !$acc update device (YD%SRSWD)
+  !$acc enter data attach (YD%SRSWD)
+ENDIF
+
+LSRLWDC = ALLOCATED (YD%SRLWDC)
+IF (LSRLWDC) THEN
+  !$acc enter data create (YD%SRLWDC)
+  !$acc update device (YD%SRLWDC)
+  !$acc enter data attach (YD%SRLWDC)
+ENDIF
+
+LSRLWD = ALLOCATED (YD%SRLWD)
+IF (LSRLWD) THEN
+  !$acc enter data create (YD%SRLWD)
+  !$acc update device (YD%SRLWD)
+  !$acc enter data attach (YD%SRLWD)
+ENDIF
+
+LSRSWDC = ALLOCATED (YD%SRSWDC)
+IF (LSRSWDC) THEN
+  !$acc enter data create (YD%SRSWDC)
+  !$acc update device (YD%SRSWDC)
+  !$acc enter data attach (YD%SRSWDC)
+ENDIF
+
+LSRSWDCS = ALLOCATED (YD%SRSWDCS)
+IF (LSRSWDCS) THEN
+  !$acc enter data create (YD%SRSWDCS)
+  !$acc update device (YD%SRSWDCS)
+  !$acc enter data attach (YD%SRSWDCS)
+ENDIF
+
+LSRLWDCS = ALLOCATED (YD%SRLWDCS)
+IF (LSRLWDCS) THEN
+  !$acc enter data create (YD%SRLWDCS)
+  !$acc update device (YD%SRLWDCS)
+  !$acc enter data attach (YD%SRLWDCS)
+ENDIF
+
+LSRSWDV = ALLOCATED (YD%SRSWDV)
+IF (LSRSWDV) THEN
+  !$acc enter data create (YD%SRSWDV)
+  !$acc update device (YD%SRSWDV)
+  !$acc enter data attach (YD%SRSWDV)
+ENDIF
+
+LSRSWDUV = ALLOCATED (YD%SRSWDUV)
+IF (LSRSWDUV) THEN
+  !$acc enter data create (YD%SRSWDUV)
+  !$acc update device (YD%SRSWDUV)
+  !$acc enter data attach (YD%SRSWDUV)
+ENDIF
+
+LEDRO = ALLOCATED (YD%EDRO)
+IF (LEDRO) THEN
+  !$acc enter data create (YD%EDRO)
+  !$acc update device (YD%EDRO)
+  !$acc enter data attach (YD%EDRO)
+ENDIF
+
+LSRSWPAR = ALLOCATED (YD%SRSWPAR)
+IF (LSRSWPAR) THEN
+  !$acc enter data create (YD%SRSWPAR)
+  !$acc update device (YD%SRSWPAR)
+  !$acc enter data attach (YD%SRSWPAR)
+ENDIF
+
+LSRSWUVB = ALLOCATED (YD%SRSWUVB)
+IF (LSRSWUVB) THEN
+  !$acc enter data create (YD%SRSWUVB)
+  !$acc update device (YD%SRSWUVB)
+  !$acc enter data attach (YD%SRSWUVB)
+ENDIF
+
+LSRSWPARC = ALLOCATED (YD%SRSWPARC)
+IF (LSRSWPARC) THEN
+  !$acc enter data create (YD%SRSWPARC)
+  !$acc update device (YD%SRSWPARC)
+  !$acc enter data attach (YD%SRSWPARC)
+ENDIF
+
+LSRSWTINC = ALLOCATED (YD%SRSWTINC)
+IF (LSRSWTINC) THEN
+  !$acc enter data create (YD%SRSWTINC)
+  !$acc update device (YD%SRSWTINC)
+  !$acc enter data attach (YD%SRSWTINC)
+ENDIF
+
+LSRFDIR = ALLOCATED (YD%SRFDIR)
+IF (LSRFDIR) THEN
+  !$acc enter data create (YD%SRFDIR)
+  !$acc update device (YD%SRFDIR)
+  !$acc enter data attach (YD%SRFDIR)
+ENDIF
+
+LSRCDIR = ALLOCATED (YD%SRCDIR)
+IF (LSRCDIR) THEN
+  !$acc enter data create (YD%SRCDIR)
+  !$acc update device (YD%SRCDIR)
+  !$acc enter data attach (YD%SRCDIR)
+ENDIF
+
+LRMOON = ALLOCATED (YD%RMOON)
+IF (LRMOON) THEN
+  !$acc enter data create (YD%RMOON)
+  !$acc update device (YD%RMOON)
+  !$acc enter data attach (YD%RMOON)
+ENDIF
+
+LDERIVATIVELW = ASSOCIATED (YD%DERIVATIVELW)
+IF (LDERIVATIVELW) THEN
+  !$acc enter data create (YD%DERIVATIVELW)
+  !$acc update device (YD%DERIVATIVELW)
+  !$acc enter data attach (YD%DERIVATIVELW)
+ENDIF
+
+END SUBROUTINE
 
 
 

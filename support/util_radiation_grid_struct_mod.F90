@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_RADIATION_GRID_STRUCT
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_RADIATION_GRID_STRUCT
+END INTERFACE
 
 
 
@@ -345,7 +348,179 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_RADIATION_GRID_STRUCT (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (RADIATION_GRID_STRUCT), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LGECLO, LGELAM, LGELAT, LGEMU, LGESLO, LMYMS, LNASM0, LNFRSTLAT, LNLOENG, LNLSTLAT
+LOGICAL :: LNONL, LNPTRFRSTLAT, LNRGRI, LNSTA, LRIPI, LRLATI, LRLATIG, LRMU, LRSQM2
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNRGRI = ALLOCATED (YD%NRGRI)
+IF (LNRGRI) THEN
+  !$acc enter data create (YD%NRGRI)
+  !$acc update device (YD%NRGRI)
+  !$acc enter data attach (YD%NRGRI)
+ENDIF
+
+LNLOENG = ALLOCATED (YD%NLOENG)
+IF (LNLOENG) THEN
+  !$acc enter data create (YD%NLOENG)
+  !$acc update device (YD%NLOENG)
+  !$acc enter data attach (YD%NLOENG)
+ENDIF
+
+LNPTRFRSTLAT = ALLOCATED (YD%NPTRFRSTLAT)
+IF (LNPTRFRSTLAT) THEN
+  !$acc enter data create (YD%NPTRFRSTLAT)
+  !$acc update device (YD%NPTRFRSTLAT)
+  !$acc enter data attach (YD%NPTRFRSTLAT)
+ENDIF
+
+LNFRSTLAT = ALLOCATED (YD%NFRSTLAT)
+IF (LNFRSTLAT) THEN
+  !$acc enter data create (YD%NFRSTLAT)
+  !$acc update device (YD%NFRSTLAT)
+  !$acc enter data attach (YD%NFRSTLAT)
+ENDIF
+
+LNLSTLAT = ALLOCATED (YD%NLSTLAT)
+IF (LNLSTLAT) THEN
+  !$acc enter data create (YD%NLSTLAT)
+  !$acc update device (YD%NLSTLAT)
+  !$acc enter data attach (YD%NLSTLAT)
+ENDIF
+
+LMYMS = ALLOCATED (YD%MYMS)
+IF (LMYMS) THEN
+  !$acc enter data create (YD%MYMS)
+  !$acc update device (YD%MYMS)
+  !$acc enter data attach (YD%MYMS)
+ENDIF
+
+LNASM0 = ALLOCATED (YD%NASM0)
+IF (LNASM0) THEN
+  !$acc enter data create (YD%NASM0)
+  !$acc update device (YD%NASM0)
+  !$acc enter data attach (YD%NASM0)
+ENDIF
+
+LNSTA = ALLOCATED (YD%NSTA)
+IF (LNSTA) THEN
+  !$acc enter data create (YD%NSTA)
+  !$acc update device (YD%NSTA)
+  !$acc enter data attach (YD%NSTA)
+ENDIF
+
+LNONL = ALLOCATED (YD%NONL)
+IF (LNONL) THEN
+  !$acc enter data create (YD%NONL)
+  !$acc update device (YD%NONL)
+  !$acc enter data attach (YD%NONL)
+ENDIF
+
+LGELAM = ALLOCATED (YD%GELAM)
+IF (LGELAM) THEN
+  !$acc enter data create (YD%GELAM)
+  !$acc update device (YD%GELAM)
+  !$acc enter data attach (YD%GELAM)
+ENDIF
+
+LGELAT = ALLOCATED (YD%GELAT)
+IF (LGELAT) THEN
+  !$acc enter data create (YD%GELAT)
+  !$acc update device (YD%GELAT)
+  !$acc enter data attach (YD%GELAT)
+ENDIF
+
+LGECLO = ALLOCATED (YD%GECLO)
+IF (LGECLO) THEN
+  !$acc enter data create (YD%GECLO)
+  !$acc update device (YD%GECLO)
+  !$acc enter data attach (YD%GECLO)
+ENDIF
+
+LGESLO = ALLOCATED (YD%GESLO)
+IF (LGESLO) THEN
+  !$acc enter data create (YD%GESLO)
+  !$acc update device (YD%GESLO)
+  !$acc enter data attach (YD%GESLO)
+ENDIF
+
+LRMU = ALLOCATED (YD%RMU)
+IF (LRMU) THEN
+  !$acc enter data create (YD%RMU)
+  !$acc update device (YD%RMU)
+  !$acc enter data attach (YD%RMU)
+ENDIF
+
+LRSQM2 = ALLOCATED (YD%RSQM2)
+IF (LRSQM2) THEN
+  !$acc enter data create (YD%RSQM2)
+  !$acc update device (YD%RSQM2)
+  !$acc enter data attach (YD%RSQM2)
+ENDIF
+
+LRLATIG = ALLOCATED (YD%RLATIG)
+IF (LRLATIG) THEN
+  !$acc enter data create (YD%RLATIG)
+  !$acc update device (YD%RLATIG)
+  !$acc enter data attach (YD%RLATIG)
+ENDIF
+
+LRLATI = ALLOCATED (YD%RLATI)
+IF (LRLATI) THEN
+  !$acc enter data create (YD%RLATI)
+  !$acc update device (YD%RLATI)
+  !$acc enter data attach (YD%RLATI)
+ENDIF
+
+LGEMU = ALLOCATED (YD%GEMU)
+IF (LGEMU) THEN
+  !$acc enter data create (YD%GEMU)
+  !$acc update device (YD%GEMU)
+  !$acc enter data attach (YD%GEMU)
+ENDIF
+
+LRIPI = ALLOCATED (YD%RIPI)
+IF (LRIPI) THEN
+  !$acc enter data create (YD%RIPI)
+  !$acc update device (YD%RIPI)
+  !$acc enter data attach (YD%RIPI)
+ENDIF
+
+END SUBROUTINE
 
 
 

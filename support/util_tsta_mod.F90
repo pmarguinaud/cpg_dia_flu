@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TSTA
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TSTA
+END INTERFACE
 
 
 
@@ -145,7 +148,79 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TSTA (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TSTA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LSTDEN, LSTPHI, LSTPRE, LSTPREH, LSTTEM, LSTZ, LSVETAF, LSVETAH
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LSTPREH = ALLOCATED (YD%STPREH)
+IF (LSTPREH) THEN
+  !$acc enter data create (YD%STPREH)
+  !$acc update device (YD%STPREH)
+  !$acc enter data attach (YD%STPREH)
+ENDIF
+
+LSTPRE = ALLOCATED (YD%STPRE)
+IF (LSTPRE) THEN
+  !$acc enter data create (YD%STPRE)
+  !$acc update device (YD%STPRE)
+  !$acc enter data attach (YD%STPRE)
+ENDIF
+
+LSTPHI = ALLOCATED (YD%STPHI)
+IF (LSTPHI) THEN
+  !$acc enter data create (YD%STPHI)
+  !$acc update device (YD%STPHI)
+  !$acc enter data attach (YD%STPHI)
+ENDIF
+
+LSTTEM = ALLOCATED (YD%STTEM)
+IF (LSTTEM) THEN
+  !$acc enter data create (YD%STTEM)
+  !$acc update device (YD%STTEM)
+  !$acc enter data attach (YD%STTEM)
+ENDIF
+
+LSTDEN = ALLOCATED (YD%STDEN)
+IF (LSTDEN) THEN
+  !$acc enter data create (YD%STDEN)
+  !$acc update device (YD%STDEN)
+  !$acc enter data attach (YD%STDEN)
+ENDIF
+
+LSTZ = ALLOCATED (YD%STZ)
+IF (LSTZ) THEN
+  !$acc enter data create (YD%STZ)
+  !$acc update device (YD%STZ)
+  !$acc enter data attach (YD%STZ)
+ENDIF
+
+LSVETAH = ALLOCATED (YD%SVETAH)
+IF (LSVETAH) THEN
+  !$acc enter data create (YD%SVETAH)
+  !$acc update device (YD%SVETAH)
+  !$acc enter data attach (YD%SVETAH)
+ENDIF
+
+LSVETAF = ALLOCATED (YD%SVETAF)
+IF (LSVETAF) THEN
+  !$acc enter data create (YD%SVETAF)
+  !$acc update device (YD%SVETAF)
+  !$acc enter data attach (YD%SVETAF)
+ENDIF
+
+END SUBROUTINE
 
 
 

@@ -288,7 +288,7 @@ sub process_types
         {
           for ($DECL_SAVE, $DECL_LOAD, $DECL_COPY, $DECL_SIZE)
             {
-              $_ = "CLASS ($extends), POINTER :: YLSUPER\n";
+              $_ .= "CLASS ($extends), POINTER :: YLSUPER\n";
             }
         }
   

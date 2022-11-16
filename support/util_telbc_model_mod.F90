@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TELBC_MODEL
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TELBC_MODEL
+END INTERFACE
 
 
 
@@ -287,7 +290,150 @@ READ (KLUN) YD%RNUTENC
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TELBC_MODEL (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TELBC_MODEL), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LEALFAGT3GFL, LEALFAGT3GMV, LEALFAGT3GMVS, LEALFAU_GFL, LEALFAU_GMV, LEALFA_GFL, LEALFA_GMV, LEALFA_GMVS, LEALFA_TENC, LEWB
+LOGICAL :: LEWBDFIBW, LEWBDFIFW, LGMGT3, LGMGT4, LLNUDSPGFL
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+LEALFA_GMV = ALLOCATED (YD%EALFA_GMV)
+IF (LEALFA_GMV) THEN
+  !$acc enter data create (YD%EALFA_GMV)
+  !$acc update device (YD%EALFA_GMV)
+  !$acc enter data attach (YD%EALFA_GMV)
+ENDIF
+
+LEALFA_GMVS = ALLOCATED (YD%EALFA_GMVS)
+IF (LEALFA_GMVS) THEN
+  !$acc enter data create (YD%EALFA_GMVS)
+  !$acc update device (YD%EALFA_GMVS)
+  !$acc enter data attach (YD%EALFA_GMVS)
+ENDIF
+
+LEALFA_GFL = ALLOCATED (YD%EALFA_GFL)
+IF (LEALFA_GFL) THEN
+  !$acc enter data create (YD%EALFA_GFL)
+  !$acc update device (YD%EALFA_GFL)
+  !$acc enter data attach (YD%EALFA_GFL)
+ENDIF
+
+LEALFA_TENC = ALLOCATED (YD%EALFA_TENC)
+IF (LEALFA_TENC) THEN
+  !$acc enter data create (YD%EALFA_TENC)
+  !$acc update device (YD%EALFA_TENC)
+  !$acc enter data attach (YD%EALFA_TENC)
+ENDIF
+
+LEALFAGT3GMV = ALLOCATED (YD%EALFAGT3GMV)
+IF (LEALFAGT3GMV) THEN
+  !$acc enter data create (YD%EALFAGT3GMV)
+  !$acc update device (YD%EALFAGT3GMV)
+  !$acc enter data attach (YD%EALFAGT3GMV)
+ENDIF
+
+LEALFAGT3GMVS = ALLOCATED (YD%EALFAGT3GMVS)
+IF (LEALFAGT3GMVS) THEN
+  !$acc enter data create (YD%EALFAGT3GMVS)
+  !$acc update device (YD%EALFAGT3GMVS)
+  !$acc enter data attach (YD%EALFAGT3GMVS)
+ENDIF
+
+LEALFAGT3GFL = ALLOCATED (YD%EALFAGT3GFL)
+IF (LEALFAGT3GFL) THEN
+  !$acc enter data create (YD%EALFAGT3GFL)
+  !$acc update device (YD%EALFAGT3GFL)
+  !$acc enter data attach (YD%EALFAGT3GFL)
+ENDIF
+
+LEALFAU_GMV = ALLOCATED (YD%EALFAU_GMV)
+IF (LEALFAU_GMV) THEN
+  !$acc enter data create (YD%EALFAU_GMV)
+  !$acc update device (YD%EALFAU_GMV)
+  !$acc enter data attach (YD%EALFAU_GMV)
+ENDIF
+
+LEALFAU_GFL = ALLOCATED (YD%EALFAU_GFL)
+IF (LEALFAU_GFL) THEN
+  !$acc enter data create (YD%EALFAU_GFL)
+  !$acc update device (YD%EALFAU_GFL)
+  !$acc enter data attach (YD%EALFAU_GFL)
+ENDIF
+
+LGMGT3 = ALLOCATED (YD%GMGT3)
+IF (LGMGT3) THEN
+  !$acc enter data create (YD%GMGT3)
+  !$acc update device (YD%GMGT3)
+  !$acc enter data attach (YD%GMGT3)
+ENDIF
+
+LGMGT4 = ALLOCATED (YD%GMGT4)
+IF (LGMGT4) THEN
+  !$acc enter data create (YD%GMGT4)
+  !$acc update device (YD%GMGT4)
+  !$acc enter data attach (YD%GMGT4)
+ENDIF
+
+LEWB = ALLOCATED (YD%EWB)
+IF (LEWB) THEN
+  !$acc enter data create (YD%EWB)
+  !$acc update device (YD%EWB)
+  !$acc enter data attach (YD%EWB)
+ENDIF
+
+LEWBDFIFW = ALLOCATED (YD%EWBDFIFW)
+IF (LEWBDFIFW) THEN
+  !$acc enter data create (YD%EWBDFIFW)
+  !$acc update device (YD%EWBDFIFW)
+  !$acc enter data attach (YD%EWBDFIFW)
+ENDIF
+
+LEWBDFIBW = ALLOCATED (YD%EWBDFIBW)
+IF (LEWBDFIBW) THEN
+  !$acc enter data create (YD%EWBDFIBW)
+  !$acc update device (YD%EWBDFIBW)
+  !$acc enter data attach (YD%EWBDFIBW)
+ENDIF
+
+
+LLNUDSPGFL = ALLOCATED (YD%LNUDSPGFL)
+IF (LLNUDSPGFL) THEN
+  !$acc enter data create (YD%LNUDSPGFL)
+  !$acc update device (YD%LNUDSPGFL)
+  !$acc enter data attach (YD%LNUDSPGFL)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

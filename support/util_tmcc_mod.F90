@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TMCC
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TMCC
+END INTERFACE
 
 
 
@@ -416,7 +419,215 @@ READ (KLUN) YD%LCOUPSIM
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TMCC (YD, LDCREATED)
+USE UTIL_CPLNG_FLD_TYPE_MOD
+IMPLICIT NONE
+TYPE (TMCC), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+INTEGER :: J1
+LOGICAL :: LCLIMR, LCLIMRAER, LCLIMRCO2, LCLIMRCOMPO, LCPLNG_FLD, LOCEANBC, LPARTMASK, LPARTSST0, LRNEMOLVLS, LRNEMOMASK
+LOGICAL :: LZLAKE
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LCLIMRCO2 = ALLOCATED (YD%CLIMRCO2)
+IF (LCLIMRCO2) THEN
+  !$acc enter data create (YD%CLIMRCO2)
+  !$acc update device (YD%CLIMRCO2)
+  !$acc enter data attach (YD%CLIMRCO2)
+ENDIF
+
+LCLIMRAER = ALLOCATED (YD%CLIMRAER)
+IF (LCLIMRAER) THEN
+  !$acc enter data create (YD%CLIMRAER)
+  !$acc update device (YD%CLIMRAER)
+  !$acc enter data attach (YD%CLIMRAER)
+ENDIF
+
+LCLIMRCOMPO = ALLOCATED (YD%CLIMRCOMPO)
+IF (LCLIMRCOMPO) THEN
+  !$acc enter data create (YD%CLIMRCOMPO)
+  !$acc update device (YD%CLIMRCOMPO)
+  !$acc enter data attach (YD%CLIMRCOMPO)
+ENDIF
+
+LZLAKE = ALLOCATED (YD%ZLAKE)
+IF (LZLAKE) THEN
+  !$acc enter data create (YD%ZLAKE)
+  !$acc update device (YD%ZLAKE)
+  !$acc enter data attach (YD%ZLAKE)
+ENDIF
+
+LOCEANBC = ALLOCATED (YD%OCEANBC)
+IF (LOCEANBC) THEN
+  !$acc enter data create (YD%OCEANBC)
+  !$acc update device (YD%OCEANBC)
+  !$acc enter data attach (YD%OCEANBC)
+ENDIF
+
+LCLIMR = ALLOCATED (YD%CLIMR)
+IF (LCLIMR) THEN
+  !$acc enter data create (YD%CLIMR)
+  !$acc update device (YD%CLIMR)
+  !$acc enter data attach (YD%CLIMR)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRNEMOLVLS = ALLOCATED (YD%RNEMOLVLS)
+IF (LRNEMOLVLS) THEN
+  !$acc enter data create (YD%RNEMOLVLS)
+  !$acc update device (YD%RNEMOLVLS)
+  !$acc enter data attach (YD%RNEMOLVLS)
+ENDIF
+
+LRNEMOMASK = ALLOCATED (YD%RNEMOMASK)
+IF (LRNEMOMASK) THEN
+  !$acc enter data create (YD%RNEMOMASK)
+  !$acc update device (YD%RNEMOMASK)
+  !$acc enter data attach (YD%RNEMOMASK)
+ENDIF
+
+
+
+
+
+
+
+
+LPARTSST0 = ALLOCATED (YD%PARTSST0)
+IF (LPARTSST0) THEN
+  !$acc enter data create (YD%PARTSST0)
+  !$acc update device (YD%PARTSST0)
+  !$acc enter data attach (YD%PARTSST0)
+ENDIF
+
+LPARTMASK = ALLOCATED (YD%PARTMASK)
+IF (LPARTMASK) THEN
+  !$acc enter data create (YD%PARTMASK)
+  !$acc update device (YD%PARTMASK)
+  !$acc enter data attach (YD%PARTMASK)
+ENDIF
+
+
+LCPLNG_FLD = ALLOCATED (YD%CPLNG_FLD)
+IF (LCPLNG_FLD) THEN
+  !$acc enter data create (YD%CPLNG_FLD)
+  !$acc update device (YD%CPLNG_FLD)
+  DO J1 = LBOUND (YD%CPLNG_FLD, 1), UBOUND (YD%CPLNG_FLD, 1)
+    CALL COPY (YD%CPLNG_FLD (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%CPLNG_FLD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

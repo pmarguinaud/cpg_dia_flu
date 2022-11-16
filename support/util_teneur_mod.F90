@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TENEUR
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TENEUR
+END INTERFACE
 
 
 
@@ -167,7 +170,90 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TENEUR (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TENEUR), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LAAM_NN, LBBM_NN, LENTREEMOY, LNBNEUR, LPDFSDX, LRAPIN, LRAPOUT, LSORTIEMOY, LWNELN
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+LNBNEUR = ALLOCATED (YD%NBNEUR)
+IF (LNBNEUR) THEN
+  !$acc enter data create (YD%NBNEUR)
+  !$acc update device (YD%NBNEUR)
+  !$acc enter data attach (YD%NBNEUR)
+ENDIF
+
+LWNELN = ALLOCATED (YD%WNELN)
+IF (LWNELN) THEN
+  !$acc enter data create (YD%WNELN)
+  !$acc update device (YD%WNELN)
+  !$acc enter data attach (YD%WNELN)
+ENDIF
+
+LENTREEMOY = ALLOCATED (YD%ENTREEMOY)
+IF (LENTREEMOY) THEN
+  !$acc enter data create (YD%ENTREEMOY)
+  !$acc update device (YD%ENTREEMOY)
+  !$acc enter data attach (YD%ENTREEMOY)
+ENDIF
+
+LRAPIN = ALLOCATED (YD%RAPIN)
+IF (LRAPIN) THEN
+  !$acc enter data create (YD%RAPIN)
+  !$acc update device (YD%RAPIN)
+  !$acc enter data attach (YD%RAPIN)
+ENDIF
+
+LSORTIEMOY = ALLOCATED (YD%SORTIEMOY)
+IF (LSORTIEMOY) THEN
+  !$acc enter data create (YD%SORTIEMOY)
+  !$acc update device (YD%SORTIEMOY)
+  !$acc enter data attach (YD%SORTIEMOY)
+ENDIF
+
+LRAPOUT = ALLOCATED (YD%RAPOUT)
+IF (LRAPOUT) THEN
+  !$acc enter data create (YD%RAPOUT)
+  !$acc update device (YD%RAPOUT)
+  !$acc enter data attach (YD%RAPOUT)
+ENDIF
+
+LPDFSDX = ALLOCATED (YD%PDFSDX)
+IF (LPDFSDX) THEN
+  !$acc enter data create (YD%PDFSDX)
+  !$acc update device (YD%PDFSDX)
+  !$acc enter data attach (YD%PDFSDX)
+ENDIF
+
+LAAM_NN = ALLOCATED (YD%AAM_NN)
+IF (LAAM_NN) THEN
+  !$acc enter data create (YD%AAM_NN)
+  !$acc update device (YD%AAM_NN)
+  !$acc enter data attach (YD%AAM_NN)
+ENDIF
+
+LBBM_NN = ALLOCATED (YD%BBM_NN)
+IF (LBBM_NN) THEN
+  !$acc enter data create (YD%BBM_NN)
+  !$acc update device (YD%BBM_NN)
+  !$acc enter data attach (YD%BBM_NN)
+ENDIF
+
+END SUBROUTINE
 
 
 

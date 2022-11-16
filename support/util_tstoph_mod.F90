@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TSTOPH
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TSTOPH
+END INTERFACE
 
 
 
@@ -605,7 +608,309 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TSTOPH (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TSTOPH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LALPHA_STO, LALPHA_STO_T, LGPSTREAM, LGPTEMP, LGPTOTDISS, LGPTOTDISS_SMOOTH, LGPVELPOT, LGPVORTGRAD, LMCELL, LNIMRAN
+LOGICAL :: LONEMINALPHA_NFRSPBS, LONEMINALPHA_NFRSPBS_T, LRSMOOTH, LRSTOPHCA, LRVP_MUL, LRVP_MULFACT, LRVP_MULFACT_T, LRVP_MUL_T, LRWGHT, LSPDP
+LOGICAL :: LSPG_AMP, LSPG_AMP_T, LSPSTREAM, LSPSTREAM_FORC, LSPTEMP, LSPTEMP_FORC, LSPVELPOT, LSPVELPOT_FORC, LSQRTCORR, LTAPER_FACT
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRSTOPHCA = ALLOCATED (YD%RSTOPHCA)
+IF (LRSTOPHCA) THEN
+  !$acc enter data create (YD%RSTOPHCA)
+  !$acc update device (YD%RSTOPHCA)
+  !$acc enter data attach (YD%RSTOPHCA)
+ENDIF
+
+LSQRTCORR = ALLOCATED (YD%SQRTCORR)
+IF (LSQRTCORR) THEN
+  !$acc enter data create (YD%SQRTCORR)
+  !$acc update device (YD%SQRTCORR)
+  !$acc enter data attach (YD%SQRTCORR)
+ENDIF
+
+LSPSTREAM = ALLOCATED (YD%SPSTREAM)
+IF (LSPSTREAM) THEN
+  !$acc enter data create (YD%SPSTREAM)
+  !$acc update device (YD%SPSTREAM)
+  !$acc enter data attach (YD%SPSTREAM)
+ENDIF
+
+LSPVELPOT = ALLOCATED (YD%SPVELPOT)
+IF (LSPVELPOT) THEN
+  !$acc enter data create (YD%SPVELPOT)
+  !$acc update device (YD%SPVELPOT)
+  !$acc enter data attach (YD%SPVELPOT)
+ENDIF
+
+LSPSTREAM_FORC = ALLOCATED (YD%SPSTREAM_FORC)
+IF (LSPSTREAM_FORC) THEN
+  !$acc enter data create (YD%SPSTREAM_FORC)
+  !$acc update device (YD%SPSTREAM_FORC)
+  !$acc enter data attach (YD%SPSTREAM_FORC)
+ENDIF
+
+LSPVELPOT_FORC = ALLOCATED (YD%SPVELPOT_FORC)
+IF (LSPVELPOT_FORC) THEN
+  !$acc enter data create (YD%SPVELPOT_FORC)
+  !$acc update device (YD%SPVELPOT_FORC)
+  !$acc enter data attach (YD%SPVELPOT_FORC)
+ENDIF
+
+LSPG_AMP = ALLOCATED (YD%SPG_AMP)
+IF (LSPG_AMP) THEN
+  !$acc enter data create (YD%SPG_AMP)
+  !$acc update device (YD%SPG_AMP)
+  !$acc enter data attach (YD%SPG_AMP)
+ENDIF
+
+LALPHA_STO = ALLOCATED (YD%ALPHA_STO)
+IF (LALPHA_STO) THEN
+  !$acc enter data create (YD%ALPHA_STO)
+  !$acc update device (YD%ALPHA_STO)
+  !$acc enter data attach (YD%ALPHA_STO)
+ENDIF
+
+LONEMINALPHA_NFRSPBS = ALLOCATED (YD%ONEMINALPHA_NFRSPBS)
+IF (LONEMINALPHA_NFRSPBS) THEN
+  !$acc enter data create (YD%ONEMINALPHA_NFRSPBS)
+  !$acc update device (YD%ONEMINALPHA_NFRSPBS)
+  !$acc enter data attach (YD%ONEMINALPHA_NFRSPBS)
+ENDIF
+
+LRSMOOTH = ALLOCATED (YD%RSMOOTH)
+IF (LRSMOOTH) THEN
+  !$acc enter data create (YD%RSMOOTH)
+  !$acc update device (YD%RSMOOTH)
+  !$acc enter data attach (YD%RSMOOTH)
+ENDIF
+
+LGPSTREAM = ALLOCATED (YD%GPSTREAM)
+IF (LGPSTREAM) THEN
+  !$acc enter data create (YD%GPSTREAM)
+  !$acc update device (YD%GPSTREAM)
+  !$acc enter data attach (YD%GPSTREAM)
+ENDIF
+
+LGPVELPOT = ALLOCATED (YD%GPVELPOT)
+IF (LGPVELPOT) THEN
+  !$acc enter data create (YD%GPVELPOT)
+  !$acc update device (YD%GPVELPOT)
+  !$acc enter data attach (YD%GPVELPOT)
+ENDIF
+
+LGPTOTDISS = ALLOCATED (YD%GPTOTDISS)
+IF (LGPTOTDISS) THEN
+  !$acc enter data create (YD%GPTOTDISS)
+  !$acc update device (YD%GPTOTDISS)
+  !$acc enter data attach (YD%GPTOTDISS)
+ENDIF
+
+LGPTOTDISS_SMOOTH = ALLOCATED (YD%GPTOTDISS_SMOOTH)
+IF (LGPTOTDISS_SMOOTH) THEN
+  !$acc enter data create (YD%GPTOTDISS_SMOOTH)
+  !$acc update device (YD%GPTOTDISS_SMOOTH)
+  !$acc enter data attach (YD%GPTOTDISS_SMOOTH)
+ENDIF
+
+LGPVORTGRAD = ALLOCATED (YD%GPVORTGRAD)
+IF (LGPVORTGRAD) THEN
+  !$acc enter data create (YD%GPVORTGRAD)
+  !$acc update device (YD%GPVORTGRAD)
+  !$acc enter data attach (YD%GPVORTGRAD)
+ENDIF
+
+LMCELL = ALLOCATED (YD%MCELL)
+IF (LMCELL) THEN
+  !$acc enter data create (YD%MCELL)
+  !$acc update device (YD%MCELL)
+  !$acc enter data attach (YD%MCELL)
+ENDIF
+
+LRWGHT = ALLOCATED (YD%RWGHT)
+IF (LRWGHT) THEN
+  !$acc enter data create (YD%RWGHT)
+  !$acc update device (YD%RWGHT)
+  !$acc enter data attach (YD%RWGHT)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSPDP = ALLOCATED (YD%SPDP)
+IF (LSPDP) THEN
+  !$acc enter data create (YD%SPDP)
+  !$acc update device (YD%SPDP)
+  !$acc enter data attach (YD%SPDP)
+ENDIF
+
+LNIMRAN = ALLOCATED (YD%NIMRAN)
+IF (LNIMRAN) THEN
+  !$acc enter data create (YD%NIMRAN)
+  !$acc update device (YD%NIMRAN)
+  !$acc enter data attach (YD%NIMRAN)
+ENDIF
+
+
+
+
+
+
+LRVP_MULFACT = ALLOCATED (YD%RVP_MULFACT)
+IF (LRVP_MULFACT) THEN
+  !$acc enter data create (YD%RVP_MULFACT)
+  !$acc update device (YD%RVP_MULFACT)
+  !$acc enter data attach (YD%RVP_MULFACT)
+ENDIF
+
+
+
+
+
+
+
+LRVP_MUL = ALLOCATED (YD%RVP_MUL)
+IF (LRVP_MUL) THEN
+  !$acc enter data create (YD%RVP_MUL)
+  !$acc update device (YD%RVP_MUL)
+  !$acc enter data attach (YD%RVP_MUL)
+ENDIF
+
+
+
+
+
+
+
+LTAPER_FACT = ALLOCATED (YD%TAPER_FACT)
+IF (LTAPER_FACT) THEN
+  !$acc enter data create (YD%TAPER_FACT)
+  !$acc update device (YD%TAPER_FACT)
+  !$acc enter data attach (YD%TAPER_FACT)
+ENDIF
+
+
+
+
+LSPTEMP = ALLOCATED (YD%SPTEMP)
+IF (LSPTEMP) THEN
+  !$acc enter data create (YD%SPTEMP)
+  !$acc update device (YD%SPTEMP)
+  !$acc enter data attach (YD%SPTEMP)
+ENDIF
+
+LSPTEMP_FORC = ALLOCATED (YD%SPTEMP_FORC)
+IF (LSPTEMP_FORC) THEN
+  !$acc enter data create (YD%SPTEMP_FORC)
+  !$acc update device (YD%SPTEMP_FORC)
+  !$acc enter data attach (YD%SPTEMP_FORC)
+ENDIF
+
+LSPG_AMP_T = ALLOCATED (YD%SPG_AMP_T)
+IF (LSPG_AMP_T) THEN
+  !$acc enter data create (YD%SPG_AMP_T)
+  !$acc update device (YD%SPG_AMP_T)
+  !$acc enter data attach (YD%SPG_AMP_T)
+ENDIF
+
+LALPHA_STO_T = ALLOCATED (YD%ALPHA_STO_T)
+IF (LALPHA_STO_T) THEN
+  !$acc enter data create (YD%ALPHA_STO_T)
+  !$acc update device (YD%ALPHA_STO_T)
+  !$acc enter data attach (YD%ALPHA_STO_T)
+ENDIF
+
+LONEMINALPHA_NFRSPBS_T = ALLOCATED (YD%ONEMINALPHA_NFRSPBS_T)
+IF (LONEMINALPHA_NFRSPBS_T) THEN
+  !$acc enter data create (YD%ONEMINALPHA_NFRSPBS_T)
+  !$acc update device (YD%ONEMINALPHA_NFRSPBS_T)
+  !$acc enter data attach (YD%ONEMINALPHA_NFRSPBS_T)
+ENDIF
+
+LGPTEMP = ALLOCATED (YD%GPTEMP)
+IF (LGPTEMP) THEN
+  !$acc enter data create (YD%GPTEMP)
+  !$acc update device (YD%GPTEMP)
+  !$acc enter data attach (YD%GPTEMP)
+ENDIF
+
+
+
+
+
+LRVP_MULFACT_T = ALLOCATED (YD%RVP_MULFACT_T)
+IF (LRVP_MULFACT_T) THEN
+  !$acc enter data create (YD%RVP_MULFACT_T)
+  !$acc update device (YD%RVP_MULFACT_T)
+  !$acc enter data attach (YD%RVP_MULFACT_T)
+ENDIF
+
+
+
+
+
+
+
+LRVP_MUL_T = ALLOCATED (YD%RVP_MUL_T)
+IF (LRVP_MUL_T) THEN
+  !$acc enter data create (YD%RVP_MUL_T)
+  !$acc update device (YD%RVP_MUL_T)
+  !$acc enter data attach (YD%RVP_MUL_T)
+ENDIF
+
+END SUBROUTINE
 
 
 

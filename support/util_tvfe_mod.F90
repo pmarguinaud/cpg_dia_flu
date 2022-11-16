@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TVFE
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TVFE
+END INTERFACE
 
 
 
@@ -287,7 +290,150 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TVFE (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TVFE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LD_RINTBF11, LD_RINTE, LRDDERBF01, LRDDERI, LRDERB, LRDERBF00, LRDERBF01, LRDERBF10, LRDERBF11, LRDERBH00
+LOGICAL :: LRDERBH01, LRDERGW, LRDERI, LRINTBF00, LRINTBF11, LRINTE, LRINTGW, LVFE_KNOT
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LVFE_KNOT = ALLOCATED (YD%VFE_KNOT)
+IF (LVFE_KNOT) THEN
+  !$acc enter data create (YD%VFE_KNOT)
+  !$acc update device (YD%VFE_KNOT)
+  !$acc enter data attach (YD%VFE_KNOT)
+ENDIF
+
+LRINTE = ALLOCATED (YD%RINTE)
+IF (LRINTE) THEN
+  !$acc enter data create (YD%RINTE)
+  !$acc update device (YD%RINTE)
+  !$acc enter data attach (YD%RINTE)
+ENDIF
+
+LRINTBF00 = ALLOCATED (YD%RINTBF00)
+IF (LRINTBF00) THEN
+  !$acc enter data create (YD%RINTBF00)
+  !$acc update device (YD%RINTBF00)
+  !$acc enter data attach (YD%RINTBF00)
+ENDIF
+
+LRINTBF11 = ALLOCATED (YD%RINTBF11)
+IF (LRINTBF11) THEN
+  !$acc enter data create (YD%RINTBF11)
+  !$acc update device (YD%RINTBF11)
+  !$acc enter data attach (YD%RINTBF11)
+ENDIF
+
+LD_RINTE = ALLOCATED (YD%D_RINTE)
+IF (LD_RINTE) THEN
+  !$acc enter data create (YD%D_RINTE)
+  !$acc update device (YD%D_RINTE)
+  !$acc enter data attach (YD%D_RINTE)
+ENDIF
+
+LD_RINTBF11 = ALLOCATED (YD%D_RINTBF11)
+IF (LD_RINTBF11) THEN
+  !$acc enter data create (YD%D_RINTBF11)
+  !$acc update device (YD%D_RINTBF11)
+  !$acc enter data attach (YD%D_RINTBF11)
+ENDIF
+
+LRDERI = ALLOCATED (YD%RDERI)
+IF (LRDERI) THEN
+  !$acc enter data create (YD%RDERI)
+  !$acc update device (YD%RDERI)
+  !$acc enter data attach (YD%RDERI)
+ENDIF
+
+LRDERB = ALLOCATED (YD%RDERB)
+IF (LRDERB) THEN
+  !$acc enter data create (YD%RDERB)
+  !$acc update device (YD%RDERB)
+  !$acc enter data attach (YD%RDERB)
+ENDIF
+
+LRDERBF00 = ALLOCATED (YD%RDERBF00)
+IF (LRDERBF00) THEN
+  !$acc enter data create (YD%RDERBF00)
+  !$acc update device (YD%RDERBF00)
+  !$acc enter data attach (YD%RDERBF00)
+ENDIF
+
+LRDERBF01 = ALLOCATED (YD%RDERBF01)
+IF (LRDERBF01) THEN
+  !$acc enter data create (YD%RDERBF01)
+  !$acc update device (YD%RDERBF01)
+  !$acc enter data attach (YD%RDERBF01)
+ENDIF
+
+LRDERBF10 = ALLOCATED (YD%RDERBF10)
+IF (LRDERBF10) THEN
+  !$acc enter data create (YD%RDERBF10)
+  !$acc update device (YD%RDERBF10)
+  !$acc enter data attach (YD%RDERBF10)
+ENDIF
+
+LRDERBF11 = ALLOCATED (YD%RDERBF11)
+IF (LRDERBF11) THEN
+  !$acc enter data create (YD%RDERBF11)
+  !$acc update device (YD%RDERBF11)
+  !$acc enter data attach (YD%RDERBF11)
+ENDIF
+
+LRDERBH00 = ALLOCATED (YD%RDERBH00)
+IF (LRDERBH00) THEN
+  !$acc enter data create (YD%RDERBH00)
+  !$acc update device (YD%RDERBH00)
+  !$acc enter data attach (YD%RDERBH00)
+ENDIF
+
+LRDERBH01 = ALLOCATED (YD%RDERBH01)
+IF (LRDERBH01) THEN
+  !$acc enter data create (YD%RDERBH01)
+  !$acc update device (YD%RDERBH01)
+  !$acc enter data attach (YD%RDERBH01)
+ENDIF
+
+LRDDERI = ALLOCATED (YD%RDDERI)
+IF (LRDDERI) THEN
+  !$acc enter data create (YD%RDDERI)
+  !$acc update device (YD%RDDERI)
+  !$acc enter data attach (YD%RDDERI)
+ENDIF
+
+LRDDERBF01 = ALLOCATED (YD%RDDERBF01)
+IF (LRDDERBF01) THEN
+  !$acc enter data create (YD%RDDERBF01)
+  !$acc update device (YD%RDDERBF01)
+  !$acc enter data attach (YD%RDDERBF01)
+ENDIF
+
+LRINTGW = ALLOCATED (YD%RINTGW)
+IF (LRINTGW) THEN
+  !$acc enter data create (YD%RINTGW)
+  !$acc update device (YD%RINTGW)
+  !$acc enter data attach (YD%RINTGW)
+ENDIF
+
+LRDERGW = ALLOCATED (YD%RDERGW)
+IF (LRDERGW) THEN
+  !$acc enter data create (YD%RDERGW)
+  !$acc update device (YD%RDERGW)
+  !$acc enter data attach (YD%RDERGW)
+ENDIF
+
+END SUBROUTINE
 
 
 

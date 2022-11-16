@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_THSLMER
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_THSLMER
+END INTERFACE
 
 
 
@@ -89,7 +92,51 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_THSLMER (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (THSLMER), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LR3DTW, LRIPI, LRSLD, LRSLDW
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRIPI = ALLOCATED (YD%RIPI)
+IF (LRIPI) THEN
+  !$acc enter data create (YD%RIPI)
+  !$acc update device (YD%RIPI)
+  !$acc enter data attach (YD%RIPI)
+ENDIF
+
+LRSLD = ALLOCATED (YD%RSLD)
+IF (LRSLD) THEN
+  !$acc enter data create (YD%RSLD)
+  !$acc update device (YD%RSLD)
+  !$acc enter data attach (YD%RSLD)
+ENDIF
+
+LRSLDW = ALLOCATED (YD%RSLDW)
+IF (LRSLDW) THEN
+  !$acc enter data create (YD%RSLDW)
+  !$acc update device (YD%RSLDW)
+  !$acc enter data attach (YD%RSLDW)
+ENDIF
+
+LR3DTW = ALLOCATED (YD%R3DTW)
+IF (LR3DTW) THEN
+  !$acc enter data create (YD%R3DTW)
+  !$acc update device (YD%R3DTW)
+  !$acc enter data attach (YD%R3DTW)
+ENDIF
+
+END SUBROUTINE
 
 
 

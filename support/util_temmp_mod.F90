@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TEMMP
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TEMMP
+END INTERFACE
 
 
 
@@ -115,7 +118,59 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TEMMP (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TEMMP), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LMYENS, LNEALLNS, LNEPROCN, LNEPTRNS, LNUEMPP
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LNEPROCN = ASSOCIATED (YD%NEPROCN)
+IF (LNEPROCN) THEN
+  !$acc enter data create (YD%NEPROCN)
+  !$acc update device (YD%NEPROCN)
+  !$acc enter data attach (YD%NEPROCN)
+ENDIF
+
+
+LMYENS = ASSOCIATED (YD%MYENS)
+IF (LMYENS) THEN
+  !$acc enter data create (YD%MYENS)
+  !$acc update device (YD%MYENS)
+  !$acc enter data attach (YD%MYENS)
+ENDIF
+
+LNUEMPP = ASSOCIATED (YD%NUEMPP)
+IF (LNUEMPP) THEN
+  !$acc enter data create (YD%NUEMPP)
+  !$acc update device (YD%NUEMPP)
+  !$acc enter data attach (YD%NUEMPP)
+ENDIF
+
+LNEALLNS = ASSOCIATED (YD%NEALLNS)
+IF (LNEALLNS) THEN
+  !$acc enter data create (YD%NEALLNS)
+  !$acc update device (YD%NEALLNS)
+  !$acc enter data attach (YD%NEALLNS)
+ENDIF
+
+LNEPTRNS = ASSOCIATED (YD%NEPTRNS)
+IF (LNEPTRNS) THEN
+  !$acc enter data create (YD%NEPTRNS)
+  !$acc update device (YD%NEPTRNS)
+  !$acc enter data attach (YD%NEPTRNS)
+ENDIF
+
+END SUBROUTINE
 
 
 

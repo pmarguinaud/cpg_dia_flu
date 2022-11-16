@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TLAP
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TLAP
+END INTERFACE
 
 
 
@@ -159,7 +162,86 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TLAP (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TLAP), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LMYMS, LNASM0, LNASM0G, LNASN0, LNSE0L, LNSPZERO, LNVALUE, LRLAPDI, LRLAPIN
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LNASN0 = ALLOCATED (YD%NASN0)
+IF (LNASN0) THEN
+  !$acc enter data create (YD%NASN0)
+  !$acc update device (YD%NASN0)
+  !$acc enter data attach (YD%NASN0)
+ENDIF
+
+LNASM0 = ALLOCATED (YD%NASM0)
+IF (LNASM0) THEN
+  !$acc enter data create (YD%NASM0)
+  !$acc update device (YD%NASM0)
+  !$acc enter data attach (YD%NASM0)
+ENDIF
+
+LNASM0G = ALLOCATED (YD%NASM0G)
+IF (LNASM0G) THEN
+  !$acc enter data create (YD%NASM0G)
+  !$acc update device (YD%NASM0G)
+  !$acc enter data attach (YD%NASM0G)
+ENDIF
+
+LNVALUE = ALLOCATED (YD%NVALUE)
+IF (LNVALUE) THEN
+  !$acc enter data create (YD%NVALUE)
+  !$acc update device (YD%NVALUE)
+  !$acc enter data attach (YD%NVALUE)
+ENDIF
+
+LMYMS = ALLOCATED (YD%MYMS)
+IF (LMYMS) THEN
+  !$acc enter data create (YD%MYMS)
+  !$acc update device (YD%MYMS)
+  !$acc enter data attach (YD%MYMS)
+ENDIF
+
+LNSPZERO = ALLOCATED (YD%NSPZERO)
+IF (LNSPZERO) THEN
+  !$acc enter data create (YD%NSPZERO)
+  !$acc update device (YD%NSPZERO)
+  !$acc enter data attach (YD%NSPZERO)
+ENDIF
+
+LNSE0L = ALLOCATED (YD%NSE0L)
+IF (LNSE0L) THEN
+  !$acc enter data create (YD%NSE0L)
+  !$acc update device (YD%NSE0L)
+  !$acc enter data attach (YD%NSE0L)
+ENDIF
+
+LRLAPDI = ALLOCATED (YD%RLAPDI)
+IF (LRLAPDI) THEN
+  !$acc enter data create (YD%RLAPDI)
+  !$acc update device (YD%RLAPDI)
+  !$acc enter data attach (YD%RLAPDI)
+ENDIF
+
+LRLAPIN = ALLOCATED (YD%RLAPIN)
+IF (LRLAPIN) THEN
+  !$acc enter data create (YD%RLAPIN)
+  !$acc update device (YD%RLAPIN)
+  !$acc enter data attach (YD%RLAPIN)
+ENDIF
+
+END SUBROUTINE
 
 
 

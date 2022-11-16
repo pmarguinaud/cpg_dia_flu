@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_CPG_MISC_TYPE
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_CPG_MISC_TYPE
+END INTERFACE
 
 
 
@@ -215,7 +218,144 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_CPG_MISC_TYPE (YD, LDCREATED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (CPG_MISC_TYPE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LF_CLCT, LF_DHSF, LF_FTCNS, LF_KOZO, LF_LSM, LF_NEB, LF_QGRAUPEL, LF_QICE, LF_QLI, LF_QRAIN
+LOGICAL :: LF_QS, LF_QSNOW, LF_QSOL, LF_RH, LF_TSOL
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LF_NEB = ASSOCIATED (YD%F_NEB)
+IF (LF_NEB) THEN
+  !$acc enter data create (YD%F_NEB)
+  !$acc update device (YD%F_NEB)
+  CALL COPY (YD%F_NEB, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_NEB)
+ENDIF
+
+LF_QLI = ASSOCIATED (YD%F_QLI)
+IF (LF_QLI) THEN
+  !$acc enter data create (YD%F_QLI)
+  !$acc update device (YD%F_QLI)
+  CALL COPY (YD%F_QLI, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QLI)
+ENDIF
+
+LF_QICE = ASSOCIATED (YD%F_QICE)
+IF (LF_QICE) THEN
+  !$acc enter data create (YD%F_QICE)
+  !$acc update device (YD%F_QICE)
+  CALL COPY (YD%F_QICE, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QICE)
+ENDIF
+
+LF_QRAIN = ASSOCIATED (YD%F_QRAIN)
+IF (LF_QRAIN) THEN
+  !$acc enter data create (YD%F_QRAIN)
+  !$acc update device (YD%F_QRAIN)
+  CALL COPY (YD%F_QRAIN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QRAIN)
+ENDIF
+
+LF_QSNOW = ASSOCIATED (YD%F_QSNOW)
+IF (LF_QSNOW) THEN
+  !$acc enter data create (YD%F_QSNOW)
+  !$acc update device (YD%F_QSNOW)
+  CALL COPY (YD%F_QSNOW, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QSNOW)
+ENDIF
+
+LF_QGRAUPEL = ASSOCIATED (YD%F_QGRAUPEL)
+IF (LF_QGRAUPEL) THEN
+  !$acc enter data create (YD%F_QGRAUPEL)
+  !$acc update device (YD%F_QGRAUPEL)
+  CALL COPY (YD%F_QGRAUPEL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QGRAUPEL)
+ENDIF
+
+LF_RH = ASSOCIATED (YD%F_RH)
+IF (LF_RH) THEN
+  !$acc enter data create (YD%F_RH)
+  !$acc update device (YD%F_RH)
+  CALL COPY (YD%F_RH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_RH)
+ENDIF
+
+LF_QS = ASSOCIATED (YD%F_QS)
+IF (LF_QS) THEN
+  !$acc enter data create (YD%F_QS)
+  !$acc update device (YD%F_QS)
+  CALL COPY (YD%F_QS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QS)
+ENDIF
+
+LF_QSOL = ASSOCIATED (YD%F_QSOL)
+IF (LF_QSOL) THEN
+  !$acc enter data create (YD%F_QSOL)
+  !$acc update device (YD%F_QSOL)
+  CALL COPY (YD%F_QSOL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_QSOL)
+ENDIF
+
+LF_DHSF = ASSOCIATED (YD%F_DHSF)
+IF (LF_DHSF) THEN
+  !$acc enter data create (YD%F_DHSF)
+  !$acc update device (YD%F_DHSF)
+  CALL COPY (YD%F_DHSF, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_DHSF)
+ENDIF
+
+LF_CLCT = ASSOCIATED (YD%F_CLCT)
+IF (LF_CLCT) THEN
+  !$acc enter data create (YD%F_CLCT)
+  !$acc update device (YD%F_CLCT)
+  CALL COPY (YD%F_CLCT, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_CLCT)
+ENDIF
+
+LF_LSM = ASSOCIATED (YD%F_LSM)
+IF (LF_LSM) THEN
+  !$acc enter data create (YD%F_LSM)
+  !$acc update device (YD%F_LSM)
+  CALL COPY (YD%F_LSM, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_LSM)
+ENDIF
+
+LF_TSOL = ASSOCIATED (YD%F_TSOL)
+IF (LF_TSOL) THEN
+  !$acc enter data create (YD%F_TSOL)
+  !$acc update device (YD%F_TSOL)
+  CALL COPY (YD%F_TSOL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_TSOL)
+ENDIF
+
+LF_FTCNS = ASSOCIATED (YD%F_FTCNS)
+IF (LF_FTCNS) THEN
+  !$acc enter data create (YD%F_FTCNS)
+  !$acc update device (YD%F_FTCNS)
+  CALL COPY (YD%F_FTCNS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_FTCNS)
+ENDIF
+
+LF_KOZO = ASSOCIATED (YD%F_KOZO)
+IF (LF_KOZO) THEN
+  !$acc enter data create (YD%F_KOZO)
+  !$acc update device (YD%F_KOZO)
+  CALL COPY (YD%F_KOZO, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_KOZO)
+ENDIF
+
+END SUBROUTINE
 
 
 

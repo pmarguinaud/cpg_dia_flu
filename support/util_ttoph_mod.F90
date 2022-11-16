@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TTOPH
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TTOPH
+END INTERFACE
 
 
 
@@ -223,7 +226,118 @@ READ (KLUN) YD%TPSCLIM
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TTOPH (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TTOPH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LRMESOQ, LRMESOT, LRMESOU, LRQREL, LRTREL, LRUREL, LRVREL
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRMESOU = ALLOCATED (YD%RMESOU)
+IF (LRMESOU) THEN
+  !$acc enter data create (YD%RMESOU)
+  !$acc update device (YD%RMESOU)
+  !$acc enter data attach (YD%RMESOU)
+ENDIF
+
+LRMESOT = ALLOCATED (YD%RMESOT)
+IF (LRMESOT) THEN
+  !$acc enter data create (YD%RMESOT)
+  !$acc update device (YD%RMESOT)
+  !$acc enter data attach (YD%RMESOT)
+ENDIF
+
+LRMESOQ = ALLOCATED (YD%RMESOQ)
+IF (LRMESOQ) THEN
+  !$acc enter data create (YD%RMESOQ)
+  !$acc update device (YD%RMESOQ)
+  !$acc enter data attach (YD%RMESOQ)
+ENDIF
+
+LRUREL = ALLOCATED (YD%RUREL)
+IF (LRUREL) THEN
+  !$acc enter data create (YD%RUREL)
+  !$acc update device (YD%RUREL)
+  !$acc enter data attach (YD%RUREL)
+ENDIF
+
+LRVREL = ALLOCATED (YD%RVREL)
+IF (LRVREL) THEN
+  !$acc enter data create (YD%RVREL)
+  !$acc update device (YD%RVREL)
+  !$acc enter data attach (YD%RVREL)
+ENDIF
+
+LRTREL = ALLOCATED (YD%RTREL)
+IF (LRTREL) THEN
+  !$acc enter data create (YD%RTREL)
+  !$acc update device (YD%RTREL)
+  !$acc enter data attach (YD%RTREL)
+ENDIF
+
+LRQREL = ALLOCATED (YD%RQREL)
+IF (LRQREL) THEN
+  !$acc enter data create (YD%RQREL)
+  !$acc update device (YD%RQREL)
+  !$acc enter data attach (YD%RQREL)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

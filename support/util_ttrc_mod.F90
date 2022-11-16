@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TTRC
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TTRC
+END INTERFACE
 
 
 
@@ -245,7 +248,129 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TTRC (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TTRC), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LGDEOSI, LGDEOTI, LGDEOTI2, LGEOLT, LGEOXT, LGFLUXC, LGMIXP, LGMU0, LGMU0_MAX, LGMU0_MIN
+LOGICAL :: LGRPROX, LGRSURF, LGUEOSI, LGUEOTI, LGUEOTI2
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LGRSURF = ALLOCATED (YD%GRSURF)
+IF (LGRSURF) THEN
+  !$acc enter data create (YD%GRSURF)
+  !$acc update device (YD%GRSURF)
+  !$acc enter data attach (YD%GRSURF)
+ENDIF
+
+LGDEOTI = ALLOCATED (YD%GDEOTI)
+IF (LGDEOTI) THEN
+  !$acc enter data create (YD%GDEOTI)
+  !$acc update device (YD%GDEOTI)
+  !$acc enter data attach (YD%GDEOTI)
+ENDIF
+
+LGDEOTI2 = ALLOCATED (YD%GDEOTI2)
+IF (LGDEOTI2) THEN
+  !$acc enter data create (YD%GDEOTI2)
+  !$acc update device (YD%GDEOTI2)
+  !$acc enter data attach (YD%GDEOTI2)
+ENDIF
+
+LGUEOTI = ALLOCATED (YD%GUEOTI)
+IF (LGUEOTI) THEN
+  !$acc enter data create (YD%GUEOTI)
+  !$acc update device (YD%GUEOTI)
+  !$acc enter data attach (YD%GUEOTI)
+ENDIF
+
+LGUEOTI2 = ALLOCATED (YD%GUEOTI2)
+IF (LGUEOTI2) THEN
+  !$acc enter data create (YD%GUEOTI2)
+  !$acc update device (YD%GUEOTI2)
+  !$acc enter data attach (YD%GUEOTI2)
+ENDIF
+
+LGEOLT = ALLOCATED (YD%GEOLT)
+IF (LGEOLT) THEN
+  !$acc enter data create (YD%GEOLT)
+  !$acc update device (YD%GEOLT)
+  !$acc enter data attach (YD%GEOLT)
+ENDIF
+
+LGEOXT = ALLOCATED (YD%GEOXT)
+IF (LGEOXT) THEN
+  !$acc enter data create (YD%GEOXT)
+  !$acc update device (YD%GEOXT)
+  !$acc enter data attach (YD%GEOXT)
+ENDIF
+
+LGRPROX = ALLOCATED (YD%GRPROX)
+IF (LGRPROX) THEN
+  !$acc enter data create (YD%GRPROX)
+  !$acc update device (YD%GRPROX)
+  !$acc enter data attach (YD%GRPROX)
+ENDIF
+
+LGMIXP = ALLOCATED (YD%GMIXP)
+IF (LGMIXP) THEN
+  !$acc enter data create (YD%GMIXP)
+  !$acc update device (YD%GMIXP)
+  !$acc enter data attach (YD%GMIXP)
+ENDIF
+
+LGFLUXC = ALLOCATED (YD%GFLUXC)
+IF (LGFLUXC) THEN
+  !$acc enter data create (YD%GFLUXC)
+  !$acc update device (YD%GFLUXC)
+  !$acc enter data attach (YD%GFLUXC)
+ENDIF
+
+LGDEOSI = ALLOCATED (YD%GDEOSI)
+IF (LGDEOSI) THEN
+  !$acc enter data create (YD%GDEOSI)
+  !$acc update device (YD%GDEOSI)
+  !$acc enter data attach (YD%GDEOSI)
+ENDIF
+
+LGUEOSI = ALLOCATED (YD%GUEOSI)
+IF (LGUEOSI) THEN
+  !$acc enter data create (YD%GUEOSI)
+  !$acc update device (YD%GUEOSI)
+  !$acc enter data attach (YD%GUEOSI)
+ENDIF
+
+LGMU0 = ALLOCATED (YD%GMU0)
+IF (LGMU0) THEN
+  !$acc enter data create (YD%GMU0)
+  !$acc update device (YD%GMU0)
+  !$acc enter data attach (YD%GMU0)
+ENDIF
+
+LGMU0_MIN = ALLOCATED (YD%GMU0_MIN)
+IF (LGMU0_MIN) THEN
+  !$acc enter data create (YD%GMU0_MIN)
+  !$acc update device (YD%GMU0_MIN)
+  !$acc enter data attach (YD%GMU0_MIN)
+ENDIF
+
+LGMU0_MAX = ALLOCATED (YD%GMU0_MAX)
+IF (LGMU0_MAX) THEN
+  !$acc enter data create (YD%GMU0_MAX)
+  !$acc update device (YD%GMU0_MAX)
+  !$acc enter data attach (YD%GMU0_MAX)
+ENDIF
+
+END SUBROUTINE
 
 
 

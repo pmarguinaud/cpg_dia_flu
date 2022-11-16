@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TEWCOU
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TEWCOU
+END INTERFACE
 
 
 
@@ -259,7 +262,136 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TEWCOU (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TEWCOU), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LIWV_LAT, LIWV_LON, LMASK_WAVE_IN, LMASK_WAVE_OUT, LMWVIN_RECVBUF, LMWVIN_RECVCNT, LMWVIN_RECVOFF, LMWVIN_SENDBUF, LMWVIN_SENDCNT, LMWVIN_SENDIND
+LOGICAL :: LMWVIN_SENDOFF, LWV_W2IWGHT
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LMASK_WAVE_IN = ALLOCATED (YD%MASK_WAVE_IN)
+IF (LMASK_WAVE_IN) THEN
+  !$acc enter data create (YD%MASK_WAVE_IN)
+  !$acc update device (YD%MASK_WAVE_IN)
+  !$acc enter data attach (YD%MASK_WAVE_IN)
+ENDIF
+
+LMASK_WAVE_OUT = ALLOCATED (YD%MASK_WAVE_OUT)
+IF (LMASK_WAVE_OUT) THEN
+  !$acc enter data create (YD%MASK_WAVE_OUT)
+  !$acc update device (YD%MASK_WAVE_OUT)
+  !$acc enter data attach (YD%MASK_WAVE_OUT)
+ENDIF
+
+
+
+
+
+
+LMWVIN_SENDCNT = ALLOCATED (YD%MWVIN_SENDCNT)
+IF (LMWVIN_SENDCNT) THEN
+  !$acc enter data create (YD%MWVIN_SENDCNT)
+  !$acc update device (YD%MWVIN_SENDCNT)
+  !$acc enter data attach (YD%MWVIN_SENDCNT)
+ENDIF
+
+LMWVIN_RECVCNT = ALLOCATED (YD%MWVIN_RECVCNT)
+IF (LMWVIN_RECVCNT) THEN
+  !$acc enter data create (YD%MWVIN_RECVCNT)
+  !$acc update device (YD%MWVIN_RECVCNT)
+  !$acc enter data attach (YD%MWVIN_RECVCNT)
+ENDIF
+
+LMWVIN_SENDOFF = ALLOCATED (YD%MWVIN_SENDOFF)
+IF (LMWVIN_SENDOFF) THEN
+  !$acc enter data create (YD%MWVIN_SENDOFF)
+  !$acc update device (YD%MWVIN_SENDOFF)
+  !$acc enter data attach (YD%MWVIN_SENDOFF)
+ENDIF
+
+LMWVIN_RECVOFF = ALLOCATED (YD%MWVIN_RECVOFF)
+IF (LMWVIN_RECVOFF) THEN
+  !$acc enter data create (YD%MWVIN_RECVOFF)
+  !$acc update device (YD%MWVIN_RECVOFF)
+  !$acc enter data attach (YD%MWVIN_RECVOFF)
+ENDIF
+
+LMWVIN_SENDBUF = ALLOCATED (YD%MWVIN_SENDBUF)
+IF (LMWVIN_SENDBUF) THEN
+  !$acc enter data create (YD%MWVIN_SENDBUF)
+  !$acc update device (YD%MWVIN_SENDBUF)
+  !$acc enter data attach (YD%MWVIN_SENDBUF)
+ENDIF
+
+LMWVIN_RECVBUF = ALLOCATED (YD%MWVIN_RECVBUF)
+IF (LMWVIN_RECVBUF) THEN
+  !$acc enter data create (YD%MWVIN_RECVBUF)
+  !$acc update device (YD%MWVIN_RECVBUF)
+  !$acc enter data attach (YD%MWVIN_RECVBUF)
+ENDIF
+
+LMWVIN_SENDIND = ALLOCATED (YD%MWVIN_SENDIND)
+IF (LMWVIN_SENDIND) THEN
+  !$acc enter data create (YD%MWVIN_SENDIND)
+  !$acc update device (YD%MWVIN_SENDIND)
+  !$acc enter data attach (YD%MWVIN_SENDIND)
+ENDIF
+
+
+
+
+
+LIWV_LON = ALLOCATED (YD%IWV_LON)
+IF (LIWV_LON) THEN
+  !$acc enter data create (YD%IWV_LON)
+  !$acc update device (YD%IWV_LON)
+  !$acc enter data attach (YD%IWV_LON)
+ENDIF
+
+LIWV_LAT = ALLOCATED (YD%IWV_LAT)
+IF (LIWV_LAT) THEN
+  !$acc enter data create (YD%IWV_LAT)
+  !$acc update device (YD%IWV_LAT)
+  !$acc enter data attach (YD%IWV_LAT)
+ENDIF
+
+LWV_W2IWGHT = ALLOCATED (YD%WV_W2IWGHT)
+IF (LWV_W2IWGHT) THEN
+  !$acc enter data create (YD%WV_W2IWGHT)
+  !$acc update device (YD%WV_W2IWGHT)
+  !$acc enter data attach (YD%WV_W2IWGHT)
+ENDIF
+
+END SUBROUTINE
 
 
 

@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_CPG_CTY_TYPE
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_CPG_CTY_TYPE
+END INTERFACE
 
 
 
@@ -108,7 +111,69 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_CPG_CTY_TYPE (YD, LDCREATED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (CPG_CTY_TYPE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LF_DIVDP, LF_EVEL, LF_PSDIV, LF_PSDVBC, LF_VVEL
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+LF_EVEL = ASSOCIATED (YD%F_EVEL)
+IF (LF_EVEL) THEN
+  !$acc enter data create (YD%F_EVEL)
+  !$acc update device (YD%F_EVEL)
+  CALL COPY (YD%F_EVEL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_EVEL)
+ENDIF
+
+
+LF_VVEL = ASSOCIATED (YD%F_VVEL)
+IF (LF_VVEL) THEN
+  !$acc enter data create (YD%F_VVEL)
+  !$acc update device (YD%F_VVEL)
+  CALL COPY (YD%F_VVEL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_VVEL)
+ENDIF
+
+
+LF_PSDIV = ASSOCIATED (YD%F_PSDIV)
+IF (LF_PSDIV) THEN
+  !$acc enter data create (YD%F_PSDIV)
+  !$acc update device (YD%F_PSDIV)
+  CALL COPY (YD%F_PSDIV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_PSDIV)
+ENDIF
+
+
+LF_PSDVBC = ASSOCIATED (YD%F_PSDVBC)
+IF (LF_PSDVBC) THEN
+  !$acc enter data create (YD%F_PSDVBC)
+  !$acc update device (YD%F_PSDVBC)
+  CALL COPY (YD%F_PSDVBC, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_PSDVBC)
+ENDIF
+
+
+LF_DIVDP = ASSOCIATED (YD%F_DIVDP)
+IF (LF_DIVDP) THEN
+  !$acc enter data create (YD%F_DIVDP)
+  !$acc update device (YD%F_DIVDP)
+  CALL COPY (YD%F_DIVDP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%F_DIVDP)
+ENDIF
+
+END SUBROUTINE
 
 
 

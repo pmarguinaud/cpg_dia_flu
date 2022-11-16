@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TPHY0
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TPHY0
+END INTERFACE
 
 
 
@@ -1017,7 +1020,515 @@ READ (KLUN) YD%RCOEFSNOW
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TPHY0 (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TPHY0), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LRHUC, LRN1D, LRQSMOD, LRRC1D, LRSRC1D, LRSURF
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LRHUC = ALLOCATED (YD%RHUC)
+IF (LRHUC) THEN
+  !$acc enter data create (YD%RHUC)
+  !$acc update device (YD%RHUC)
+  !$acc enter data attach (YD%RHUC)
+ENDIF
+
+LRQSMOD = ALLOCATED (YD%RQSMOD)
+IF (LRQSMOD) THEN
+  !$acc enter data create (YD%RQSMOD)
+  !$acc update device (YD%RQSMOD)
+  !$acc enter data attach (YD%RQSMOD)
+ENDIF
+
+LRSURF = ALLOCATED (YD%RSURF)
+IF (LRSURF) THEN
+  !$acc enter data create (YD%RSURF)
+  !$acc update device (YD%RSURF)
+  !$acc enter data attach (YD%RSURF)
+ENDIF
+
+LRN1D = ALLOCATED (YD%RN1D)
+IF (LRN1D) THEN
+  !$acc enter data create (YD%RN1D)
+  !$acc update device (YD%RN1D)
+  !$acc enter data attach (YD%RN1D)
+ENDIF
+
+LRRC1D = ALLOCATED (YD%RRC1D)
+IF (LRRC1D) THEN
+  !$acc enter data create (YD%RRC1D)
+  !$acc update device (YD%RRC1D)
+  !$acc enter data attach (YD%RRC1D)
+ENDIF
+
+LRSRC1D = ALLOCATED (YD%RSRC1D)
+IF (LRSRC1D) THEN
+  !$acc enter data create (YD%RSRC1D)
+  !$acc update device (YD%RSRC1D)
+  !$acc enter data attach (YD%RSRC1D)
+ENDIF
+
+
+
+END SUBROUTINE
 
 
 

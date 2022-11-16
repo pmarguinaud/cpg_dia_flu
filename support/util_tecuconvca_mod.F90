@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TECUCONVCA
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TECUCONVCA
+END INTERFACE
 
 
 
@@ -401,7 +404,207 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TECUCONVCA (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TECUCONVCA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LNBEW, LNBLS, LNBNS, LNBSS, LNCELLCU, LNFERTCU, LNRNBLS, LNRNBSS, LRCAPECONVCA, LRCUCONVCA
+LOGICAL :: LRLATDEP, LRLATLONNBLS, LRLATLONNBSS, LRLONDEP, LRNLCONVCA, LRWASALIVE, LRWGHTCU, LSLDDLAT, LSLDLAT, LSLDLONG
+LOGICAL :: LSLLAT, LSLLONG
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+LNCELLCU = ALLOCATED (YD%NCELLCU)
+IF (LNCELLCU) THEN
+  !$acc enter data create (YD%NCELLCU)
+  !$acc update device (YD%NCELLCU)
+  !$acc enter data attach (YD%NCELLCU)
+ENDIF
+
+LNFERTCU = ALLOCATED (YD%NFERTCU)
+IF (LNFERTCU) THEN
+  !$acc enter data create (YD%NFERTCU)
+  !$acc update device (YD%NFERTCU)
+  !$acc enter data attach (YD%NFERTCU)
+ENDIF
+
+LNBLS = ALLOCATED (YD%NBLS)
+IF (LNBLS) THEN
+  !$acc enter data create (YD%NBLS)
+  !$acc update device (YD%NBLS)
+  !$acc enter data attach (YD%NBLS)
+ENDIF
+
+LNBSS = ALLOCATED (YD%NBSS)
+IF (LNBSS) THEN
+  !$acc enter data create (YD%NBSS)
+  !$acc update device (YD%NBSS)
+  !$acc enter data attach (YD%NBSS)
+ENDIF
+
+LNRNBLS = ALLOCATED (YD%NRNBLS)
+IF (LNRNBLS) THEN
+  !$acc enter data create (YD%NRNBLS)
+  !$acc update device (YD%NRNBLS)
+  !$acc enter data attach (YD%NRNBLS)
+ENDIF
+
+LNRNBSS = ALLOCATED (YD%NRNBSS)
+IF (LNRNBSS) THEN
+  !$acc enter data create (YD%NRNBSS)
+  !$acc update device (YD%NRNBSS)
+  !$acc enter data attach (YD%NRNBSS)
+ENDIF
+
+LNBEW = ALLOCATED (YD%NBEW)
+IF (LNBEW) THEN
+  !$acc enter data create (YD%NBEW)
+  !$acc update device (YD%NBEW)
+  !$acc enter data attach (YD%NBEW)
+ENDIF
+
+LNBNS = ALLOCATED (YD%NBNS)
+IF (LNBNS) THEN
+  !$acc enter data create (YD%NBNS)
+  !$acc update device (YD%NBNS)
+  !$acc enter data attach (YD%NBNS)
+ENDIF
+
+LRCUCONVCA = ALLOCATED (YD%RCUCONVCA)
+IF (LRCUCONVCA) THEN
+  !$acc enter data create (YD%RCUCONVCA)
+  !$acc update device (YD%RCUCONVCA)
+  !$acc enter data attach (YD%RCUCONVCA)
+ENDIF
+
+LRNLCONVCA = ALLOCATED (YD%RNLCONVCA)
+IF (LRNLCONVCA) THEN
+  !$acc enter data create (YD%RNLCONVCA)
+  !$acc update device (YD%RNLCONVCA)
+  !$acc enter data attach (YD%RNLCONVCA)
+ENDIF
+
+LRCAPECONVCA = ALLOCATED (YD%RCAPECONVCA)
+IF (LRCAPECONVCA) THEN
+  !$acc enter data create (YD%RCAPECONVCA)
+  !$acc update device (YD%RCAPECONVCA)
+  !$acc enter data attach (YD%RCAPECONVCA)
+ENDIF
+
+LRWASALIVE = ALLOCATED (YD%RWASALIVE)
+IF (LRWASALIVE) THEN
+  !$acc enter data create (YD%RWASALIVE)
+  !$acc update device (YD%RWASALIVE)
+  !$acc enter data attach (YD%RWASALIVE)
+ENDIF
+
+LRWGHTCU = ALLOCATED (YD%RWGHTCU)
+IF (LRWGHTCU) THEN
+  !$acc enter data create (YD%RWGHTCU)
+  !$acc update device (YD%RWGHTCU)
+  !$acc enter data attach (YD%RWGHTCU)
+ENDIF
+
+LRLATLONNBLS = ALLOCATED (YD%RLATLONNBLS)
+IF (LRLATLONNBLS) THEN
+  !$acc enter data create (YD%RLATLONNBLS)
+  !$acc update device (YD%RLATLONNBLS)
+  !$acc enter data attach (YD%RLATLONNBLS)
+ENDIF
+
+LRLATLONNBSS = ALLOCATED (YD%RLATLONNBSS)
+IF (LRLATLONNBSS) THEN
+  !$acc enter data create (YD%RLATLONNBSS)
+  !$acc update device (YD%RLATLONNBSS)
+  !$acc enter data attach (YD%RLATLONNBSS)
+ENDIF
+
+
+
+
+
+
+
+LRLONDEP = ALLOCATED (YD%RLONDEP)
+IF (LRLONDEP) THEN
+  !$acc enter data create (YD%RLONDEP)
+  !$acc update device (YD%RLONDEP)
+  !$acc enter data attach (YD%RLONDEP)
+ENDIF
+
+LRLATDEP = ALLOCATED (YD%RLATDEP)
+IF (LRLATDEP) THEN
+  !$acc enter data create (YD%RLATDEP)
+  !$acc update device (YD%RLATDEP)
+  !$acc enter data attach (YD%RLATDEP)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LSLLONG = ALLOCATED (YD%SLLONG)
+IF (LSLLONG) THEN
+  !$acc enter data create (YD%SLLONG)
+  !$acc update device (YD%SLLONG)
+  !$acc enter data attach (YD%SLLONG)
+ENDIF
+
+LSLLAT = ALLOCATED (YD%SLLAT)
+IF (LSLLAT) THEN
+  !$acc enter data create (YD%SLLAT)
+  !$acc update device (YD%SLLAT)
+  !$acc enter data attach (YD%SLLAT)
+ENDIF
+
+LSLDLONG = ALLOCATED (YD%SLDLONG)
+IF (LSLDLONG) THEN
+  !$acc enter data create (YD%SLDLONG)
+  !$acc update device (YD%SLDLONG)
+  !$acc enter data attach (YD%SLDLONG)
+ENDIF
+
+LSLDLAT = ALLOCATED (YD%SLDLAT)
+IF (LSLDLAT) THEN
+  !$acc enter data create (YD%SLDLAT)
+  !$acc update device (YD%SLDLAT)
+  !$acc enter data attach (YD%SLDLAT)
+ENDIF
+
+LSLDDLAT = ALLOCATED (YD%SLDDLAT)
+IF (LSLDDLAT) THEN
+  !$acc enter data create (YD%SLDDLAT)
+  !$acc update device (YD%SLDDLAT)
+  !$acc enter data attach (YD%SLDDLAT)
+ENDIF
+
+END SUBROUTINE
 
 
 

@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TYPE_GFLD
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TYPE_GFLD
+END INTERFACE
 
 
 
@@ -1291,7 +1294,7 @@ CALL LOAD (KLUN, YD%YRKTH_NL)
 CALL LOAD (KLUN, YD%YRKTQV_NL)
 CALL LOAD (KLUN, YD%YRKTQC_NL)
 DO J1 = LBOUND (YD%YCRM_NL, 1), UBOUND (YD%YCRM_NL, 1)
-! CALL LOAD (KLUN, YD%YCRM_NL (J1))
+  CALL LOAD (KLUN, YD%YCRM_NL (J1))
 ENDDO
 CALL LOAD (KLUN, YD%YPHYCTY_NL)
 CALL LOAD (KLUN, YD%YFSD_NL)
@@ -1322,7 +1325,820 @@ ENDDO
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TYPE_GFLD (YD, LDCREATED)
+USE UTIL_TYPE_AERO_WVL_DIAG_MOD
+USE UTIL_TYPE_GFL_COMP_MOD
+USE UTIL_TYPE_GFL_NAML_MOD
+IMPLICIT NONE
+TYPE (TYPE_GFLD), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+INTEGER :: J1, J2
+LOGICAL :: LYA, LYAERAOT, LYAERLISI, LYAERO, LYAEROCLIM, LYAEROUT, LYCHEM, LYCPF, LYCRM, LYCVGQ
+LOGICAL :: LYCVV, LYDAL, LYDOM, LYEDRP, LYEFB1, LYEFB2, LYEFB3, LYERA40, LYEXT, LYEZDIAG
+LOGICAL :: LYFORC, LYFQTUR, LYFSD, LYFSTUR, LYG, LYGHG, LYH, LYI, LYICONV, LYIRAD
+LOGICAL :: LYL, LYLASTCOMP, LYLCONV, LYLIMA, LYLRAD, LYLRCH4, LYMXL, LYNOGW, LYO3, LYPHYCTY
+LOGICAL :: LYPHYS, LYQ, LYQVA, LYR, LYRCONV, LYRKTH, LYRKTQC, LYRKTQV, LYRSPEC, LYS
+LOGICAL :: LYSCONV, LYSDSAT, LYSHTUR, LYSLDIA, LYSPF, LYSRC, LYTKE, LYTTE, LYUAL, LYUEN
+LOGICAL :: LYUNEBH, LYUOM, LYUVP
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DO J1 = LBOUND (YD%YCOMP, 1), UBOUND (YD%YCOMP, 1)
+  CALL COPY (YD%YCOMP (J1), LDCREATED=.TRUE.)
+ENDDO
+
+LYLASTCOMP = ASSOCIATED (YD%YLASTCOMP)
+IF (LYLASTCOMP) THEN
+  !$acc enter data create (YD%YLASTCOMP)
+  !$acc update device (YD%YLASTCOMP)
+  CALL COPY (YD%YLASTCOMP, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YLASTCOMP)
+ENDIF
+
+LYQ = ASSOCIATED (YD%YQ)
+IF (LYQ) THEN
+  !$acc enter data create (YD%YQ)
+  !$acc update device (YD%YQ)
+  CALL COPY (YD%YQ, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YQ)
+ENDIF
+
+LYI = ASSOCIATED (YD%YI)
+IF (LYI) THEN
+  !$acc enter data create (YD%YI)
+  !$acc update device (YD%YI)
+  CALL COPY (YD%YI, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YI)
+ENDIF
+
+LYL = ASSOCIATED (YD%YL)
+IF (LYL) THEN
+  !$acc enter data create (YD%YL)
+  !$acc update device (YD%YL)
+  CALL COPY (YD%YL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YL)
+ENDIF
+
+LYLCONV = ASSOCIATED (YD%YLCONV)
+IF (LYLCONV) THEN
+  !$acc enter data create (YD%YLCONV)
+  !$acc update device (YD%YLCONV)
+  CALL COPY (YD%YLCONV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YLCONV)
+ENDIF
+
+LYICONV = ASSOCIATED (YD%YICONV)
+IF (LYICONV) THEN
+  !$acc enter data create (YD%YICONV)
+  !$acc update device (YD%YICONV)
+  CALL COPY (YD%YICONV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YICONV)
+ENDIF
+
+LYRCONV = ASSOCIATED (YD%YRCONV)
+IF (LYRCONV) THEN
+  !$acc enter data create (YD%YRCONV)
+  !$acc update device (YD%YRCONV)
+  CALL COPY (YD%YRCONV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YRCONV)
+ENDIF
+
+LYSCONV = ASSOCIATED (YD%YSCONV)
+IF (LYSCONV) THEN
+  !$acc enter data create (YD%YSCONV)
+  !$acc update device (YD%YSCONV)
+  CALL COPY (YD%YSCONV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YSCONV)
+ENDIF
+
+LYIRAD = ASSOCIATED (YD%YIRAD)
+IF (LYIRAD) THEN
+  !$acc enter data create (YD%YIRAD)
+  !$acc update device (YD%YIRAD)
+  CALL COPY (YD%YIRAD, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YIRAD)
+ENDIF
+
+LYLRAD = ASSOCIATED (YD%YLRAD)
+IF (LYLRAD) THEN
+  !$acc enter data create (YD%YLRAD)
+  !$acc update device (YD%YLRAD)
+  CALL COPY (YD%YLRAD, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YLRAD)
+ENDIF
+
+LYS = ASSOCIATED (YD%YS)
+IF (LYS) THEN
+  !$acc enter data create (YD%YS)
+  !$acc update device (YD%YS)
+  CALL COPY (YD%YS, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YS)
+ENDIF
+
+LYR = ASSOCIATED (YD%YR)
+IF (LYR) THEN
+  !$acc enter data create (YD%YR)
+  !$acc update device (YD%YR)
+  CALL COPY (YD%YR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YR)
+ENDIF
+
+LYG = ASSOCIATED (YD%YG)
+IF (LYG) THEN
+  !$acc enter data create (YD%YG)
+  !$acc update device (YD%YG)
+  CALL COPY (YD%YG, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YG)
+ENDIF
+
+LYH = ASSOCIATED (YD%YH)
+IF (LYH) THEN
+  !$acc enter data create (YD%YH)
+  !$acc update device (YD%YH)
+  CALL COPY (YD%YH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YH)
+ENDIF
+
+LYTKE = ASSOCIATED (YD%YTKE)
+IF (LYTKE) THEN
+  !$acc enter data create (YD%YTKE)
+  !$acc update device (YD%YTKE)
+  CALL COPY (YD%YTKE, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YTKE)
+ENDIF
+
+LYTTE = ASSOCIATED (YD%YTTE)
+IF (LYTTE) THEN
+  !$acc enter data create (YD%YTTE)
+  !$acc update device (YD%YTTE)
+  CALL COPY (YD%YTTE, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YTTE)
+ENDIF
+
+LYEFB1 = ASSOCIATED (YD%YEFB1)
+IF (LYEFB1) THEN
+  !$acc enter data create (YD%YEFB1)
+  !$acc update device (YD%YEFB1)
+  CALL COPY (YD%YEFB1, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YEFB1)
+ENDIF
+
+LYEFB2 = ASSOCIATED (YD%YEFB2)
+IF (LYEFB2) THEN
+  !$acc enter data create (YD%YEFB2)
+  !$acc update device (YD%YEFB2)
+  CALL COPY (YD%YEFB2, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YEFB2)
+ENDIF
+
+LYEFB3 = ASSOCIATED (YD%YEFB3)
+IF (LYEFB3) THEN
+  !$acc enter data create (YD%YEFB3)
+  !$acc update device (YD%YEFB3)
+  CALL COPY (YD%YEFB3, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YEFB3)
+ENDIF
+
+LYA = ASSOCIATED (YD%YA)
+IF (LYA) THEN
+  !$acc enter data create (YD%YA)
+  !$acc update device (YD%YA)
+  CALL COPY (YD%YA, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YA)
+ENDIF
+
+LYO3 = ASSOCIATED (YD%YO3)
+IF (LYO3) THEN
+  !$acc enter data create (YD%YO3)
+  !$acc update device (YD%YO3)
+  CALL COPY (YD%YO3, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YO3)
+ENDIF
+
+LYSRC = ASSOCIATED (YD%YSRC)
+IF (LYSRC) THEN
+  !$acc enter data create (YD%YSRC)
+  !$acc update device (YD%YSRC)
+  CALL COPY (YD%YSRC, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YSRC)
+ENDIF
+
+LYMXL = ASSOCIATED (YD%YMXL)
+IF (LYMXL) THEN
+  !$acc enter data create (YD%YMXL)
+  !$acc update device (YD%YMXL)
+  CALL COPY (YD%YMXL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YMXL)
+ENDIF
+
+LYSHTUR = ASSOCIATED (YD%YSHTUR)
+IF (LYSHTUR) THEN
+  !$acc enter data create (YD%YSHTUR)
+  !$acc update device (YD%YSHTUR)
+  CALL COPY (YD%YSHTUR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YSHTUR)
+ENDIF
+
+LYFQTUR = ASSOCIATED (YD%YFQTUR)
+IF (LYFQTUR) THEN
+  !$acc enter data create (YD%YFQTUR)
+  !$acc update device (YD%YFQTUR)
+  CALL COPY (YD%YFQTUR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YFQTUR)
+ENDIF
+
+LYFSTUR = ASSOCIATED (YD%YFSTUR)
+IF (LYFSTUR) THEN
+  !$acc enter data create (YD%YFSTUR)
+  !$acc update device (YD%YFSTUR)
+  CALL COPY (YD%YFSTUR, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YFSTUR)
+ENDIF
+
+LYCPF = ASSOCIATED (YD%YCPF)
+IF (LYCPF) THEN
+  !$acc enter data create (YD%YCPF)
+  !$acc update device (YD%YCPF)
+  CALL COPY (YD%YCPF, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YCPF)
+ENDIF
+
+LYSPF = ASSOCIATED (YD%YSPF)
+IF (LYSPF) THEN
+  !$acc enter data create (YD%YSPF)
+  !$acc update device (YD%YSPF)
+  CALL COPY (YD%YSPF, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YSPF)
+ENDIF
+
+LYCVGQ = ASSOCIATED (YD%YCVGQ)
+IF (LYCVGQ) THEN
+  !$acc enter data create (YD%YCVGQ)
+  !$acc update device (YD%YCVGQ)
+  CALL COPY (YD%YCVGQ, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YCVGQ)
+ENDIF
+
+LYQVA = ASSOCIATED (YD%YQVA)
+IF (LYQVA) THEN
+  !$acc enter data create (YD%YQVA)
+  !$acc update device (YD%YQVA)
+  CALL COPY (YD%YQVA, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YQVA)
+ENDIF
+
+LYGHG = ASSOCIATED (YD%YGHG)
+IF (LYGHG) THEN
+  !$acc enter data create (YD%YGHG)
+  !$acc update device (YD%YGHG)
+  DO J1 = LBOUND (YD%YGHG, 1), UBOUND (YD%YGHG, 1)
+    CALL COPY (YD%YGHG (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YGHG)
+ENDIF
+
+LYCHEM = ASSOCIATED (YD%YCHEM)
+IF (LYCHEM) THEN
+  !$acc enter data create (YD%YCHEM)
+  !$acc update device (YD%YCHEM)
+  DO J1 = LBOUND (YD%YCHEM, 1), UBOUND (YD%YCHEM, 1)
+    CALL COPY (YD%YCHEM (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YCHEM)
+ENDIF
+
+LYAERO = ASSOCIATED (YD%YAERO)
+IF (LYAERO) THEN
+  !$acc enter data create (YD%YAERO)
+  !$acc update device (YD%YAERO)
+  DO J1 = LBOUND (YD%YAERO, 1), UBOUND (YD%YAERO, 1)
+    CALL COPY (YD%YAERO (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YAERO)
+ENDIF
+
+LYLRCH4 = ASSOCIATED (YD%YLRCH4)
+IF (LYLRCH4) THEN
+  !$acc enter data create (YD%YLRCH4)
+  !$acc update device (YD%YLRCH4)
+  CALL COPY (YD%YLRCH4, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YLRCH4)
+ENDIF
+
+LYFORC = ASSOCIATED (YD%YFORC)
+IF (LYFORC) THEN
+  !$acc enter data create (YD%YFORC)
+  !$acc update device (YD%YFORC)
+  DO J1 = LBOUND (YD%YFORC, 1), UBOUND (YD%YFORC, 1)
+    CALL COPY (YD%YFORC (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YFORC)
+ENDIF
+
+LYEZDIAG = ASSOCIATED (YD%YEZDIAG)
+IF (LYEZDIAG) THEN
+  !$acc enter data create (YD%YEZDIAG)
+  !$acc update device (YD%YEZDIAG)
+  DO J1 = LBOUND (YD%YEZDIAG, 1), UBOUND (YD%YEZDIAG, 1)
+    CALL COPY (YD%YEZDIAG (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YEZDIAG)
+ENDIF
+
+LYERA40 = ASSOCIATED (YD%YERA40)
+IF (LYERA40) THEN
+  !$acc enter data create (YD%YERA40)
+  !$acc update device (YD%YERA40)
+  DO J1 = LBOUND (YD%YERA40, 1), UBOUND (YD%YERA40, 1)
+    CALL COPY (YD%YERA40 (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YERA40)
+ENDIF
+
+LYNOGW = ASSOCIATED (YD%YNOGW)
+IF (LYNOGW) THEN
+  !$acc enter data create (YD%YNOGW)
+  !$acc update device (YD%YNOGW)
+  DO J1 = LBOUND (YD%YNOGW, 1), UBOUND (YD%YNOGW, 1)
+    CALL COPY (YD%YNOGW (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YNOGW)
+ENDIF
+
+LYEDRP = ASSOCIATED (YD%YEDRP)
+IF (LYEDRP) THEN
+  !$acc enter data create (YD%YEDRP)
+  !$acc update device (YD%YEDRP)
+  DO J1 = LBOUND (YD%YEDRP, 1), UBOUND (YD%YEDRP, 1)
+    CALL COPY (YD%YEDRP (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YEDRP)
+ENDIF
+
+LYSLDIA = ASSOCIATED (YD%YSLDIA)
+IF (LYSLDIA) THEN
+  !$acc enter data create (YD%YSLDIA)
+  !$acc update device (YD%YSLDIA)
+  DO J1 = LBOUND (YD%YSLDIA, 1), UBOUND (YD%YSLDIA, 1)
+    CALL COPY (YD%YSLDIA (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YSLDIA)
+ENDIF
+
+LYAERAOT = ASSOCIATED (YD%YAERAOT)
+IF (LYAERAOT) THEN
+  !$acc enter data create (YD%YAERAOT)
+  !$acc update device (YD%YAERAOT)
+  DO J1 = LBOUND (YD%YAERAOT, 1), UBOUND (YD%YAERAOT, 1)
+    CALL COPY (YD%YAERAOT (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YAERAOT)
+ENDIF
+
+LYAERLISI = ASSOCIATED (YD%YAERLISI)
+IF (LYAERLISI) THEN
+  !$acc enter data create (YD%YAERLISI)
+  !$acc update device (YD%YAERLISI)
+  DO J1 = LBOUND (YD%YAERLISI, 1), UBOUND (YD%YAERLISI, 1)
+    CALL COPY (YD%YAERLISI (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YAERLISI)
+ENDIF
+
+LYAEROUT = ASSOCIATED (YD%YAEROUT)
+IF (LYAEROUT) THEN
+  !$acc enter data create (YD%YAEROUT)
+  !$acc update device (YD%YAEROUT)
+  DO J1 = LBOUND (YD%YAEROUT, 1), UBOUND (YD%YAEROUT, 1)
+    CALL COPY (YD%YAEROUT (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YAEROUT)
+ENDIF
+
+LYAEROCLIM = ASSOCIATED (YD%YAEROCLIM)
+IF (LYAEROCLIM) THEN
+  !$acc enter data create (YD%YAEROCLIM)
+  !$acc update device (YD%YAEROCLIM)
+  DO J1 = LBOUND (YD%YAEROCLIM, 1), UBOUND (YD%YAEROCLIM, 1)
+    CALL COPY (YD%YAEROCLIM (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YAEROCLIM)
+ENDIF
+
+LYUVP = ASSOCIATED (YD%YUVP)
+IF (LYUVP) THEN
+  !$acc enter data create (YD%YUVP)
+  !$acc update device (YD%YUVP)
+  DO J1 = LBOUND (YD%YUVP, 1), UBOUND (YD%YUVP, 1)
+    CALL COPY (YD%YUVP (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YUVP)
+ENDIF
+
+LYPHYS = ASSOCIATED (YD%YPHYS)
+IF (LYPHYS) THEN
+  !$acc enter data create (YD%YPHYS)
+  !$acc update device (YD%YPHYS)
+  DO J1 = LBOUND (YD%YPHYS, 1), UBOUND (YD%YPHYS, 1)
+    CALL COPY (YD%YPHYS (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YPHYS)
+ENDIF
+
+LYPHYCTY = ASSOCIATED (YD%YPHYCTY)
+IF (LYPHYCTY) THEN
+  !$acc enter data create (YD%YPHYCTY)
+  !$acc update device (YD%YPHYCTY)
+  CALL COPY (YD%YPHYCTY, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YPHYCTY)
+ENDIF
+
+LYRSPEC = ASSOCIATED (YD%YRSPEC)
+IF (LYRSPEC) THEN
+  !$acc enter data create (YD%YRSPEC)
+  !$acc update device (YD%YRSPEC)
+  CALL COPY (YD%YRSPEC, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YRSPEC)
+ENDIF
+
+LYSDSAT = ASSOCIATED (YD%YSDSAT)
+IF (LYSDSAT) THEN
+  !$acc enter data create (YD%YSDSAT)
+  !$acc update device (YD%YSDSAT)
+  CALL COPY (YD%YSDSAT, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YSDSAT)
+ENDIF
+
+LYCVV = ASSOCIATED (YD%YCVV)
+IF (LYCVV) THEN
+  !$acc enter data create (YD%YCVV)
+  !$acc update device (YD%YCVV)
+  CALL COPY (YD%YCVV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YCVV)
+ENDIF
+
+LYRKTH = ASSOCIATED (YD%YRKTH)
+IF (LYRKTH) THEN
+  !$acc enter data create (YD%YRKTH)
+  !$acc update device (YD%YRKTH)
+  CALL COPY (YD%YRKTH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YRKTH)
+ENDIF
+
+LYRKTQV = ASSOCIATED (YD%YRKTQV)
+IF (LYRKTQV) THEN
+  !$acc enter data create (YD%YRKTQV)
+  !$acc update device (YD%YRKTQV)
+  CALL COPY (YD%YRKTQV, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YRKTQV)
+ENDIF
+
+LYRKTQC = ASSOCIATED (YD%YRKTQC)
+IF (LYRKTQC) THEN
+  !$acc enter data create (YD%YRKTQC)
+  !$acc update device (YD%YRKTQC)
+  CALL COPY (YD%YRKTQC, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YRKTQC)
+ENDIF
+
+LYUOM = ASSOCIATED (YD%YUOM)
+IF (LYUOM) THEN
+  !$acc enter data create (YD%YUOM)
+  !$acc update device (YD%YUOM)
+  CALL COPY (YD%YUOM, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YUOM)
+ENDIF
+
+LYUAL = ASSOCIATED (YD%YUAL)
+IF (LYUAL) THEN
+  !$acc enter data create (YD%YUAL)
+  !$acc update device (YD%YUAL)
+  CALL COPY (YD%YUAL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YUAL)
+ENDIF
+
+LYDOM = ASSOCIATED (YD%YDOM)
+IF (LYDOM) THEN
+  !$acc enter data create (YD%YDOM)
+  !$acc update device (YD%YDOM)
+  CALL COPY (YD%YDOM, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YDOM)
+ENDIF
+
+LYDAL = ASSOCIATED (YD%YDAL)
+IF (LYDAL) THEN
+  !$acc enter data create (YD%YDAL)
+  !$acc update device (YD%YDAL)
+  CALL COPY (YD%YDAL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YDAL)
+ENDIF
+
+LYUEN = ASSOCIATED (YD%YUEN)
+IF (LYUEN) THEN
+  !$acc enter data create (YD%YUEN)
+  !$acc update device (YD%YUEN)
+  CALL COPY (YD%YUEN, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YUEN)
+ENDIF
+
+LYUNEBH = ASSOCIATED (YD%YUNEBH)
+IF (LYUNEBH) THEN
+  !$acc enter data create (YD%YUNEBH)
+  !$acc update device (YD%YUNEBH)
+  CALL COPY (YD%YUNEBH, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YUNEBH)
+ENDIF
+
+LYCRM = ASSOCIATED (YD%YCRM)
+IF (LYCRM) THEN
+  !$acc enter data create (YD%YCRM)
+  !$acc update device (YD%YCRM)
+  DO J1 = LBOUND (YD%YCRM, 1), UBOUND (YD%YCRM, 1)
+    CALL COPY (YD%YCRM (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YCRM)
+ENDIF
+
+LYLIMA = ASSOCIATED (YD%YLIMA)
+IF (LYLIMA) THEN
+  !$acc enter data create (YD%YLIMA)
+  !$acc update device (YD%YLIMA)
+  DO J1 = LBOUND (YD%YLIMA, 1), UBOUND (YD%YLIMA, 1)
+    CALL COPY (YD%YLIMA (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YLIMA)
+ENDIF
+
+LYFSD = ASSOCIATED (YD%YFSD)
+IF (LYFSD) THEN
+  !$acc enter data create (YD%YFSD)
+  !$acc update device (YD%YFSD)
+  CALL COPY (YD%YFSD, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%YFSD)
+ENDIF
+
+LYEXT = ASSOCIATED (YD%YEXT)
+IF (LYEXT) THEN
+  !$acc enter data create (YD%YEXT)
+  !$acc update device (YD%YEXT)
+  DO J1 = LBOUND (YD%YEXT, 1), UBOUND (YD%YEXT, 1)
+    CALL COPY (YD%YEXT (J1), LDCREATED=.TRUE.)
+  ENDDO
+  !$acc enter data attach (YD%YEXT)
+ENDIF
+
+CALL COPY (YD%YQ_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YI_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YL_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YLCONV_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YICONV_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YRCONV_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YSCONV_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YIRAD_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YLRAD_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YS_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YR_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YG_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YH_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YTKE_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YTTE_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YEFB1_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YEFB2_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YEFB3_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YA_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YO3_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YSRC_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YMXL_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YSHTUR_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YFQTUR_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YFSTUR_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YCPF_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YSPF_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YCVGQ_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YQVA_NL, LDCREATED=.TRUE.)
+
+DO J1 = LBOUND (YD%YGHG_NL, 1), UBOUND (YD%YGHG_NL, 1)
+  CALL COPY (YD%YGHG_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YCHEM_NL, 1), UBOUND (YD%YCHEM_NL, 1)
+  CALL COPY (YD%YCHEM_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YAERO_NL, 1), UBOUND (YD%YAERO_NL, 1)
+  CALL COPY (YD%YAERO_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YERA40_NL, 1), UBOUND (YD%YERA40_NL, 1)
+  CALL COPY (YD%YERA40_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YNOGW_NL, 1), UBOUND (YD%YNOGW_NL, 1)
+  CALL COPY (YD%YNOGW_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YEDRP_NL, 1), UBOUND (YD%YEDRP_NL, 1)
+  CALL COPY (YD%YEDRP_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YSLDIA_NL, 1), UBOUND (YD%YSLDIA_NL, 1)
+  CALL COPY (YD%YSLDIA_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+CALL COPY (YD%YLRCH4_NL, LDCREATED=.TRUE.)
+
+DO J1 = LBOUND (YD%YAERAOT_NL, 1), UBOUND (YD%YAERAOT_NL, 1)
+  CALL COPY (YD%YAERAOT_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J2 = LBOUND (YD%YAERLISI_NL, 2), UBOUND (YD%YAERLISI_NL, 2)
+  DO J1 = LBOUND (YD%YAERLISI_NL, 1), UBOUND (YD%YAERLISI_NL, 1)
+    CALL COPY (YD%YAERLISI_NL (J1, J2), LDCREATED=.TRUE.)
+  ENDDO
+ENDDO
+
+DO J1 = LBOUND (YD%YAEROUT_NL, 1), UBOUND (YD%YAEROUT_NL, 1)
+  CALL COPY (YD%YAEROUT_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YAEROCLIM_NL, 1), UBOUND (YD%YAEROCLIM_NL, 1)
+  CALL COPY (YD%YAEROCLIM_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YUVP_NL, 1), UBOUND (YD%YUVP_NL, 1)
+  CALL COPY (YD%YUVP_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+CALL COPY (YD%YRKTH_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YRKTQV_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YRKTQC_NL, LDCREATED=.TRUE.)
+
+DO J1 = LBOUND (YD%YCRM_NL, 1), UBOUND (YD%YCRM_NL, 1)
+  CALL COPY (YD%YCRM_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+CALL COPY (YD%YPHYCTY_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YFSD_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YRSPEC_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YSDSAT_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YCVV_NL, LDCREATED=.TRUE.)
+
+DO J1 = LBOUND (YD%YFORC_NL, 1), UBOUND (YD%YFORC_NL, 1)
+  CALL COPY (YD%YFORC_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YEZDIAG_NL, 1), UBOUND (YD%YEZDIAG_NL, 1)
+  CALL COPY (YD%YEZDIAG_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YEXT_NL, 1), UBOUND (YD%YEXT_NL, 1)
+  CALL COPY (YD%YEXT_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+CALL COPY (YD%YUOM_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YUAL_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YDOM_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YDAL_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YUEN_NL, LDCREATED=.TRUE.)
+
+CALL COPY (YD%YUNEBH_NL, LDCREATED=.TRUE.)
+
+DO J1 = LBOUND (YD%YAERO_WVL_DIAG_NL, 1), UBOUND (YD%YAERO_WVL_DIAG_NL, 1)
+  CALL COPY (YD%YAERO_WVL_DIAG_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+DO J1 = LBOUND (YD%YLIMA_NL, 1), UBOUND (YD%YLIMA_NL, 1)
+  CALL COPY (YD%YLIMA_NL (J1), LDCREATED=.TRUE.)
+ENDDO
+
+END SUBROUTINE
 
 
 

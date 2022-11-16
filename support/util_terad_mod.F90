@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TERAD
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TERAD
+END INTERFACE
 
 
 
@@ -366,7 +369,190 @@ CALL LOAD (KLUN, YD%YSPECTPLANCK)
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TERAD (YD, LDCREATED)
+USE UTIL_TSPECTRALPLANCK_MOD
+IMPLICIT NONE
+TYPE (TERAD), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LCVDAEBC, LCVDAEDU, LCVDAEOM, LCVDAESS, LCVDAESU
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LCVDAESS = ALLOCATED (YD%CVDAESS)
+IF (LCVDAESS) THEN
+  !$acc enter data create (YD%CVDAESS)
+  !$acc update device (YD%CVDAESS)
+  !$acc enter data attach (YD%CVDAESS)
+ENDIF
+
+LCVDAEDU = ALLOCATED (YD%CVDAEDU)
+IF (LCVDAEDU) THEN
+  !$acc enter data create (YD%CVDAEDU)
+  !$acc update device (YD%CVDAEDU)
+  !$acc enter data attach (YD%CVDAEDU)
+ENDIF
+
+LCVDAEOM = ALLOCATED (YD%CVDAEOM)
+IF (LCVDAEOM) THEN
+  !$acc enter data create (YD%CVDAEOM)
+  !$acc update device (YD%CVDAEOM)
+  !$acc enter data attach (YD%CVDAEOM)
+ENDIF
+
+LCVDAEBC = ALLOCATED (YD%CVDAEBC)
+IF (LCVDAEBC) THEN
+  !$acc enter data create (YD%CVDAEBC)
+  !$acc update device (YD%CVDAEBC)
+  !$acc enter data attach (YD%CVDAEBC)
+ENDIF
+
+LCVDAESU = ALLOCATED (YD%CVDAESU)
+IF (LCVDAESU) THEN
+  !$acc enter data create (YD%CVDAESU)
+  !$acc update device (YD%CVDAESU)
+  !$acc enter data attach (YD%CVDAESU)
+ENDIF
+
+CALL COPY (YD%YSPECTPLANCK, LDCREATED=.TRUE.)
+
+END SUBROUTINE
 
 
 

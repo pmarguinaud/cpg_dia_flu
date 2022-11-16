@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TCSGEOM
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TCSGEOM
+END INTERFACE
 
 
 
@@ -129,7 +132,65 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TCSGEOM (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TCSGEOM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LRATATH, LRATATX, LRCOLON, LRINDX, LRINDY, LRSILON
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRCOLON = ASSOCIATED (YD%RCOLON)
+IF (LRCOLON) THEN
+  !$acc enter data create (YD%RCOLON)
+  !$acc update device (YD%RCOLON)
+  !$acc enter data attach (YD%RCOLON)
+ENDIF
+
+LRSILON = ASSOCIATED (YD%RSILON)
+IF (LRSILON) THEN
+  !$acc enter data create (YD%RSILON)
+  !$acc update device (YD%RSILON)
+  !$acc enter data attach (YD%RSILON)
+ENDIF
+
+LRINDX = ASSOCIATED (YD%RINDX)
+IF (LRINDX) THEN
+  !$acc enter data create (YD%RINDX)
+  !$acc update device (YD%RINDX)
+  !$acc enter data attach (YD%RINDX)
+ENDIF
+
+LRINDY = ASSOCIATED (YD%RINDY)
+IF (LRINDY) THEN
+  !$acc enter data create (YD%RINDY)
+  !$acc update device (YD%RINDY)
+  !$acc enter data attach (YD%RINDY)
+ENDIF
+
+LRATATH = ASSOCIATED (YD%RATATH)
+IF (LRATATH) THEN
+  !$acc enter data create (YD%RATATH)
+  !$acc update device (YD%RATATH)
+  !$acc enter data attach (YD%RATATH)
+ENDIF
+
+LRATATX = ASSOCIATED (YD%RATATX)
+IF (LRATATX) THEN
+  !$acc enter data create (YD%RATATX)
+  !$acc update device (YD%RATATX)
+  !$acc enter data attach (YD%RATATX)
+ENDIF
+
+END SUBROUTINE
 
 
 

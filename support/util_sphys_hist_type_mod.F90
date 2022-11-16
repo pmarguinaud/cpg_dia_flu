@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_SPHYS_HIST_TYPE
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_SPHYS_HIST_TYPE
+END INTERFACE
 
 
 
@@ -177,7 +180,86 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_SPHYS_HIST_TYPE (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (SPHYS_HIST_TYPE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LRADLWM, LRADLWM5, LTGWDWMSU, LTGWDWMSU5, LTGWDWMSV, LTGWDWMSV5, LYA5, LYI5, LYL5
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LYA5 = ASSOCIATED (YD%YA5)
+IF (LYA5) THEN
+  !$acc enter data create (YD%YA5)
+  !$acc update device (YD%YA5)
+  !$acc enter data attach (YD%YA5)
+ENDIF
+
+LYL5 = ASSOCIATED (YD%YL5)
+IF (LYL5) THEN
+  !$acc enter data create (YD%YL5)
+  !$acc update device (YD%YL5)
+  !$acc enter data attach (YD%YL5)
+ENDIF
+
+LYI5 = ASSOCIATED (YD%YI5)
+IF (LYI5) THEN
+  !$acc enter data create (YD%YI5)
+  !$acc update device (YD%YI5)
+  !$acc enter data attach (YD%YI5)
+ENDIF
+
+LRADLWM = ASSOCIATED (YD%RADLWM)
+IF (LRADLWM) THEN
+  !$acc enter data create (YD%RADLWM)
+  !$acc update device (YD%RADLWM)
+  !$acc enter data attach (YD%RADLWM)
+ENDIF
+
+LRADLWM5 = ASSOCIATED (YD%RADLWM5)
+IF (LRADLWM5) THEN
+  !$acc enter data create (YD%RADLWM5)
+  !$acc update device (YD%RADLWM5)
+  !$acc enter data attach (YD%RADLWM5)
+ENDIF
+
+LTGWDWMSU = ASSOCIATED (YD%TGWDWMSU)
+IF (LTGWDWMSU) THEN
+  !$acc enter data create (YD%TGWDWMSU)
+  !$acc update device (YD%TGWDWMSU)
+  !$acc enter data attach (YD%TGWDWMSU)
+ENDIF
+
+LTGWDWMSU5 = ASSOCIATED (YD%TGWDWMSU5)
+IF (LTGWDWMSU5) THEN
+  !$acc enter data create (YD%TGWDWMSU5)
+  !$acc update device (YD%TGWDWMSU5)
+  !$acc enter data attach (YD%TGWDWMSU5)
+ENDIF
+
+LTGWDWMSV = ASSOCIATED (YD%TGWDWMSV)
+IF (LTGWDWMSV) THEN
+  !$acc enter data create (YD%TGWDWMSV)
+  !$acc update device (YD%TGWDWMSV)
+  !$acc enter data attach (YD%TGWDWMSV)
+ENDIF
+
+LTGWDWMSV5 = ASSOCIATED (YD%TGWDWMSV5)
+IF (LTGWDWMSV5) THEN
+  !$acc enter data create (YD%TGWDWMSV5)
+  !$acc update device (YD%TGWDWMSV5)
+  !$acc enter data attach (YD%TGWDWMSV5)
+ENDIF
+
+END SUBROUTINE
 
 
 

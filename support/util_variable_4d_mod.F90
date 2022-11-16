@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_VARIABLE_4D
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_VARIABLE_4D
+END INTERFACE
 
 
 
@@ -138,7 +141,91 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_VARIABLE_4D (YD, LDCREATED)
+USE UTIL_FIELD_MOD
+USE UTIL_VARIABLE_BASE_MOD, ONLY : VARIABLE_BASE, COPY_VARIABLE_BASE
+IMPLICIT NONE
+TYPE (VARIABLE_4D), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+CLASS (VARIABLE_BASE), POINTER :: YLSUPER
+LOGICAL :: LFDL, LFDL9, LFDM, LFDM9, LFPH9, LFT0, LFT1, LFT9
 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+YLSUPER => YD
+CALL COPY_VARIABLE_BASE (YLSUPER, LDCREATED=.TRUE.)
+LFT0 = ASSOCIATED (YD%FT0)
+IF (LFT0) THEN
+  !$acc enter data create (YD%FT0)
+  !$acc update device (YD%FT0)
+  CALL COPY (YD%FT0, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FT0)
+ENDIF
+
+LFT1 = ASSOCIATED (YD%FT1)
+IF (LFT1) THEN
+  !$acc enter data create (YD%FT1)
+  !$acc update device (YD%FT1)
+  CALL COPY (YD%FT1, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FT1)
+ENDIF
+
+LFT9 = ASSOCIATED (YD%FT9)
+IF (LFT9) THEN
+  !$acc enter data create (YD%FT9)
+  !$acc update device (YD%FT9)
+  CALL COPY (YD%FT9, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FT9)
+ENDIF
+
+LFPH9 = ASSOCIATED (YD%FPH9)
+IF (LFPH9) THEN
+  !$acc enter data create (YD%FPH9)
+  !$acc update device (YD%FPH9)
+  CALL COPY (YD%FPH9, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FPH9)
+ENDIF
+
+LFDL = ASSOCIATED (YD%FDL)
+IF (LFDL) THEN
+  !$acc enter data create (YD%FDL)
+  !$acc update device (YD%FDL)
+  CALL COPY (YD%FDL, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FDL)
+ENDIF
+
+LFDM = ASSOCIATED (YD%FDM)
+IF (LFDM) THEN
+  !$acc enter data create (YD%FDM)
+  !$acc update device (YD%FDM)
+  CALL COPY (YD%FDM, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FDM)
+ENDIF
+
+LFDL9 = ASSOCIATED (YD%FDL9)
+IF (LFDL9) THEN
+  !$acc enter data create (YD%FDL9)
+  !$acc update device (YD%FDL9)
+  CALL COPY (YD%FDL9, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FDL9)
+ENDIF
+
+LFDM9 = ASSOCIATED (YD%FDM9)
+IF (LFDM9) THEN
+  !$acc enter data create (YD%FDM9)
+  !$acc update device (YD%FDM9)
+  CALL COPY (YD%FDM9, LDCREATED=.TRUE.)
+  !$acc enter data attach (YD%FDM9)
+ENDIF
+
+END SUBROUTINE
 
 
 

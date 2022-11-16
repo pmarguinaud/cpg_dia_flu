@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TGSGEOM_BLOCKED
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TGSGEOM_BLOCKED
+END INTERFACE
 
 
 
@@ -355,7 +358,164 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TGSGEOM_BLOCKED (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TGSGEOM_BLOCKED), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LGAW, LGECLO, LGELAM, LGELAT, LGEMU, LGESLO, LGM, LGMAPPA, LGNORDL, LGNORDLCL
+LOGICAL :: LGNORDM, LGNORDMCL, LGNORDMCM, LGOMVRL, LGOMVRM, LGSQM2, LNGPLAT, LNUNIQUEGP, LRCORI, LRCORIC
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRCORI = ASSOCIATED (YD%RCORI)
+IF (LRCORI) THEN
+  !$acc enter data create (YD%RCORI)
+  !$acc update device (YD%RCORI)
+  !$acc enter data attach (YD%RCORI)
+ENDIF
+
+LRCORIC = ASSOCIATED (YD%RCORIC)
+IF (LRCORIC) THEN
+  !$acc enter data create (YD%RCORIC)
+  !$acc update device (YD%RCORIC)
+  !$acc enter data attach (YD%RCORIC)
+ENDIF
+
+LGEMU = ASSOCIATED (YD%GEMU)
+IF (LGEMU) THEN
+  !$acc enter data create (YD%GEMU)
+  !$acc update device (YD%GEMU)
+  !$acc enter data attach (YD%GEMU)
+ENDIF
+
+LGSQM2 = ASSOCIATED (YD%GSQM2)
+IF (LGSQM2) THEN
+  !$acc enter data create (YD%GSQM2)
+  !$acc update device (YD%GSQM2)
+  !$acc enter data attach (YD%GSQM2)
+ENDIF
+
+LGELAM = ASSOCIATED (YD%GELAM)
+IF (LGELAM) THEN
+  !$acc enter data create (YD%GELAM)
+  !$acc update device (YD%GELAM)
+  !$acc enter data attach (YD%GELAM)
+ENDIF
+
+LGELAT = ASSOCIATED (YD%GELAT)
+IF (LGELAT) THEN
+  !$acc enter data create (YD%GELAT)
+  !$acc update device (YD%GELAT)
+  !$acc enter data attach (YD%GELAT)
+ENDIF
+
+LGECLO = ASSOCIATED (YD%GECLO)
+IF (LGECLO) THEN
+  !$acc enter data create (YD%GECLO)
+  !$acc update device (YD%GECLO)
+  !$acc enter data attach (YD%GECLO)
+ENDIF
+
+LGESLO = ASSOCIATED (YD%GESLO)
+IF (LGESLO) THEN
+  !$acc enter data create (YD%GESLO)
+  !$acc update device (YD%GESLO)
+  !$acc enter data attach (YD%GESLO)
+ENDIF
+
+LGM = ASSOCIATED (YD%GM)
+IF (LGM) THEN
+  !$acc enter data create (YD%GM)
+  !$acc update device (YD%GM)
+  !$acc enter data attach (YD%GM)
+ENDIF
+
+LGMAPPA = ASSOCIATED (YD%GMAPPA)
+IF (LGMAPPA) THEN
+  !$acc enter data create (YD%GMAPPA)
+  !$acc update device (YD%GMAPPA)
+  !$acc enter data attach (YD%GMAPPA)
+ENDIF
+
+LGOMVRL = ASSOCIATED (YD%GOMVRL)
+IF (LGOMVRL) THEN
+  !$acc enter data create (YD%GOMVRL)
+  !$acc update device (YD%GOMVRL)
+  !$acc enter data attach (YD%GOMVRL)
+ENDIF
+
+LGOMVRM = ASSOCIATED (YD%GOMVRM)
+IF (LGOMVRM) THEN
+  !$acc enter data create (YD%GOMVRM)
+  !$acc update device (YD%GOMVRM)
+  !$acc enter data attach (YD%GOMVRM)
+ENDIF
+
+LGNORDL = ASSOCIATED (YD%GNORDL)
+IF (LGNORDL) THEN
+  !$acc enter data create (YD%GNORDL)
+  !$acc update device (YD%GNORDL)
+  !$acc enter data attach (YD%GNORDL)
+ENDIF
+
+LGNORDM = ASSOCIATED (YD%GNORDM)
+IF (LGNORDM) THEN
+  !$acc enter data create (YD%GNORDM)
+  !$acc update device (YD%GNORDM)
+  !$acc enter data attach (YD%GNORDM)
+ENDIF
+
+LGNORDLCL = ASSOCIATED (YD%GNORDLCL)
+IF (LGNORDLCL) THEN
+  !$acc enter data create (YD%GNORDLCL)
+  !$acc update device (YD%GNORDLCL)
+  !$acc enter data attach (YD%GNORDLCL)
+ENDIF
+
+LGNORDMCL = ASSOCIATED (YD%GNORDMCL)
+IF (LGNORDMCL) THEN
+  !$acc enter data create (YD%GNORDMCL)
+  !$acc update device (YD%GNORDMCL)
+  !$acc enter data attach (YD%GNORDMCL)
+ENDIF
+
+LGNORDMCM = ASSOCIATED (YD%GNORDMCM)
+IF (LGNORDMCM) THEN
+  !$acc enter data create (YD%GNORDMCM)
+  !$acc update device (YD%GNORDMCM)
+  !$acc enter data attach (YD%GNORDMCM)
+ENDIF
+
+LGAW = ASSOCIATED (YD%GAW)
+IF (LGAW) THEN
+  !$acc enter data create (YD%GAW)
+  !$acc update device (YD%GAW)
+  !$acc enter data attach (YD%GAW)
+ENDIF
+
+LNGPLAT = ASSOCIATED (YD%NGPLAT)
+IF (LNGPLAT) THEN
+  !$acc enter data create (YD%NGPLAT)
+  !$acc update device (YD%NGPLAT)
+  !$acc enter data attach (YD%NGPLAT)
+ENDIF
+
+LNUNIQUEGP = ASSOCIATED (YD%NUNIQUEGP)
+IF (LNUNIQUEGP) THEN
+  !$acc enter data create (YD%NUNIQUEGP)
+  !$acc update device (YD%NUNIQUEGP)
+  !$acc enter data attach (YD%NUNIQUEGP)
+ENDIF
+
+END SUBROUTINE
 
 
 

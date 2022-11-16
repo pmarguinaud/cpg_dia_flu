@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TCHEM
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TCHEM
+END INTERFACE
 
 
 
@@ -145,7 +148,79 @@ READ (KLUN) YD%LCHEM_ARPCLIM
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TCHEM (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TCHEM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LTCO2DG, LTCOTOP
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LTCO2DG = ALLOCATED (YD%TCO2DG)
+IF (LTCO2DG) THEN
+  !$acc enter data create (YD%TCO2DG)
+  !$acc update device (YD%TCO2DG)
+  !$acc enter data attach (YD%TCO2DG)
+ENDIF
+
+LTCOTOP = ALLOCATED (YD%TCOTOP)
+IF (LTCOTOP) THEN
+  !$acc enter data create (YD%TCOTOP)
+  !$acc update device (YD%TCOTOP)
+  !$acc enter data attach (YD%TCOTOP)
+ENDIF
+
+
+END SUBROUTINE
 
 
 

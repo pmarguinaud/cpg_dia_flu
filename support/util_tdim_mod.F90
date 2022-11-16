@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TDIM
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TDIM
+END INTERFACE
 
 
 
@@ -149,7 +152,81 @@ READ (KLUN) YD%NUMCP
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TDIM (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TDIM), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LNDLUNL, LNDLUXL
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNDLUNL = ALLOCATED (YD%NDLUNL)
+IF (LNDLUNL) THEN
+  !$acc enter data create (YD%NDLUNL)
+  !$acc update device (YD%NDLUNL)
+  !$acc enter data attach (YD%NDLUNL)
+ENDIF
+
+LNDLUXL = ALLOCATED (YD%NDLUXL)
+IF (LNDLUXL) THEN
+  !$acc enter data create (YD%NDLUXL)
+  !$acc update device (YD%NDLUXL)
+  !$acc enter data attach (YD%NDLUXL)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

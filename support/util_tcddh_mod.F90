@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TCDDH
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TCDDH
+END INTERFACE
 
 
 
@@ -145,7 +148,79 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TCDDH (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TCDDH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LCADHFSS, LCADHIIS, LCADHSSS, LCADHTIS, LCADHTLS, LCADHTSS, LCADHTTS, LCADHWLS
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LCADHTLS = ALLOCATED (YD%CADHTLS)
+IF (LCADHTLS) THEN
+  !$acc enter data create (YD%CADHTLS)
+  !$acc update device (YD%CADHTLS)
+  !$acc enter data attach (YD%CADHTLS)
+ENDIF
+
+LCADHTSS = ALLOCATED (YD%CADHTSS)
+IF (LCADHTSS) THEN
+  !$acc enter data create (YD%CADHTSS)
+  !$acc update device (YD%CADHTSS)
+  !$acc enter data attach (YD%CADHTSS)
+ENDIF
+
+LCADHTTS = ALLOCATED (YD%CADHTTS)
+IF (LCADHTTS) THEN
+  !$acc enter data create (YD%CADHTTS)
+  !$acc update device (YD%CADHTTS)
+  !$acc enter data attach (YD%CADHTTS)
+ENDIF
+
+LCADHTIS = ALLOCATED (YD%CADHTIS)
+IF (LCADHTIS) THEN
+  !$acc enter data create (YD%CADHTIS)
+  !$acc update device (YD%CADHTIS)
+  !$acc enter data attach (YD%CADHTIS)
+ENDIF
+
+LCADHSSS = ALLOCATED (YD%CADHSSS)
+IF (LCADHSSS) THEN
+  !$acc enter data create (YD%CADHSSS)
+  !$acc update device (YD%CADHSSS)
+  !$acc enter data attach (YD%CADHSSS)
+ENDIF
+
+LCADHIIS = ALLOCATED (YD%CADHIIS)
+IF (LCADHIIS) THEN
+  !$acc enter data create (YD%CADHIIS)
+  !$acc update device (YD%CADHIIS)
+  !$acc enter data attach (YD%CADHIIS)
+ENDIF
+
+LCADHWLS = ALLOCATED (YD%CADHWLS)
+IF (LCADHWLS) THEN
+  !$acc enter data create (YD%CADHWLS)
+  !$acc update device (YD%CADHWLS)
+  !$acc enter data attach (YD%CADHWLS)
+ENDIF
+
+LCADHFSS = ALLOCATED (YD%CADHFSS)
+IF (LCADHFSS) THEN
+  !$acc enter data create (YD%CADHFSS)
+  !$acc update device (YD%CADHFSS)
+  !$acc enter data attach (YD%CADHFSS)
+ENDIF
+
+END SUBROUTINE
 
 
 

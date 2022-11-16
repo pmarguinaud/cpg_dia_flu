@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TEAERD
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TEAERD
+END INTERFACE
 
 
 
@@ -127,7 +130,70 @@ READ (KLUN) YD%RCAEROS
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TEAERD (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TEAERD), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LCVDAED, LCVDAEL, LCVDAES, LCVDAEU
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LCVDAES = ALLOCATED (YD%CVDAES)
+IF (LCVDAES) THEN
+  !$acc enter data create (YD%CVDAES)
+  !$acc update device (YD%CVDAES)
+  !$acc enter data attach (YD%CVDAES)
+ENDIF
+
+LCVDAEL = ALLOCATED (YD%CVDAEL)
+IF (LCVDAEL) THEN
+  !$acc enter data create (YD%CVDAEL)
+  !$acc update device (YD%CVDAEL)
+  !$acc enter data attach (YD%CVDAEL)
+ENDIF
+
+LCVDAEU = ALLOCATED (YD%CVDAEU)
+IF (LCVDAEU) THEN
+  !$acc enter data create (YD%CVDAEU)
+  !$acc update device (YD%CVDAEU)
+  !$acc enter data attach (YD%CVDAEU)
+ENDIF
+
+LCVDAED = ALLOCATED (YD%CVDAED)
+IF (LCVDAED) THEN
+  !$acc enter data create (YD%CVDAED)
+  !$acc update device (YD%CVDAED)
+  !$acc enter data attach (YD%CVDAED)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

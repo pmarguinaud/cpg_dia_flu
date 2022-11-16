@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TCSGLEG
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TCSGLEG
+END INTERFACE
 
 
 
@@ -173,7 +176,93 @@ ENDIF
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TCSGLEG (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TCSGLEG), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LR1MU2, LR1MUA, LR1MUI, LR1QM2, LRACTHE, LRLATI, LRLATIG, LRMU, LRSQM2, LRW
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+LRW = ALLOCATED (YD%RW)
+IF (LRW) THEN
+  !$acc enter data create (YD%RW)
+  !$acc update device (YD%RW)
+  !$acc enter data attach (YD%RW)
+ENDIF
+
+LRMU = ALLOCATED (YD%RMU)
+IF (LRMU) THEN
+  !$acc enter data create (YD%RMU)
+  !$acc update device (YD%RMU)
+  !$acc enter data attach (YD%RMU)
+ENDIF
+
+LR1MU2 = ALLOCATED (YD%R1MU2)
+IF (LR1MU2) THEN
+  !$acc enter data create (YD%R1MU2)
+  !$acc update device (YD%R1MU2)
+  !$acc enter data attach (YD%R1MU2)
+ENDIF
+
+LR1MUI = ALLOCATED (YD%R1MUI)
+IF (LR1MUI) THEN
+  !$acc enter data create (YD%R1MUI)
+  !$acc update device (YD%R1MUI)
+  !$acc enter data attach (YD%R1MUI)
+ENDIF
+
+LR1MUA = ALLOCATED (YD%R1MUA)
+IF (LR1MUA) THEN
+  !$acc enter data create (YD%R1MUA)
+  !$acc update device (YD%R1MUA)
+  !$acc enter data attach (YD%R1MUA)
+ENDIF
+
+LRSQM2 = ALLOCATED (YD%RSQM2)
+IF (LRSQM2) THEN
+  !$acc enter data create (YD%RSQM2)
+  !$acc update device (YD%RSQM2)
+  !$acc enter data attach (YD%RSQM2)
+ENDIF
+
+LR1QM2 = ALLOCATED (YD%R1QM2)
+IF (LR1QM2) THEN
+  !$acc enter data create (YD%R1QM2)
+  !$acc update device (YD%R1QM2)
+  !$acc enter data attach (YD%R1QM2)
+ENDIF
+
+LRACTHE = ALLOCATED (YD%RACTHE)
+IF (LRACTHE) THEN
+  !$acc enter data create (YD%RACTHE)
+  !$acc update device (YD%RACTHE)
+  !$acc enter data attach (YD%RACTHE)
+ENDIF
+
+LRLATIG = ALLOCATED (YD%RLATIG)
+IF (LRLATIG) THEN
+  !$acc enter data create (YD%RLATIG)
+  !$acc update device (YD%RLATIG)
+  !$acc enter data attach (YD%RLATIG)
+ENDIF
+
+LRLATI = ALLOCATED (YD%RLATI)
+IF (LRLATI) THEN
+  !$acc enter data create (YD%RLATI)
+  !$acc update device (YD%RLATI)
+  !$acc enter data attach (YD%RLATI)
+ENDIF
+
+END SUBROUTINE
 
 
 

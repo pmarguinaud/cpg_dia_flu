@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TPARAR
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TPARAR
+END INTERFACE
 
 
 
@@ -291,7 +294,152 @@ READ (KLUN) YD%LQVTOP
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TPARAR (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TPARAR), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LXSW_BANDS
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LXSW_BANDS = ALLOCATED (YD%XSW_BANDS)
+IF (LXSW_BANDS) THEN
+  !$acc enter data create (YD%XSW_BANDS)
+  !$acc update device (YD%XSW_BANDS)
+  !$acc enter data attach (YD%XSW_BANDS)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

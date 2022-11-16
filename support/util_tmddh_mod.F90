@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TMDDH
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TMDDH
+END INTERFACE
 
 
 
@@ -383,7 +386,198 @@ READ (KLUN) YD%NFIELDS2D_OFFSET
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TMDDH (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TMDDH), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+LOGICAL :: LHDSF, LHDSFDU, LHDSFLA, LNDDHI, LNDDHLA, LNDDHPU, LNLRDDH, LNLXDDH, LNURDDH, LNUXDDH
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LNDDHLA = ALLOCATED (YD%NDDHLA)
+IF (LNDDHLA) THEN
+  !$acc enter data create (YD%NDDHLA)
+  !$acc update device (YD%NDDHLA)
+  !$acc enter data attach (YD%NDDHLA)
+ENDIF
+
+LNDDHPU = ALLOCATED (YD%NDDHPU)
+IF (LNDDHPU) THEN
+  !$acc enter data create (YD%NDDHPU)
+  !$acc update device (YD%NDDHPU)
+  !$acc enter data attach (YD%NDDHPU)
+ENDIF
+
+LNDDHI = ALLOCATED (YD%NDDHI)
+IF (LNDDHI) THEN
+  !$acc enter data create (YD%NDDHI)
+  !$acc update device (YD%NDDHI)
+  !$acc enter data attach (YD%NDDHI)
+ENDIF
+
+LNLRDDH = ALLOCATED (YD%NLRDDH)
+IF (LNLRDDH) THEN
+  !$acc enter data create (YD%NLRDDH)
+  !$acc update device (YD%NLRDDH)
+  !$acc enter data attach (YD%NLRDDH)
+ENDIF
+
+LNURDDH = ALLOCATED (YD%NURDDH)
+IF (LNURDDH) THEN
+  !$acc enter data create (YD%NURDDH)
+  !$acc update device (YD%NURDDH)
+  !$acc enter data attach (YD%NURDDH)
+ENDIF
+
+LNLXDDH = ALLOCATED (YD%NLXDDH)
+IF (LNLXDDH) THEN
+  !$acc enter data create (YD%NLXDDH)
+  !$acc update device (YD%NLXDDH)
+  !$acc enter data attach (YD%NLXDDH)
+ENDIF
+
+LNUXDDH = ALLOCATED (YD%NUXDDH)
+IF (LNUXDDH) THEN
+  !$acc enter data create (YD%NUXDDH)
+  !$acc update device (YD%NUXDDH)
+  !$acc enter data attach (YD%NUXDDH)
+ENDIF
+
+LHDSFLA = ALLOCATED (YD%HDSFLA)
+IF (LHDSFLA) THEN
+  !$acc enter data create (YD%HDSFLA)
+  !$acc update device (YD%HDSFLA)
+  !$acc enter data attach (YD%HDSFLA)
+ENDIF
+
+LHDSFDU = ALLOCATED (YD%HDSFDU)
+IF (LHDSFDU) THEN
+  !$acc enter data create (YD%HDSFDU)
+  !$acc update device (YD%HDSFDU)
+  !$acc enter data attach (YD%HDSFDU)
+ENDIF
+
+LHDSF = ALLOCATED (YD%HDSF)
+IF (LHDSF) THEN
+  !$acc enter data create (YD%HDSF)
+  !$acc update device (YD%HDSF)
+  !$acc enter data attach (YD%HDSF)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 

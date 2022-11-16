@@ -155,6 +155,6 @@ do
   ./scripts/loadsave.pl \
      --skip-components TYPE_GFL_COMP%PREVIOUS,MODEL_PHYSICS_STOCHAST_TYPE%YR_RANDOM_STREAMS,TEPHY%YSURF,TRADIATION%RAD_CONFIG,TECUCONVCA%YD_RANDOM_STREAM_CA,GEOMETRY%YRCSGEOMAD_NB,GEOMETRY%YRGSGEOMAD_NB \
      --dir support \
-     --save --load $(resolve $f)
+     --copy --save --load $(resolve $f)
 done
 

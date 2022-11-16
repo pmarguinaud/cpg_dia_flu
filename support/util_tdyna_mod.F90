@@ -10,6 +10,9 @@ INTERFACE LOAD
 MODULE PROCEDURE LOAD_TDYNA
 END INTERFACE
 
+INTERFACE COPY
+MODULE PROCEDURE COPY_TDYNA
+END INTERFACE
 
 
 
@@ -180,7 +183,96 @@ READ (KLUN) YD%L_RDRY_VD
 END SUBROUTINE
 
 
+SUBROUTINE COPY_TDYNA (YD, LDCREATED)
 
+IMPLICIT NONE
+TYPE (TDYNA), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
+LOGICAL :: LLCREATED
+
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+END SUBROUTINE
 
 
 
