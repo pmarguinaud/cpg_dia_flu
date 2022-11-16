@@ -97,7 +97,7 @@ sub generateSyncDevice
   &saveSubroutine ($d);
 }
 
-sub generateParallelFieldAPI
+sub generateParallel
 {
   shift;
   use Parallel;
@@ -108,9 +108,9 @@ sub generateParallelFieldAPI
 
   return unless (&F ('.//parallel-section', $d));
 
-  &Parallel::makeParallelFieldAPI ($d, suffix => '_PARALLEL_FIELD_API');
+  &Parallel::makeParallel ($d, suffix => '_PARALLEL');
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL_|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
+  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
 
   &saveSubroutine ($d);
 }
@@ -143,21 +143,6 @@ sub generateFieldAPIHost
 
   &Subroutine::addSuffix ($d, '_FIELD_API_HOST');
   &Call::addSuffix ($d, suffix => '_FIELD_API_HOST');
-
-  &saveSubroutine ($d);
-}
-
-sub generateParallelView
-{
-  shift;
-  use Parallel;
-  use Stack;
-
-  my $d = shift;
-
-  return unless (&F ('.//parallel-section', $d));
-
-  &Parallel::makeParallelView ($d);
 
   &saveSubroutine ($d);
 }

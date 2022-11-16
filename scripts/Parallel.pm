@@ -273,48 +273,6 @@ sub makeUpdatablesInout
     }
 }
 
-sub makeParallelView
-{
-  my $d = shift;
-
-  # Resolving ASSOCIATEs in parallel sections is mandatory
-  &Associate::resolveAssociates ($d);
-
-  &Decl::forceSingleDecl ($d);
-
-  # Inlining contained subroutines called from parallel sections is mandatory
-  # when they use some variables from the outer scope and these variables
-  # are made FIRSTPRIVATE
-
-  &Construct::changeIfStatementsInIfConstructs ($d);
-  &Inline::inlineContainedSubroutines ($d);
-
-  my $suffix = '_PARALLEL_VIEW';
-
-  &wrapArrays ($d, $suffix);
-
-  my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
-  &Decl::use ($d,
-              'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
-
-  &Decl::declare ($d,  
-                  'INTEGER (KIND=JPIM) :: IBL');
-
-  my $updatable = &getUpdatables ($d);
-  &makeUpdatablesInout ($d, $updatable);
-
-  my @para = &F ('.//parallel-section', $d);
-
-  for my $para (@para)
-    {
-      &makeBlockViewSection ($d, section => $para, updatable => $updatable);
-    }
-
-  &Subroutine::addSuffix ($d, $suffix);
-  
-  return 1;
-}
-
 sub makeBlockFieldAPISection
 {
   my $d = shift;
@@ -533,7 +491,7 @@ sub makeSingleColumnFieldAPISection
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 }
 
-sub makeParallelFieldAPI
+sub makeParallel
 {
   my $d = shift;
   my %args = @_;
