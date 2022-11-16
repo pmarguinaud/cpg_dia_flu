@@ -183,7 +183,7 @@ sub wrapArrays
 }
 
 
-sub makeViewSection
+sub makeBlockViewSection
 {
   my $d = shift;
   my %args = @_;
@@ -307,7 +307,7 @@ sub makeParallelView
 
   for my $para (@para)
     {
-      &makeViewSection ($d, section => $para, updatable => $updatable);
+      &makeBlockViewSection ($d, section => $para, updatable => $updatable);
     }
 
   &Subroutine::addSuffix ($d, $suffix);
@@ -315,7 +315,7 @@ sub makeParallelView
   return 1;
 }
 
-sub makeBlockSection
+sub makeBlockFieldAPISection
 {
   my $d = shift;
   my %args = @_;
@@ -459,7 +459,7 @@ sub makeSyncSection
 
 }
 
-sub makeSingleColumnSection
+sub makeSingleColumnFieldAPISection
 {
   my $d = shift;
   my %args = @_;
@@ -556,7 +556,6 @@ sub makeParallelFieldAPI
   my @para = &F ('.//parallel-section', $d);
 
   my $singlecolumn = grep { my $vector = lc ($_->getAttribute ('vector') || 'block'); $vector eq 'singlecolumn' } @para;
-  my $view = grep { my $datalayout = lc ($_->getAttribute ('datalayout') || 'fieldapi'); $datalayout eq 'view' } @para;
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL',
@@ -566,22 +565,41 @@ sub makeParallelFieldAPI
   &Decl::use ($d,
               'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
 
+  my $updatable = &getUpdatables ($d);
+  &makeUpdatablesInout ($d, $updatable);
+
   my $i = 0;
   for my $para (@para)
     {
       &makeSyncSection ($d, %args, section => $para, number => $i++);
       my $vector = lc ($para->getAttribute ('vector') || 'block');
-      if ($vector eq 'singlecolumn')
+      my $datalayout = lc ($para->getAttribute ('datalayout') || 'fieldapi');
+
+      if ($datalayout eq 'fieldapi')
         {
-          &makeSingleColumnSection ($d, %args, section => $para, stack => 1);
+          if ($vector eq 'singlecolumn')
+            {
+              &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1);
+            }
+          elsif ($vector eq 'block')
+            {
+              &makeBlockFieldAPISection ($d, %args, section => $para);
+            }
+          else
+            {
+              die $vector;
+            }
         }
-      elsif ($vector eq 'block')
+      elsif ($datalayout eq 'view')
         {
-          &makeBlockSection ($d, %args, section => $para);
-        }
-      else
-        {
-          die $vector;
+          if ($vector eq 'block')
+            {
+              &makeBlockViewSection ($d, section => $para, updatable => $updatable);
+            }
+          else
+            {
+              die $vector;
+            }
         }
     }
 
