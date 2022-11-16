@@ -182,6 +182,54 @@ sub wrapArrays
    
 }
 
+
+sub makeViewSection
+{
+  my $d = shift;
+  my %args = @_;
+  my $para = $args{section};
+  my $updatable = $args{updatable};
+
+  my @N = &uniq (grep { $updatable->{$_} } &F ('.//named-E/N/n/text()',  $para, 1));
+
+  my ($stmt) = &F ('.//ANY-stmt', $para);
+  my $indent = ' ' x &Fxtran::getIndent ($stmt);
+
+  # Insert loop nest
+
+  my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+  for my $N (@N)
+    {
+      $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+    }
+  $loop .= "${indent}ENDDO\n";
+
+  my ($loop) = &Fxtran::fxtran (fragment => $loop);
+
+  my ($enddo) = &F ('.//end-do-stmt', $loop);
+  my $p = $enddo->parentNode;
+  
+  for my $node ($para->childNodes ()) 
+    {   
+      $p->insertBefore (&t (' ' x (2)), $enddo);
+      &Fxtran::reIndent ($node, 2); 
+      $p->insertBefore ($node, $enddo);
+    }   
+  $p->insertBefore (&t ($indent), $enddo);
+
+  $para->appendChild ($loop);
+  $para->insertBefore (&t ($indent), $loop);
+
+  $para->parentNode->insertBefore (&t ("$indent"), $para);
+
+  # Insert OpenMP directive
+
+  my @priv = grep { ! $updatable->{$_} } &F ('.//a-stmt/E-1/named-E/N|.//do-V/named-E/N', $para, 1);
+  
+  $para->insertBefore (&t ("\n"), $loop);
+  &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%$updatable)]);
+}
+
 sub makeParallelView
 {
   my $d = shift;
@@ -208,7 +256,7 @@ sub makeParallelView
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL');
-  my (%T, %U);
+  my (%T, %updatable);
   for my $en_decl (&F ('.//EN-decl', $d))
     {
       my ($stmt) = &Fxtran::stmt ($en_decl);
@@ -216,16 +264,16 @@ sub makeParallelView
       my ($N) = &F ('./EN-N', $en_decl, 1);
       my ($T) = &F ('./T-N', $ts, 1);
       $T{$N} = $T;
-      $U{$N} = &FieldAPI::isUpdatable ($T);
+      $updatable{$N} = &FieldAPI::isUpdatable ($T);
     }
 
-  $U{YDCPG_BNDS} = 1;
+  $updatable{YDCPG_BNDS} = 1;
 
-  for my $U (sort keys (%U))
+  for my $U (sort keys (%updatable))
     {
-      unless ($U{$U})
+      unless ($updatable{$U})
         {
-          delete $U{$U};
+          delete $updatable{$U};
           next;
         }
       next unless (my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]', $U, $d));
@@ -237,44 +285,7 @@ sub makeParallelView
 
   for my $para (@para)
     {
-      my @N = &uniq (grep { $U{$_} } &F ('.//named-E/N/n/text()',  $para, 1));
-
-      my ($stmt) = &F ('.//ANY-stmt', $para);
-      my $indent = ' ' x &Fxtran::getIndent ($stmt);
-
-      # Insert loop nest
-
-      my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-      for my $N (@N)
-        {
-          $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
-        }
-      $loop .= "${indent}ENDDO\n";
-
-      my ($loop) = &Fxtran::fxtran (fragment => $loop);
-
-      my ($enddo) = &F ('.//end-do-stmt', $loop);
-      my $p = $enddo->parentNode;
-     
-      for my $node ($para->childNodes ()) 
-        {   
-          $p->insertBefore (&t (' ' x (2)), $enddo);
-          &Fxtran::reIndent ($node, 2); 
-          $p->insertBefore ($node, $enddo);
-        }   
-      $p->insertBefore (&t ($indent), $enddo);
-
-      $para->appendChild ($loop);
-      $para->insertBefore (&t ($indent), $loop);
-
-      $para->parentNode->insertBefore (&t ("$indent"), $para);
-
-      # Insert OpenMP directive
-
-      my @priv = grep { ! $U{$_} } &F ('.//a-stmt/E-1/named-E/N|.//do-V/named-E/N', $para, 1);
-      
-      $para->insertBefore (&t ("\n"), $loop);
-      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%U)]);
+      &makeViewSection ($d, section => $para, updatable => \%updatable);
     }
 
   &Subroutine::addSuffix ($d, $suffix);
