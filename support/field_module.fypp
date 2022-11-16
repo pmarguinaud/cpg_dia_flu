@@ -95,7 +95,8 @@ CONTAINS
 
   PROCEDURE, PRIVATE :: GET_DEVICE_DATA => ${field_type_name}$_GET_DEVICE_DATA
   PROCEDURE, PRIVATE :: GET_HOST_DATA => ${field_type_name}$_GET_HOST_DATA
-  PROCEDURE, PRIVATE :: COPY =>  ${field_type_name}$_COPY
+  PROCEDURE, PRIVATE :: COPY_DATA =>  ${field_type_name}$_COPY_DATA
+  PROCEDURE :: COPY_OBJECT => ${field_type_name}$_COPY_OBJECT
 END TYPE ${field_type_name}$
 
 #:for dm in data_management_type
@@ -241,7 +242,19 @@ CONTAINS
     CALL SELF%${field_type_name}$_FINAL
   END SUBROUTINE ${field_type_name}$_OWNER_FINAL
 
-  SUBROUTINE ${field_type_name}$_COPY (SELF, KDIR)
+  SUBROUTINE ${field_type_name}$_COPY_OBJECT (SELF, LDCREATED)
+  CLASS(${field_type_name}$) :: SELF
+  LOGICAL, INTENT (IN), OPTIONAL :: LDCREATED
+  LOGICAL :: LLCREATED
+
+  LLCREATED = .FALSE.
+  IF (PRESENT (LDCREATED)) LLCREATED = LDCREATED
+
+  PRINT *, "${field_type_name}$_COPY_OBJECT"
+
+  END SUBROUTINE ${field_type_name}$_COPY_OBJECT
+
+  SUBROUTINE ${field_type_name}$_COPY_DATA (SELF, KDIR)
   CLASS(${field_type_name}$) :: SELF
   INTEGER (KIND=JPIM), INTENT (IN) :: KDIR
   REAL :: START, FINISH
@@ -308,7 +321,7 @@ CONTAINS
 
 #:endfor
 
-  END SUBROUTINE ${field_type_name}$_COPY
+  END SUBROUTINE ${field_type_name}$_COPY_DATA
 
 
   SUBROUTINE ${field_type_name}$_GET_HOST_DATA (SELF, MODE, PTR)
@@ -319,7 +332,7 @@ CONTAINS
 
     LBOUNDS=LBOUND(SELF%PTR)
     IF (IAND (SELF%ISTATUS, NHSTFRESH) == 0) THEN
-      CALL SELF%COPY (ND2H)
+      CALL SELF%COPY_DATA (ND2H)
       SELF%ISTATUS = IOR (SELF%ISTATUS, NHSTFRESH)
     ENDIF
     PTR (${lbptr (rank)}$) => SELF%PTR (${','.join(':' for _ in range(rank))}$)
@@ -380,7 +393,7 @@ CONTAINS
         !$acc enter data create (SELF%DEVPTR)
 #endif
       ENDIF
-      CALL SELF%COPY (NH2D)
+      CALL SELF%COPY_DATA (NH2D)
       SELF%ISTATUS = IOR (SELF%ISTATUS, NDEVFRESH)
     ENDIF
     PTR (${lbptr (rank)}$) => SELF%DEVPTR (${','.join(':' for _ in range(rank))}$)
