@@ -257,8 +257,11 @@ CONTAINS
 
   IF (.NOT. SELF%LOBJECT_COPIED) THEN
     SELF%LOBJECT_COPIED = .TRUE.
-    CALL SELF%CREATE_DEVICE_DATA
-    !$acc enter data attach (SELF%DEVPTR)
+#ifdef _OPENACC
+    IF (ASSOCIATED (SELF%DEVPTR)) THEN
+      !$acc enter data attach (SELF%DEVPTR)
+    ENDIF
+#endif
   ENDIF
 
   END SUBROUTINE ${field_type_name}$_COPY_OBJECT
@@ -393,6 +396,9 @@ CONTAINS
 #endif
 #ifdef _OPENACC
     !$acc enter data create (SELF%DEVPTR)
+    IF (SELF%LOBJECT_COPIED) THEN
+      !$acc enter data attach (SELF%DEVPTR)
+    ENDIF
 #endif
   END SUBROUTINE
 
