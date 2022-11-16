@@ -230,6 +230,49 @@ sub makeViewSection
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => [sort keys (%$updatable)]);
 }
 
+
+sub getUpdatables
+{
+
+# Look for updatable objects; as a side effect
+
+  my $d = shift;
+
+  my (%T, %updatable);
+
+  for my $en_decl (&F ('.//EN-decl', $d))
+    {
+      my ($stmt) = &Fxtran::stmt ($en_decl);
+      next unless (my ($ts) = &F ('./_T-spec_/derived-T-spec', $stmt));
+      my ($N) = &F ('./EN-N', $en_decl, 1);
+      my ($T) = &F ('./T-N', $ts, 1);
+      $T{$N} = $T;
+      $updatable{$N} = &FieldAPI::isUpdatable ($T);
+    }
+
+  $updatable{YDCPG_BNDS} = 1;
+
+  return \%updatable;
+}
+
+sub makeUpdatablesInout
+{
+  my $d = shift;
+  my $updatable = shift;
+
+  for my $U (sort keys (%$updatable))
+    {
+      unless ($updatable->{$U})
+        {
+          delete $updatable->{$U};
+          next;
+        }
+      next unless (my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]', $U, $d));
+      next unless (my ($intent) = &F ('./attribute/intent-spec/text()', $decl));
+      $intent->setData ('INOUT');
+    }
+}
+
 sub makeParallelView
 {
   my $d = shift;
@@ -256,36 +299,15 @@ sub makeParallelView
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL');
-  my (%T, %updatable);
-  for my $en_decl (&F ('.//EN-decl', $d))
-    {
-      my ($stmt) = &Fxtran::stmt ($en_decl);
-      next unless (my ($ts) = &F ('./_T-spec_/derived-T-spec', $stmt));
-      my ($N) = &F ('./EN-N', $en_decl, 1);
-      my ($T) = &F ('./T-N', $ts, 1);
-      $T{$N} = $T;
-      $updatable{$N} = &FieldAPI::isUpdatable ($T);
-    }
 
-  $updatable{YDCPG_BNDS} = 1;
-
-  for my $U (sort keys (%updatable))
-    {
-      unless ($updatable{$U})
-        {
-          delete $updatable{$U};
-          next;
-        }
-      next unless (my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]', $U, $d));
-      next unless (my ($intent) = &F ('./attribute/intent-spec/text()', $decl));
-      $intent->setData ('INOUT');
-    }
+  my $updatable = &getUpdatables ($d);
+  &makeUpdatablesInout ($d, $updatable);
 
   my @para = &F ('.//parallel-section', $d);
 
   for my $para (@para)
     {
-      &makeViewSection ($d, section => $para, updatable => \%updatable);
+      &makeViewSection ($d, section => $para, updatable => $updatable);
     }
 
   &Subroutine::addSuffix ($d, $suffix);
@@ -533,8 +555,8 @@ sub makeParallelFieldAPI
 
   my @para = &F ('.//parallel-section', $d);
 
-  my $singlecolumn = grep { my $vector = lc ($_->getAttribute ('vector') || 'block'); $vector eq 'singlecolumn' }
-                     @para;
+  my $singlecolumn = grep { my $vector = lc ($_->getAttribute ('vector') || 'block'); $vector eq 'singlecolumn' } @para;
+  my $view = grep { my $datalayout = lc ($_->getAttribute ('datalayout') || 'fieldapi'); $datalayout eq 'view' } @para;
 
   &Decl::declare ($d,  
                   'INTEGER (KIND=JPIM) :: IBL',
