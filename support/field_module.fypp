@@ -370,9 +370,12 @@ CONTAINS
     LBOUNDS=LBOUND(SELF%PTR)
     IF (IAND (SELF%ISTATUS, NDEVFRESH) == 0) THEN
       IF (.NOT. ASSOCIATED (SELF%DEVPTR)) THEN
+#if __INTEL_COMPILER == 1800 && __INTEL_COMPILER_UPDATE == 5
 ! Bug with Intel 18.0.5.274
-!       ALLOCATE (SELF%DEVPTR, MOLD=SELF%PTR)
         ALLOCATE (SELF%DEVPTR (${ ', '.join (map (lambda i: 'LBOUND (SELF%PTR, ' + str (i) + '):UBOUND (SELF%PTR,' + str (i) + ')', range (1, rank+1))) }$))
+#else
+        ALLOCATE (SELF%DEVPTR, MOLD=SELF%PTR)
+#endif
 #ifdef _OPENACC
         !$acc enter data create (SELF%DEVPTR)
 #endif
