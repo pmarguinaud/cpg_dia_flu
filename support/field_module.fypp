@@ -95,6 +95,7 @@ CONTAINS
   PROCEDURE :: SYNC_DEVICE_RDWR => ${field_type_name}$_SYNC_DEVICE_RDWR
   PROCEDURE :: SYNC_DEVICE_RDONLY => ${field_type_name}$_SYNC_DEVICE_RDONLY
   PROCEDURE :: COPY_OBJECT => ${field_type_name}$_COPY_OBJECT
+  PROCEDURE :: WIPE_OBJECT => ${field_type_name}$_WIPE_OBJECT
 
   PROCEDURE, PRIVATE :: GET_DEVICE_DATA => ${field_type_name}$_GET_DEVICE_DATA
   PROCEDURE, PRIVATE :: GET_HOST_DATA => ${field_type_name}$_GET_HOST_DATA
@@ -265,6 +266,27 @@ CONTAINS
   ENDIF
 
   END SUBROUTINE ${field_type_name}$_COPY_OBJECT
+
+  SUBROUTINE ${field_type_name}$_WIPE_OBJECT (SELF, LDDELETED)
+  CLASS(${field_type_name}$) :: SELF
+  LOGICAL, INTENT (IN), OPTIONAL :: LDDELETED
+  LOGICAL :: LLDELETED
+
+  LLDELETED = .FALSE.
+  IF (PRESENT (LDDELETED)) LLDELETED = LDDELETED
+
+  IF (.NOT. LLDELETED) STOP 1
+
+  IF (SELF%LOBJECT_COPIED) THEN
+    SELF%LOBJECT_COPIED = .FALSE.
+#ifdef _OPENACC
+    IF (ASSOCIATED (SELF%DEVPTR)) THEN
+      !$acc exit data detach (SELF%DEVPTR)
+    ENDIF
+#endif
+  ENDIF
+
+  END SUBROUTINE ${field_type_name}$_WIPE_OBJECT
 
   SUBROUTINE ${field_type_name}$_COPY_DATA (SELF, KDIR)
   CLASS(${field_type_name}$) :: SELF

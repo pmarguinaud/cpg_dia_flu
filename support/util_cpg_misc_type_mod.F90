@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_CPG_MISC_TYPE
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_CPG_MISC_TYPE
+END INTERFACE
+
 
 
 CONTAINS
@@ -355,6 +359,129 @@ IF (LF_KOZO) THEN
   !$acc enter data attach (YD%F_KOZO)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_CPG_MISC_TYPE (YD, LDDELETED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (CPG_MISC_TYPE), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LF_CLCT, LF_DHSF, LF_FTCNS, LF_KOZO, LF_LSM, LF_NEB, LF_QGRAUPEL, LF_QICE, LF_QLI, LF_QRAIN
+LOGICAL :: LF_QS, LF_QSNOW, LF_QSOL, LF_RH, LF_TSOL
+
+LF_NEB = ASSOCIATED (YD%F_NEB)
+IF (LF_NEB) THEN
+  !$acc exit data detach (YD%F_NEB)
+  CALL WIPE (YD%F_NEB, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NEB)
+ENDIF
+
+LF_QLI = ASSOCIATED (YD%F_QLI)
+IF (LF_QLI) THEN
+  !$acc exit data detach (YD%F_QLI)
+  CALL WIPE (YD%F_QLI, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QLI)
+ENDIF
+
+LF_QICE = ASSOCIATED (YD%F_QICE)
+IF (LF_QICE) THEN
+  !$acc exit data detach (YD%F_QICE)
+  CALL WIPE (YD%F_QICE, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QICE)
+ENDIF
+
+LF_QRAIN = ASSOCIATED (YD%F_QRAIN)
+IF (LF_QRAIN) THEN
+  !$acc exit data detach (YD%F_QRAIN)
+  CALL WIPE (YD%F_QRAIN, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QRAIN)
+ENDIF
+
+LF_QSNOW = ASSOCIATED (YD%F_QSNOW)
+IF (LF_QSNOW) THEN
+  !$acc exit data detach (YD%F_QSNOW)
+  CALL WIPE (YD%F_QSNOW, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QSNOW)
+ENDIF
+
+LF_QGRAUPEL = ASSOCIATED (YD%F_QGRAUPEL)
+IF (LF_QGRAUPEL) THEN
+  !$acc exit data detach (YD%F_QGRAUPEL)
+  CALL WIPE (YD%F_QGRAUPEL, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QGRAUPEL)
+ENDIF
+
+LF_RH = ASSOCIATED (YD%F_RH)
+IF (LF_RH) THEN
+  !$acc exit data detach (YD%F_RH)
+  CALL WIPE (YD%F_RH, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_RH)
+ENDIF
+
+LF_QS = ASSOCIATED (YD%F_QS)
+IF (LF_QS) THEN
+  !$acc exit data detach (YD%F_QS)
+  CALL WIPE (YD%F_QS, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QS)
+ENDIF
+
+LF_QSOL = ASSOCIATED (YD%F_QSOL)
+IF (LF_QSOL) THEN
+  !$acc exit data detach (YD%F_QSOL)
+  CALL WIPE (YD%F_QSOL, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_QSOL)
+ENDIF
+
+LF_DHSF = ASSOCIATED (YD%F_DHSF)
+IF (LF_DHSF) THEN
+  !$acc exit data detach (YD%F_DHSF)
+  CALL WIPE (YD%F_DHSF, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_DHSF)
+ENDIF
+
+LF_CLCT = ASSOCIATED (YD%F_CLCT)
+IF (LF_CLCT) THEN
+  !$acc exit data detach (YD%F_CLCT)
+  CALL WIPE (YD%F_CLCT, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_CLCT)
+ENDIF
+
+LF_LSM = ASSOCIATED (YD%F_LSM)
+IF (LF_LSM) THEN
+  !$acc exit data detach (YD%F_LSM)
+  CALL WIPE (YD%F_LSM, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_LSM)
+ENDIF
+
+LF_TSOL = ASSOCIATED (YD%F_TSOL)
+IF (LF_TSOL) THEN
+  !$acc exit data detach (YD%F_TSOL)
+  CALL WIPE (YD%F_TSOL, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_TSOL)
+ENDIF
+
+LF_FTCNS = ASSOCIATED (YD%F_FTCNS)
+IF (LF_FTCNS) THEN
+  !$acc exit data detach (YD%F_FTCNS)
+  CALL WIPE (YD%F_FTCNS, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FTCNS)
+ENDIF
+
+LF_KOZO = ASSOCIATED (YD%F_KOZO)
+IF (LF_KOZO) THEN
+  !$acc exit data detach (YD%F_KOZO)
+  CALL WIPE (YD%F_KOZO, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_KOZO)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 

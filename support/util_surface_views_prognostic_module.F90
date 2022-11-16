@@ -14,6 +14,10 @@ INTERFACE COPY
 MODULE PROCEDURE COPY_SURFACE_VIEW_GROUP_SNOWG
 END INTERFACE
 
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_SURFACE_VIEW_GROUP_SNOWG
+END INTERFACE
+
 
 
 CONTAINS
@@ -360,6 +364,129 @@ ENDIF
 
 END SUBROUTINE
 
+SUBROUTINE WIPE_SURFACE_VIEW_GROUP_SNOWG (YD, LDDELETED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (SURFACE_VIEW_GROUP_SNOWG), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LF_A_T0, LF_A_T1, LF_A_T9, LF_F_T0, LF_F_T1, LF_F_T9, LF_R_T0, LF_R_T1, LF_R_T9, LF_T_T0
+LOGICAL :: LF_T_T1, LF_T_T9, LF_W_T0, LF_W_T1, LF_W_T9
+
+LF_F_T0 = ASSOCIATED (YD%F_F_T0)
+IF (LF_F_T0) THEN
+  !$acc exit data detach (YD%F_F_T0)
+  CALL WIPE (YD%F_F_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_F_T0)
+ENDIF
+
+LF_F_T1 = ASSOCIATED (YD%F_F_T1)
+IF (LF_F_T1) THEN
+  !$acc exit data detach (YD%F_F_T1)
+  CALL WIPE (YD%F_F_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_F_T1)
+ENDIF
+
+LF_F_T9 = ASSOCIATED (YD%F_F_T9)
+IF (LF_F_T9) THEN
+  !$acc exit data detach (YD%F_F_T9)
+  CALL WIPE (YD%F_F_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_F_T9)
+ENDIF
+
+LF_A_T0 = ASSOCIATED (YD%F_A_T0)
+IF (LF_A_T0) THEN
+  !$acc exit data detach (YD%F_A_T0)
+  CALL WIPE (YD%F_A_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_A_T0)
+ENDIF
+
+LF_A_T1 = ASSOCIATED (YD%F_A_T1)
+IF (LF_A_T1) THEN
+  !$acc exit data detach (YD%F_A_T1)
+  CALL WIPE (YD%F_A_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_A_T1)
+ENDIF
+
+LF_A_T9 = ASSOCIATED (YD%F_A_T9)
+IF (LF_A_T9) THEN
+  !$acc exit data detach (YD%F_A_T9)
+  CALL WIPE (YD%F_A_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_A_T9)
+ENDIF
+
+LF_R_T0 = ASSOCIATED (YD%F_R_T0)
+IF (LF_R_T0) THEN
+  !$acc exit data detach (YD%F_R_T0)
+  CALL WIPE (YD%F_R_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_R_T0)
+ENDIF
+
+LF_R_T1 = ASSOCIATED (YD%F_R_T1)
+IF (LF_R_T1) THEN
+  !$acc exit data detach (YD%F_R_T1)
+  CALL WIPE (YD%F_R_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_R_T1)
+ENDIF
+
+LF_R_T9 = ASSOCIATED (YD%F_R_T9)
+IF (LF_R_T9) THEN
+  !$acc exit data detach (YD%F_R_T9)
+  CALL WIPE (YD%F_R_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_R_T9)
+ENDIF
+
+LF_T_T0 = ASSOCIATED (YD%F_T_T0)
+IF (LF_T_T0) THEN
+  !$acc exit data detach (YD%F_T_T0)
+  CALL WIPE (YD%F_T_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_T_T0)
+ENDIF
+
+LF_T_T1 = ASSOCIATED (YD%F_T_T1)
+IF (LF_T_T1) THEN
+  !$acc exit data detach (YD%F_T_T1)
+  CALL WIPE (YD%F_T_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_T_T1)
+ENDIF
+
+LF_T_T9 = ASSOCIATED (YD%F_T_T9)
+IF (LF_T_T9) THEN
+  !$acc exit data detach (YD%F_T_T9)
+  CALL WIPE (YD%F_T_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_T_T9)
+ENDIF
+
+LF_W_T0 = ASSOCIATED (YD%F_W_T0)
+IF (LF_W_T0) THEN
+  !$acc exit data detach (YD%F_W_T0)
+  CALL WIPE (YD%F_W_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_W_T0)
+ENDIF
+
+LF_W_T1 = ASSOCIATED (YD%F_W_T1)
+IF (LF_W_T1) THEN
+  !$acc exit data detach (YD%F_W_T1)
+  CALL WIPE (YD%F_W_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_W_T1)
+ENDIF
+
+LF_W_T9 = ASSOCIATED (YD%F_W_T9)
+IF (LF_W_T9) THEN
+  !$acc exit data detach (YD%F_W_T9)
+  CALL WIPE (YD%F_W_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_W_T9)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
+END SUBROUTINE
+
 
 
 END MODULE
@@ -377,6 +504,10 @@ END INTERFACE
 
 INTERFACE COPY
 MODULE PROCEDURE COPY_SURFACE_VIEW_GROUP_RESVR
+END INTERFACE
+
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_SURFACE_VIEW_GROUP_RESVR
 END INTERFACE
 
 
@@ -725,6 +856,129 @@ ENDIF
 
 END SUBROUTINE
 
+SUBROUTINE WIPE_SURFACE_VIEW_GROUP_RESVR (YD, LDDELETED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (SURFACE_VIEW_GROUP_RESVR), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LF_FC_T0, LF_FC_T1, LF_FC_T9, LF_FP1_T0, LF_FP1_T1, LF_FP1_T9, LF_IC_T0, LF_IC_T1, LF_IC_T9, LF_T_T0
+LOGICAL :: LF_T_T1, LF_T_T9, LF_W_T0, LF_W_T1, LF_W_T9
+
+LF_T_T0 = ASSOCIATED (YD%F_T_T0)
+IF (LF_T_T0) THEN
+  !$acc exit data detach (YD%F_T_T0)
+  CALL WIPE (YD%F_T_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_T_T0)
+ENDIF
+
+LF_T_T1 = ASSOCIATED (YD%F_T_T1)
+IF (LF_T_T1) THEN
+  !$acc exit data detach (YD%F_T_T1)
+  CALL WIPE (YD%F_T_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_T_T1)
+ENDIF
+
+LF_T_T9 = ASSOCIATED (YD%F_T_T9)
+IF (LF_T_T9) THEN
+  !$acc exit data detach (YD%F_T_T9)
+  CALL WIPE (YD%F_T_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_T_T9)
+ENDIF
+
+LF_W_T0 = ASSOCIATED (YD%F_W_T0)
+IF (LF_W_T0) THEN
+  !$acc exit data detach (YD%F_W_T0)
+  CALL WIPE (YD%F_W_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_W_T0)
+ENDIF
+
+LF_W_T1 = ASSOCIATED (YD%F_W_T1)
+IF (LF_W_T1) THEN
+  !$acc exit data detach (YD%F_W_T1)
+  CALL WIPE (YD%F_W_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_W_T1)
+ENDIF
+
+LF_W_T9 = ASSOCIATED (YD%F_W_T9)
+IF (LF_W_T9) THEN
+  !$acc exit data detach (YD%F_W_T9)
+  CALL WIPE (YD%F_W_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_W_T9)
+ENDIF
+
+LF_FC_T0 = ASSOCIATED (YD%F_FC_T0)
+IF (LF_FC_T0) THEN
+  !$acc exit data detach (YD%F_FC_T0)
+  CALL WIPE (YD%F_FC_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FC_T0)
+ENDIF
+
+LF_FC_T1 = ASSOCIATED (YD%F_FC_T1)
+IF (LF_FC_T1) THEN
+  !$acc exit data detach (YD%F_FC_T1)
+  CALL WIPE (YD%F_FC_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FC_T1)
+ENDIF
+
+LF_FC_T9 = ASSOCIATED (YD%F_FC_T9)
+IF (LF_FC_T9) THEN
+  !$acc exit data detach (YD%F_FC_T9)
+  CALL WIPE (YD%F_FC_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FC_T9)
+ENDIF
+
+LF_IC_T0 = ASSOCIATED (YD%F_IC_T0)
+IF (LF_IC_T0) THEN
+  !$acc exit data detach (YD%F_IC_T0)
+  CALL WIPE (YD%F_IC_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_IC_T0)
+ENDIF
+
+LF_IC_T1 = ASSOCIATED (YD%F_IC_T1)
+IF (LF_IC_T1) THEN
+  !$acc exit data detach (YD%F_IC_T1)
+  CALL WIPE (YD%F_IC_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_IC_T1)
+ENDIF
+
+LF_IC_T9 = ASSOCIATED (YD%F_IC_T9)
+IF (LF_IC_T9) THEN
+  !$acc exit data detach (YD%F_IC_T9)
+  CALL WIPE (YD%F_IC_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_IC_T9)
+ENDIF
+
+LF_FP1_T0 = ASSOCIATED (YD%F_FP1_T0)
+IF (LF_FP1_T0) THEN
+  !$acc exit data detach (YD%F_FP1_T0)
+  CALL WIPE (YD%F_FP1_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FP1_T0)
+ENDIF
+
+LF_FP1_T1 = ASSOCIATED (YD%F_FP1_T1)
+IF (LF_FP1_T1) THEN
+  !$acc exit data detach (YD%F_FP1_T1)
+  CALL WIPE (YD%F_FP1_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FP1_T1)
+ENDIF
+
+LF_FP1_T9 = ASSOCIATED (YD%F_FP1_T9)
+IF (LF_FP1_T9) THEN
+  !$acc exit data detach (YD%F_FP1_T9)
+  CALL WIPE (YD%F_FP1_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_FP1_T9)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
+END SUBROUTINE
+
 
 
 END MODULE
@@ -742,6 +996,10 @@ END INTERFACE
 
 INTERFACE COPY
 MODULE PROCEDURE COPY_SURFACE_VIEW_GROUP_CLS
+END INTERFACE
+
+INTERFACE WIPE
+MODULE PROCEDURE WIPE_SURFACE_VIEW_GROUP_CLS
 END INTERFACE
 
 
@@ -1148,6 +1406,150 @@ IF (LF_NVCLS_T9) THEN
   !$acc enter data attach (YD%F_NVCLS_T9)
 ENDIF
 
+END SUBROUTINE
+
+SUBROUTINE WIPE_SURFACE_VIEW_GROUP_CLS (YD, LDDELETED)
+USE UTIL_FIELD_MOD
+IMPLICIT NONE
+TYPE (SURFACE_VIEW_GROUP_CLS), INTENT (IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
+LOGICAL :: LLDELETED
+LOGICAL :: LF_HUCLS_T0, LF_HUCLS_T1, LF_HUCLS_T9, LF_NUCLS_T0, LF_NUCLS_T1, LF_NUCLS_T9, LF_NVCLS_T0, LF_NVCLS_T1, LF_NVCLS_T9, LF_TCLS_T0
+LOGICAL :: LF_TCLS_T1, LF_TCLS_T9, LF_UCLS_T0, LF_UCLS_T1, LF_UCLS_T9, LF_VCLS_T0, LF_VCLS_T1, LF_VCLS_T9
+
+LF_TCLS_T0 = ASSOCIATED (YD%F_TCLS_T0)
+IF (LF_TCLS_T0) THEN
+  !$acc exit data detach (YD%F_TCLS_T0)
+  CALL WIPE (YD%F_TCLS_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_TCLS_T0)
+ENDIF
+
+LF_TCLS_T1 = ASSOCIATED (YD%F_TCLS_T1)
+IF (LF_TCLS_T1) THEN
+  !$acc exit data detach (YD%F_TCLS_T1)
+  CALL WIPE (YD%F_TCLS_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_TCLS_T1)
+ENDIF
+
+LF_TCLS_T9 = ASSOCIATED (YD%F_TCLS_T9)
+IF (LF_TCLS_T9) THEN
+  !$acc exit data detach (YD%F_TCLS_T9)
+  CALL WIPE (YD%F_TCLS_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_TCLS_T9)
+ENDIF
+
+LF_HUCLS_T0 = ASSOCIATED (YD%F_HUCLS_T0)
+IF (LF_HUCLS_T0) THEN
+  !$acc exit data detach (YD%F_HUCLS_T0)
+  CALL WIPE (YD%F_HUCLS_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_HUCLS_T0)
+ENDIF
+
+LF_HUCLS_T1 = ASSOCIATED (YD%F_HUCLS_T1)
+IF (LF_HUCLS_T1) THEN
+  !$acc exit data detach (YD%F_HUCLS_T1)
+  CALL WIPE (YD%F_HUCLS_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_HUCLS_T1)
+ENDIF
+
+LF_HUCLS_T9 = ASSOCIATED (YD%F_HUCLS_T9)
+IF (LF_HUCLS_T9) THEN
+  !$acc exit data detach (YD%F_HUCLS_T9)
+  CALL WIPE (YD%F_HUCLS_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_HUCLS_T9)
+ENDIF
+
+LF_UCLS_T0 = ASSOCIATED (YD%F_UCLS_T0)
+IF (LF_UCLS_T0) THEN
+  !$acc exit data detach (YD%F_UCLS_T0)
+  CALL WIPE (YD%F_UCLS_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_UCLS_T0)
+ENDIF
+
+LF_UCLS_T1 = ASSOCIATED (YD%F_UCLS_T1)
+IF (LF_UCLS_T1) THEN
+  !$acc exit data detach (YD%F_UCLS_T1)
+  CALL WIPE (YD%F_UCLS_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_UCLS_T1)
+ENDIF
+
+LF_UCLS_T9 = ASSOCIATED (YD%F_UCLS_T9)
+IF (LF_UCLS_T9) THEN
+  !$acc exit data detach (YD%F_UCLS_T9)
+  CALL WIPE (YD%F_UCLS_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_UCLS_T9)
+ENDIF
+
+LF_VCLS_T0 = ASSOCIATED (YD%F_VCLS_T0)
+IF (LF_VCLS_T0) THEN
+  !$acc exit data detach (YD%F_VCLS_T0)
+  CALL WIPE (YD%F_VCLS_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_VCLS_T0)
+ENDIF
+
+LF_VCLS_T1 = ASSOCIATED (YD%F_VCLS_T1)
+IF (LF_VCLS_T1) THEN
+  !$acc exit data detach (YD%F_VCLS_T1)
+  CALL WIPE (YD%F_VCLS_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_VCLS_T1)
+ENDIF
+
+LF_VCLS_T9 = ASSOCIATED (YD%F_VCLS_T9)
+IF (LF_VCLS_T9) THEN
+  !$acc exit data detach (YD%F_VCLS_T9)
+  CALL WIPE (YD%F_VCLS_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_VCLS_T9)
+ENDIF
+
+LF_NUCLS_T0 = ASSOCIATED (YD%F_NUCLS_T0)
+IF (LF_NUCLS_T0) THEN
+  !$acc exit data detach (YD%F_NUCLS_T0)
+  CALL WIPE (YD%F_NUCLS_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NUCLS_T0)
+ENDIF
+
+LF_NUCLS_T1 = ASSOCIATED (YD%F_NUCLS_T1)
+IF (LF_NUCLS_T1) THEN
+  !$acc exit data detach (YD%F_NUCLS_T1)
+  CALL WIPE (YD%F_NUCLS_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NUCLS_T1)
+ENDIF
+
+LF_NUCLS_T9 = ASSOCIATED (YD%F_NUCLS_T9)
+IF (LF_NUCLS_T9) THEN
+  !$acc exit data detach (YD%F_NUCLS_T9)
+  CALL WIPE (YD%F_NUCLS_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NUCLS_T9)
+ENDIF
+
+LF_NVCLS_T0 = ASSOCIATED (YD%F_NVCLS_T0)
+IF (LF_NVCLS_T0) THEN
+  !$acc exit data detach (YD%F_NVCLS_T0)
+  CALL WIPE (YD%F_NVCLS_T0, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NVCLS_T0)
+ENDIF
+
+LF_NVCLS_T1 = ASSOCIATED (YD%F_NVCLS_T1)
+IF (LF_NVCLS_T1) THEN
+  !$acc exit data detach (YD%F_NVCLS_T1)
+  CALL WIPE (YD%F_NVCLS_T1, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NVCLS_T1)
+ENDIF
+
+LF_NVCLS_T9 = ASSOCIATED (YD%F_NVCLS_T9)
+IF (LF_NVCLS_T9) THEN
+  !$acc exit data detach (YD%F_NVCLS_T9)
+  CALL WIPE (YD%F_NVCLS_T9, LDDELETED=.TRUE.)
+  !$acc exit data delete (YD%F_NVCLS_T9)
+ENDIF
+
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
 END SUBROUTINE
 
 
