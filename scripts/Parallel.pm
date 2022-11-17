@@ -427,6 +427,8 @@ sub makeSingleColumnFieldAPISection
   
   &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
   
+  my $PTR = $what eq 'host' ? 'PTR' : 'DEVPTR';
+
   my ($stmt) = &F ('.//ANY-stmt', $para);
   my $indent = ' ' x &Fxtran::getIndent ($stmt);
   
@@ -438,8 +440,8 @@ sub makeSingleColumnFieldAPISection
   if ($args{stack})
     {
       $loop .= "${indent}  ! Setup stack\n";
-      $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%PTR (1,IBL))\n";
-      $loop .= "${indent}  YLSTACK%U = YLSTACK%L + KIND (YLSTACK%F_P%PTR) * SIZE (YLSTACK%F_P%PTR (:,IBL))\n";
+      $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%$PTR (1,IBL))\n";
+      $loop .= "${indent}  YLSTACK%U = YLSTACK%L + KIND (YLSTACK%F_P%$PTR) * SIZE (YLSTACK%F_P%$PTR (:,IBL))\n";
     }
   
   $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
