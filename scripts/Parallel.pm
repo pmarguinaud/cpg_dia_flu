@@ -13,6 +13,7 @@ use Decl;
 use Subroutine;
 use FieldAPI;
 use OpenMP;
+use OpenACC;
 use Call;
 use Associate;
 use Directive;
@@ -495,15 +496,32 @@ sub makeSingleColumnFieldAPISection
   
   my $PTR = $what eq 'host' ? 'PTR' : 'DEVPTR';
 
-  my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $para, 1);
-  @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
+  my $directive = lc ($para->getAttribute ('directive') || 'openmp');
+
+  if ($directive eq 'openmp')
+    {
+      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $para, 1);
+      @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
+      my @first = ('YDCPG_BNDS');
+      push @first, 'YLSTACK' if ($args{stack});
+      my %first = map { ($_, 1) } @first;
+      @priv = grep { ! $first{$_} } @priv;
   
-  my @first = ('YDCPG_BNDS');
-  push @first, 'YLSTACK' if ($args{stack});
-  my %first = map { ($_, 1) } @first;
-  @priv = grep { ! $first{$_} } @priv;
+      &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
+    }
+  elsif ($directive eq 'openacc')
+    {
+      &OpenACC::parallelDoGang ($loop, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS', $args{stack} ? ('YLSTACK') : ()]);
+
+      my ($loop_vector) = &F ('./do-construct', $loop);
+      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $loop_vector, 1);
   
-  &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
+      &OpenACC::parallelDoVector ($loop_vector, PRIVATE => \@priv, FIRSTPRIVATE => []);
+    }
+  else
+    {
+      die $directive;
+    }
 }
 
 sub makeParallel
