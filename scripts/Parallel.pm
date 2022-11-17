@@ -314,6 +314,7 @@ sub makeBlockFieldAPISection
   # Insert OpenMP directive
   
   my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="PTR"])]/N|.//do-V/named-E/N', $para, 1);
+  @priv = grep { $_ ne 'YDCPG_BNDS' } @priv;
   
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => ['YDCPG_BNDS']);
 }
@@ -435,7 +436,17 @@ sub makeSingleColumnFieldAPISection
   # Insert loop nest
   
   my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-  $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+
+  if ($args{inline_update_bnds})
+    {
+      $loop .= "${indent}  YDCPG_BNDS%KBL    = IBL\n";
+      $loop .= "${indent}  YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
+      $loop .= "${indent}  YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
+    }
+  else
+    {
+      $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+    }
   
   if ($args{stack})
     {
@@ -489,6 +500,8 @@ sub makeSingleColumnFieldAPISection
   
   my @first = ('YDCPG_BNDS');
   push @first, 'YLSTACK' if ($args{stack});
+  my %first = map { ($_, 1) } @first;
+  @priv = grep { ! $first{$_} } @priv;
   
   &OpenMP::parallelDo ($loop, PRIVATE => \@priv, FIRSTPRIVATE => \@first);
 }
@@ -539,7 +552,7 @@ sub makeParallel
         {
           if ($vector eq 'singlecolumn')
             {
-              &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1);
+              &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1, inline_update_bnds => 1);
             }
           elsif ($vector eq 'block')
             {
