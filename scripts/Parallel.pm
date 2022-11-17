@@ -511,12 +511,12 @@ sub makeSingleColumnFieldAPISection
     }
   elsif ($directive eq 'openacc')
     {
-      &OpenACC::parallelDoGang ($loop, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS', $args{stack} ? ('YLSTACK') : ()]);
+      &OpenACC::parallelLoopGang ($loop, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS', $args{stack} ? ('YLSTACK') : ()]);
 
       my ($loop_vector) = &F ('./do-construct', $loop);
       my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $loop_vector, 1);
   
-      &OpenACC::parallelDoVector ($loop_vector, PRIVATE => \@priv, FIRSTPRIVATE => []);
+      &OpenACC::loopVector ($loop_vector, PRIVATE => \@priv, FIRSTPRIVATE => []);
     }
   else
     {

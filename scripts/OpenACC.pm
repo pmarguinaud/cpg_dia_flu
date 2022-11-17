@@ -67,18 +67,25 @@ sub insertDirective
       
 }
 
-sub parallelDoGang
+sub parallelLoopGang
 {
   my ($p, %c) = @_;
   &insertDirective ($p, 'PARALLEL LOOP GANG', %c);
 }
 
-sub parallelDoVector
+sub loopVector
 {
   my ($p, %c) = @_;
-  &insertDirective ($p, 'PARALLEL LOOP VECTOR', %c);
+  &insertDirective ($p, 'LOOP VECTOR', %c);
 }
 
-
+sub routineSeq
+{
+  my $d = shift;
+  my ($pu) = &F ('./object/file/program-unit', $d);
+  my ($N) = &F ('./subroutine-stmt/subroutine-N', $pu, 1); 
+  $pu->insertAfter (&n ("<C>!\$acc routine ($N) seq</C>"), $pu->firstChild);
+  $pu->insertAfter (&t ("\n"), $pu->firstChild);
+}
 
 1;

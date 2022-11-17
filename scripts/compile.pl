@@ -115,22 +115,6 @@ sub generateParallel
   &saveSubroutine ($d);
 }
 
-sub generateFieldAPIDevice
-{
-  shift;
-  use Subroutine;
-  use Call;
-
-  my $d = shift;
-
-  &FieldAPI::pointers2FieldAPIPtrDevice ($d);
-
-  &Subroutine::addSuffix ($d, '_FIELD_API_DEVICE');
-  &Call::addSuffix ($d, suffix => '_FIELD_API_DEVICE');
-
-  &saveSubroutine ($d);
-}
-
 sub generateFieldAPIHost
 {
   shift;
@@ -188,6 +172,8 @@ sub generateSingleColumnFieldAPIDevice
   use Decl;
   use Stack;
   use Associate;
+  use OpenACC;
+  use DrHook;
 
   my $d = shift;
 
@@ -210,6 +196,10 @@ sub generateSingleColumnFieldAPIDevice
   &Subroutine::addSuffix ($d, $suffix);
   &Stack::addStack ($d);
 
+  &OpenACC::routineSeq ($d);
+
+  &DrHook::remove ($d);
+  
   &saveSubroutine ($d);
 }
 
