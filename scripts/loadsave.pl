@@ -132,18 +132,37 @@ sub process_decl
       my $J = @ss ? " (" . join (', ', @J) . ")" : '';
 #     my $LDPRINT = @J ? ".FALSE." : "LDPRINT";
       my $LDPRINT = '.FALSE.';
-      push @BODY_SAVE, ('  ' x scalar (@ss)) 
-                   . "CALL SAVE (KLUN, $prefix$name" . $J . ")\n";
-      push @BODY_LOAD, ('  ' x scalar (@ss)) 
-                   . "CALL LOAD (KLUN, $prefix$name" . $J . ")\n";
-      push @BODY_COPY, ('  ' x scalar (@ss)) 
-                   . "CALL COPY ($prefix$name" . $J . ", LDCREATED=.TRUE.)\n";
-      push @BODY_WIPE, ('  ' x scalar (@ss)) 
-                   . "CALL WIPE ($prefix$name" . $J . ", LDDELETED=.TRUE.)\n";
-      push @BODY_SIZE, ('  ' x scalar (@ss))
-                   . "ISIZE = SIZE ($prefix$name" . $J . ", CDPATH//'%$name', $LDPRINT)\n", 
-                     "JSIZE = JSIZE + ISIZE\n",
-                     "KSIZE = KSIZE + ISIZE\n";
+
+      if ($opts->{'object-oriented'})
+        {
+          push @BODY_SAVE, ('  ' x scalar (@ss)) 
+                       . "CALL $prefix$name$J%SAVE (KLUN)\n";
+          push @BODY_LOAD, ('  ' x scalar (@ss)) 
+                       . "CALL $prefix$name$J%LOAD (KLUN)\n";
+          push @BODY_COPY, ('  ' x scalar (@ss)) 
+                       . "CALL $prefix$name$J%COPY (LDCREATED=.TRUE.)\n";
+          push @BODY_WIPE, ('  ' x scalar (@ss)) 
+                       . "CALL $prefix$name$J%WIPE (LDDELETED=.TRUE.)\n";
+          push @BODY_SIZE, ('  ' x scalar (@ss))
+                       . "ISIZE = $prefix$name$J%SIZE (CDPATH//'%$name', $LDPRINT)\n", 
+                         "JSIZE = JSIZE + ISIZE\n",
+                         "KSIZE = KSIZE + ISIZE\n";
+        }
+      else
+        {
+          push @BODY_SAVE, ('  ' x scalar (@ss)) 
+                       . "CALL SAVE (KLUN, $prefix$name" . $J . ")\n";
+          push @BODY_LOAD, ('  ' x scalar (@ss)) 
+                       . "CALL LOAD (KLUN, $prefix$name" . $J . ")\n";
+          push @BODY_COPY, ('  ' x scalar (@ss)) 
+                       . "CALL COPY ($prefix$name" . $J . ", LDCREATED=.TRUE.)\n";
+          push @BODY_WIPE, ('  ' x scalar (@ss)) 
+                       . "CALL WIPE ($prefix$name" . $J . ", LDDELETED=.TRUE.)\n";
+          push @BODY_SIZE, ('  ' x scalar (@ss))
+                       . "ISIZE = SIZE ($prefix$name" . $J . ", CDPATH//'%$name', $LDPRINT)\n", 
+                         "JSIZE = JSIZE + ISIZE\n",
+                         "KSIZE = KSIZE + ISIZE\n";
+        }
       for (my $i = $#ss; $i >= 0; $i--)
         {
           push @BODY_SAVE, "ENDDO\n";
@@ -192,6 +211,7 @@ RETURN:
 sub indent
 {
   my $n = 0;
+  my $r = 0;
   for (@_)
     {
       chomp;
@@ -221,6 +241,21 @@ sub process_types
 {
   my ($doc, $opts) = @_;
 
+
+  my ($contains, $end);
+
+  if ($opts->{'object-oriented'})
+    {
+      ($end) = &F ('./object/file/program-unit/end-module-stmt', $doc);
+
+      unless (($contains) = &F ('./object/file/program-unit/contains-stmt', $doc))
+        {
+          $contains = &n ('<contains-stmt>CONTAINS</contains-stmt>');
+          $end->parentNode->insertBefore ($contains, $end);
+          $end->parentNode->insertBefore (&t ("\n"), $end);
+        }
+    }
+
   my %code;
   my @file;
 
@@ -237,6 +272,15 @@ sub process_types
 
       my ($abstract) = &F ('./T-stmt/attribute[string(attribute-N)="ABSTRACT"]', $tconst);
       my ($extends) = &F ('./T-stmt/attribute[string(attribute-N)="EXTENDS"]/N/n/text()', $tconst);
+
+      my ($end_tconst) = &F ('./end-T-stmt', $tconst);
+      unless (my ($contains_tconst) = &F ('./contains-stmt', $tconst))
+        {
+          $contains_tconst = &n ('<contains-stmt>CONTAINS</contains-stmt>');
+          $end_tconst->parentNode->insertBefore ($contains_tconst, $end_tconst);
+          $end_tconst->parentNode->insertBefore (&t ("\n"), $end_tconst);
+        }
+      
 
       my ($INTERFACE_SAVE, $CONTAINS_SAVE) = ('', '');
       my ($INTERFACE_LOAD, $CONTAINS_LOAD) = ('', '');
@@ -269,11 +313,22 @@ sub process_types
             {
               push @$_, "YLSUPER => YD\n";
             }
-          push @BODY_SAVE, "CALL SAVE_$extends (KLUN, YLSUPER)\n";
-          push @BODY_LOAD, "CALL LOAD_$extends (KLUN, YLSUPER)\n";
-          push @BODY_COPY, "CALL COPY_$extends (YLSUPER, LDCREATED=.TRUE.)\n";
-          push @BODY_WIPE, "CALL WIPE_$extends (YLSUPER, LDDELETED=.TRUE.)\n";
-          push @BODY_SIZE, "KSIZE = KSIZE + SIZE_$extends (YLSUPER, CDPATH, LDPRINT)\n";
+          if ($opts->{'object-oriented'})
+            {
+              push @BODY_SAVE, "CALL YLSUPER%SAVE (KLUN)\n";
+              push @BODY_LOAD, "CALL YLSUPER%LOAD (KLUN)\n";
+              push @BODY_COPY, "CALL YLSUPER%COPY (LDCREATED=.TRUE.)\n";
+              push @BODY_WIPE, "CALL YLSUPER%WIPE (LDDELETED=.TRUE.)\n";
+              push @BODY_SIZE, "KSIZE = KSIZE + YLSUPER%SIZE (CDPATH, LDPRINT)\n";
+            }
+          else
+            {
+              push @BODY_SAVE, "CALL SAVE_$extends (KLUN, YLSUPER)\n";
+              push @BODY_LOAD, "CALL LOAD_$extends (KLUN, YLSUPER)\n";
+              push @BODY_COPY, "CALL COPY_$extends (YLSUPER, LDCREATED=.TRUE.)\n";
+              push @BODY_WIPE, "CALL WIPE_$extends (YLSUPER, LDDELETED=.TRUE.)\n";
+              push @BODY_SIZE, "KSIZE = KSIZE + SIZE_$extends (YLSUPER, CDPATH, LDPRINT)\n";
+            }
         }
     
       my (%U, %J, %L, %B);
@@ -361,22 +416,41 @@ sub process_types
           chomp ($_);
         }
   
-      my $type = $abstract ? 'CLASS' : 'TYPE';
+      my $type = $opts->{'object-oriented'} || $abstract ? 'CLASS' : 'TYPE';
 #     my $type = 'CLASS';
 
-      $CONTAINS_SAVE .= << "EOF";
+      if ($opts->{'object-oriented'})
+        {
+          $CONTAINS_SAVE .= << "EOF";
+SUBROUTINE SAVE_$name (YD, KLUN)
+IMPLICIT NONE
+$type ($name), INTENT (IN), TARGET :: YD
+INTEGER, INTENT (IN) :: KLUN
+EOF
+
+          $CONTAINS_LOAD .= << "EOF";
+SUBROUTINE LOAD_$name (YD, KLUN)
+IMPLICIT NONE
+$type ($name), INTENT (OUT), TARGET :: YD
+INTEGER, INTENT (IN) :: KLUN
+EOF
+        }
+      else
+        {
+          $CONTAINS_SAVE .= << "EOF";
 SUBROUTINE SAVE_$name (KLUN, YD)
 IMPLICIT NONE
 INTEGER, INTENT (IN) :: KLUN
 $type ($name), INTENT (IN), TARGET :: YD
 EOF
 
-      $CONTAINS_LOAD .= << "EOF";
+          $CONTAINS_LOAD .= << "EOF";
 SUBROUTINE LOAD_$name (KLUN, YD)
 IMPLICIT NONE
 INTEGER, INTENT (IN) :: KLUN
 $type ($name), INTENT (OUT), TARGET :: YD
 EOF
+        }
 
       $CONTAINS_COPY .= << "EOF";
 SUBROUTINE COPY_$name (YD, LDCREATED)
@@ -476,7 +550,40 @@ $CONTAINS_SIZE
 END MODULE
 EOF
 
+      if ($opts->{'object-oriented'})
+        {
+          my %code = 
+          (
+            save => $CONTAINS_SAVE, 
+            load => $CONTAINS_LOAD, 
+            copy => $CONTAINS_COPY, 
+            wipe => $CONTAINS_WIPE, 
+            size => $CONTAINS_SIZE,
+          );
+
+          for my $meth (qw (save load copy wipe size))
+            {
+              next unless ($opts->{$meth});
+              my ($prog) = &Fxtran::parse (program => $code{$meth} . "\n");
+              $end->parentNode->insertBefore (&t ("\n"), $end);
+              $end->parentNode->insertBefore ($prog, $end);
+              $end->parentNode->insertBefore (&t ("\n"), $end) for (1 .. 2);
+              my $METH = uc ($meth);
+              $end_tconst->parentNode->insertBefore (&t ("  "), $end_tconst);
+              $end_tconst->parentNode->insertBefore (&s ("PROCEDURE :: $METH => ${METH}_${name}"), $end_tconst);
+              $end_tconst->parentNode->insertBefore (&t ("\n"), $end_tconst);
+
+              $contains->parentNode->insertBefore (&s ("PRIVATE :: ${METH}_${name}"), $contains);
+              $contains->parentNode->insertBefore (&t ("\n"), $contains);
+            }
+
+          $end_tconst->parentNode->insertBefore (&t ("\n"), $end_tconst);
+          $contains->parentNode->insertBefore (&t ("\n"), $contains);
+        }
+
     }
+
+  $contains->parentNode->insertBefore (&t ("\n"), $contains) if ($opts->{'object-oriented'});
 
   if ($opts->{out})
     {
@@ -544,6 +651,7 @@ my %opts = qw (dir .);
 
 &GetOptions
 (
+  'object-oriented' => \$opts{'object-oriented'}, 
   'skip-components=s' => \$opts{'skip-components'}, 'skip-types=s' => \$opts{'skip-types'},
   'only-components=s' => \$opts{'only-components'}, 'only-types=s' => \$opts{'only-types'},
   'dir=s' => \$opts{dir}, 'out=s' => \$opts{out},
