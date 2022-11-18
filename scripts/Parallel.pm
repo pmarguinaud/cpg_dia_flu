@@ -386,12 +386,26 @@ sub makeSyncSection
   my $i = $args{number};
 
   my $what = $para->getAttribute ('target') || 'host';
+
+  # Non constant scalar variables are considered private, hence local to the sync routine
+  my @modified = &F ('.//a-stmt/E-1/named-E[not(./R-LT)]/N|.//do-V/named-E/N', $para, 1);
+  my @private;
+  for my $modified (@modified)
+    {
+      my ($en_decl) = &F ('.//EN-decl[string(EN-N)="?"]', $modified, $d);
+      my ($stmt) = &Fxtran::stmt ($en_decl);
+      my ($as) = &F ('./array-spec', $en_decl);
+      if (&F ('./_T-spec_/intrinsic-T-spec', $stmt))
+        {
+          push @private, $modified;
+        }
+    }
   
   my $para1 = $para->cloneNode (1);
   $para->parentNode->insertBefore ($para1, $para);
   $para->parentNode->insertBefore (&t ("\n"), $para);
   use Outline;
-  my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i");
+  my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i", local => \@private);
   my ($outline, $call, $include) = @$oc;
   
   &FieldAPI::makeSync ($outline, what => $what);

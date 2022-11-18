@@ -186,6 +186,11 @@ EOF
         }
     }
   
+  for my $n (@{ $args{local} || [] })
+    {
+      $local{$n} ||= 1;
+    }
+
   my %rank = map { ($N[$_], $_) } (0 .. $#N);
   
   @N = sort { ($local{$a} <=> $local{$b}) or ($rank{$a} <=> $rank{$b}) } @N;
