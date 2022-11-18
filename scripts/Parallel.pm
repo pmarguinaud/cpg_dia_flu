@@ -452,8 +452,8 @@ sub makeSingleColumnFieldAPISection
   if ($args{stack})
     {
       $loop .= "${indent}  ! Setup stack\n";
-      $loop .= "${indent}  YLSTACK%L = LOC (YLSTACK%F_P%$PTR (1,IBL))\n";
-      $loop .= "${indent}  YLSTACK%U = YLSTACK%L + KIND (YLSTACK%F_P%$PTR) * SIZE (YLSTACK%F_P%$PTR (:,IBL))\n";
+      $loop .= "${indent}  YDSTACK%L = LOC (YDSTACK%F_P%$PTR (1,IBL))\n";
+      $loop .= "${indent}  YDSTACK%U = YDSTACK%L + KIND (YDSTACK%F_P%$PTR) * SIZE (YDSTACK%F_P%$PTR (:,IBL))\n";
     }
   
   $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
@@ -501,9 +501,9 @@ sub makeSingleColumnFieldAPISection
   if ($directive eq 'openmp')
     {
       my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $para, 1);
-      @priv = grep ({ $_ ne 'YLSTACK' } @priv) if ($args{stack});
+      @priv = grep ({ $_ ne 'YDSTACK' } @priv) if ($args{stack});
       my @first = ('YDCPG_BNDS');
-      push @first, 'YLSTACK' if ($args{stack});
+      push @first, 'YDSTACK' if ($args{stack});
       my %first = map { ($_, 1) } @first;
       @priv = grep { ! $first{$_} } @priv;
   
@@ -511,7 +511,7 @@ sub makeSingleColumnFieldAPISection
     }
   elsif ($directive eq 'openacc')
     {
-      &OpenACC::parallelLoopGang ($loop, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS', $args{stack} ? ('YLSTACK') : ()]);
+      &OpenACC::parallelLoopGang ($loop, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS', $args{stack} ? ('YDSTACK') : ()]);
 
       my ($loop_vector) = &F ('./do-construct', $loop);
       my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $loop_vector, 1);

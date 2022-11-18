@@ -10,10 +10,13 @@ sub addStack
   my ($d, %args) = @_;
 
   my $skip = $args{skip};
+  my $local = exists $args{local} ? $args{local} : 1;
 
   my @call = &F ('.//call-stmt[string(procedure-designator)!="ABOR1" and string(procedure-designator)!="REDUCE"]', $d);
 
   my %contained = map { ($_, 1) } &F ('.//subroutine-N[count(ancestor::program-unit)>1]', $d, 1);
+
+  my $YLSTACK = $local ? 'YLSTACK' : 'YDSTACK';
 
   for my $call (@call)
     {
@@ -27,7 +30,7 @@ sub addStack
         }
       my ($argspec) = &F ('./arg-spec', $call);
       $argspec->appendChild (&t (', '));
-      $argspec->appendChild (&e ('YLSTACK'));
+      $argspec->appendChild (&e ($YLSTACK));
     }
 
   my ($dummy_arg_lt) = &F ('.//subroutine-stmt/dummy-arg-LT', $d);
@@ -45,7 +48,14 @@ sub addStack
 
 
   my ($decl) = &F ('.//T-decl-stmt[.//EN-N[string(.)="?"]]', $last, $d);
-  $decl->parentNode->insertAfter (&s ("TYPE(STACK) :: YDSTACK, YLSTACK"), $decl);
+
+  if ($local)
+    {
+      $decl->parentNode->insertAfter (&s ("TYPE(STACK) :: YLSTACK"), $decl);
+      $decl->parentNode->insertAfter (&t ("\n"), $decl);
+    }
+
+  $decl->parentNode->insertAfter (&s ("TYPE(STACK) :: YDSTACK"), $decl);
   $decl->parentNode->insertAfter (&t ("\n"), $decl);
 
   
@@ -56,11 +66,14 @@ sub addStack
   $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
   $noexec->parentNode->insertAfter ($C, $noexec);
 
-  $C->parentNode->insertBefore (&t ("\n"), $C);
-  $C->parentNode->insertBefore (&t ("\n"), $C);
-  $C->parentNode->insertBefore (&s ("YLSTACK = YDSTACK"), $C);
-  $C->parentNode->insertBefore (&t ("\n"), $C);
-  $C->parentNode->insertBefore (&t ("\n"), $C);
+  if ($local)
+    {
+      $C->parentNode->insertBefore (&t ("\n"), $C);
+      $C->parentNode->insertBefore (&t ("\n"), $C);
+      $C->parentNode->insertBefore (&s ("YLSTACK = YDSTACK"), $C);
+      $C->parentNode->insertBefore (&t ("\n"), $C);
+      $C->parentNode->insertBefore (&t ("\n"), $C);
+    }
 
   my @KLON = qw (KLON YDCPG_OPTS%KLON);
 
@@ -79,18 +92,25 @@ sub addStack
           my ($t) = &F ('./_T-spec_',   $stmt);     &Fxtran::expand ($t); $t = $t->textContent;
           my ($s) = &F ('./array-spec', $en_decl);  &Fxtran::expand ($s); $s = $s->textContent;
       
-          $stmt->parentNode->insertBefore (my $temp = &t ("temp ($t, $n, $s)"), $stmt);
-      
-          if (&Fxtran::removeListElement ($en_decl))
+          if ($local)
             {
-              $stmt->unbindNode ();
+              $stmt->parentNode->insertBefore (my $temp = &t ("temp ($t, $n, $s)"), $stmt);
+      
+              if (&Fxtran::removeListElement ($en_decl))
+                {
+                  $stmt->unbindNode ();
+                }
+              else
+                {
+                  $temp->parentNode->insertAfter (&t ("\n"), $temp);
+                }
+      
+              $C->parentNode->insertBefore (&t ("alloc ($n)\n"), $C);
             }
           else
             {
-              $temp->parentNode->insertAfter (&t ("\n"), $temp);
+              die "No local stack, but KLON arrays were found";
             }
-      
-          $C->parentNode->insertBefore (&t ("alloc ($n)\n"), $C);
 
         }
 

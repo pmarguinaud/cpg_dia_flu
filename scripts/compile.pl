@@ -110,7 +110,13 @@ sub generateParallel
 
   &Parallel::makeParallel ($d, suffix => '_PARALLEL');
   &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');
-  &Stack::addStack ($d, skip => sub { my ($proc, $call) = @_; return ($proc !~ m/_PARALLEL|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); });
+  &Stack::addStack ($d, 
+                    local => 0,
+                    skip => sub 
+                    { 
+                      my ($proc, $call) = @_; 
+                      return ($proc !~ m/_PARALLEL|_SINGLE_COLUMN_/o) || ($proc =~ m/_SYNC_/o); 
+                    });
 
   &saveSubroutine ($d);
 }

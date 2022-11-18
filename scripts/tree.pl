@@ -45,7 +45,7 @@ sub scan
     $f2f{$s} = $f;
   };
   
-  for my $F90 (<compile.cpu_intel/*.F90>)
+  for my $F90 (<compile.gpu_nvhpc/*.F90>)
     {
       $wanted->($F90);
     }
