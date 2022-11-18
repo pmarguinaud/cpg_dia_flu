@@ -6,6 +6,7 @@ use Data::Dumper;
 use Getopt::Long;
 use File::Path;
 use File::Spec;
+use File::Basename;
 use FindBin qw ($Bin);
 use lib $Bin;
 
@@ -234,6 +235,7 @@ sub w
   my $f = shift;
   my $t = &r ($f);
   return if ($t eq $_[0]);
+  &mkpath (&dirname ($f));
   'FileHandle'->new (">$f")->print ($_[0]);
 }
 
@@ -583,17 +585,24 @@ EOF
 
     }
 
-  $contains->parentNode->insertBefore (&t ("\n"), $contains) if ($opts->{'object-oriented'});
-
-  if ($opts->{out})
+  if ($opts->{'object-oriented'})
     {
-      &w ("$opts->{dir}/$opts->{out}", join ('', map { $code{$_} } @file));
+      $contains->parentNode->insertBefore (&t ("\n"), $contains);
+      my ($file) = &F ('./object/file/@name', $doc, 2);
+      &w ("$opts->{dir}/$file", $doc->textContent);
     }
   else
     {
-      for my $file (@file)
+      if ($opts->{out})
         {
-          &w ("$opts->{dir}/$file", $code{$file});
+          &w ("$opts->{dir}/$opts->{out}", join ('', map { $code{$_} } @file));
+        }
+      else
+        {
+          for my $file (@file)
+            {
+              &w ("$opts->{dir}/$file", $code{$file});
+            }
         }
     }
 
