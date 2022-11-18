@@ -361,8 +361,8 @@ sub process_types
           chomp ($_);
         }
   
-#     my $type = $abstract ? 'CLASS' : 'TYPE';
-      my $type = 'CLASS';
+      my $type = $abstract ? 'CLASS' : 'TYPE';
+#     my $type = 'CLASS';
 
       $CONTAINS_SAVE .= << "EOF";
 SUBROUTINE SAVE_$name (KLUN, YD)
