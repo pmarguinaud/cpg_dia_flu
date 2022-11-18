@@ -12,7 +12,7 @@ SAVE
 !     ------------------------------------------------------------------
 
 TYPE :: TYPE_AERO_DESC
-SEQUENCE
+
 ! Automatically initialised keys to match GFL
 CHARACTER(LEN=16)  :: CNAME                 ! ARPEGE field name
 INTEGER(KIND=JPIM) :: IGRBCODE              ! GRIB code

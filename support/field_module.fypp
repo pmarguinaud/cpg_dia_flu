@@ -1,3 +1,6 @@
+#if __INTEL_COMPILER == 1800 && __INTEL_COMPILER_UPDATE == 5
+#define BUG_INTEL_PTR
+#endif
 ! Rank and shape definitions for simple templating
 !
 ! Note that the ranks encode coneptual dimensions here, eg. FIELD_2D encodes
@@ -319,7 +322,11 @@ CONTAINS
     ${dtype}$, POINTER :: HST (${shapes[rank]}$), DEV (${shapes[rank]}$)
     INTEGER (KIND=JPIM), INTENT (IN) :: KDIR
     INTEGER (KIND=JPIM) :: ISIZE
+#ifdef BUG_INTEL_PTR
+    INTEGER :: ${', '.join (['J'] + list (map (lambda i: 'J' + str (i+1), range (0, rank))))}$
+#else
     INTEGER :: ${', '.join (['J'] + list (map (lambda i: 'J' + str (i+1), range (d, rank))))}$
+#endif
 
   #:for e in range (rank, d, -1)
     ${'  ' * (rank - e)}$DO J${e}$ = LBOUND (HST, ${e}$), UBOUND (HST, ${e}$)
@@ -337,7 +344,18 @@ CONTAINS
     ${indent}$    CALL ACC_MEMCPY_TO_DEVICE (DEV (${ar}$), HST (${ar}$), ISIZE)
     ${indent}$    !$acc end host_data
 #else
+#ifdef BUG_INTEL_PTR
+  #:for e in range (d, 0, -1)
+    ${indent}$    DO J${e}$ = LBOUND (HST, ${e}$), UBOUND (HST, ${e}$)
+  #:endfor
+  #:set br = ', '.join (list (map (lambda i: 'J' + str (i+1), range (0, rank))))
+    ${indent}$    DEV (${br}$) = HST (${br}$)
+  #:for e in range (d, 0, -1)
+    ${indent}$    ENDDO
+  #:endfor
+#else
     ${indent}$    DEV (${ar}$) = HST (${ar}$)
+#endif
 #endif
     ${indent}$  ELSEIF (KDIR == ND2H) THEN
 #ifdef _OPENACC
@@ -345,7 +363,18 @@ CONTAINS
     ${indent}$    CALL ACC_MEMCPY_FROM_DEVICE (HST (${ar}$), DEV (${ar}$), ISIZE)
     ${indent}$    !$acc end host_data
 #else
+#ifdef BUG_INTEL_PTR
+  #:for e in range (d, 0, -1)
+    ${indent}$    DO J${e}$ = LBOUND (HST, ${e}$), UBOUND (HST, ${e}$)
+  #:endfor
+  #:set br = ', '.join (list (map (lambda i: 'J' + str (i+1), range (0, rank))))
+    ${indent}$    HST (${br}$) = DEV (${br}$)
+  #:for e in range (d, 0, -1)
+    ${indent}$    ENDDO
+  #:endfor
+#else
     ${indent}$    HST (${ar}$) = DEV (${ar}$)
+#endif
 #endif
     ${indent}$  ENDIF
   #:for e in range (d, rank)
@@ -410,7 +439,7 @@ CONTAINS
 
   SUBROUTINE ${field_type_name}$_CREATE_DEVICE_DATA (SELF)
     CLASS(${field_type_name}$), INTENT (INOUT) :: SELF
-#if __INTEL_COMPILER == 1800 && __INTEL_COMPILER_UPDATE == 5
+#ifdef BUG_INTEL_PTR
 ! Bug with Intel 18.0.5.274
     ALLOCATE (SELF%DEVPTR (${ ', '.join (map (lambda i: 'LBOUND (SELF%PTR, ' + str (i) + '):UBOUND (SELF%PTR,' + str (i) + ')', range (1, rank+1))) }$))
 #else

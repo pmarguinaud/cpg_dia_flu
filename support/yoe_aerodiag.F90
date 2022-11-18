@@ -58,7 +58,7 @@ INTEGER(KIND=JPIM), PARAMETER :: NPAERO_WVL_DIAG = 20 ! Maximum number of aeroso
 INTEGER(KIND=JPIM), PARAMETER :: NPAERO_WVL_DIAG_TYPES = 5 ! Number of optical diagnostic types
 
 TYPE TYPE_AERO_WVL_DIAG
-SEQUENCE
+
 INTEGER(KIND=JPIM) :: IWVL                             ! Wavelength in nm
 INTEGER(KIND=JPIM) :: IGRIBDIAG(NPAERO_WVL_DIAG_TYPES) ! GRIB codes for diagnostics as numbered below
 END TYPE TYPE_AERO_WVL_DIAG

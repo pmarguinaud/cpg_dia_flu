@@ -345,32 +345,27 @@ sub process_types
       %U = map { ($_, 1) } @U;
       @U = sort keys (%U);
 
-      my $USE_SAVE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
-      my $USE_LOAD = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
-      my $USE_COPY = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
-      my $USE_WIPE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
-      my $USE_SIZE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
-  
+      my $USE = join ('', map { "USE ${_}\n" } grep { $_ ne $name } @U);
 
       if ($extends)
         {
-          $USE_SAVE .= "USE UTIL_${extends}_MOD, ONLY : $extends, SAVE_$extends\n";
-          $USE_LOAD .= "USE UTIL_${extends}_MOD, ONLY : $extends, LOAD_$extends\n";
-          $USE_COPY .= "USE UTIL_${extends}_MOD, ONLY : $extends, COPY_$extends\n";
-          $USE_WIPE .= "USE UTIL_${extends}_MOD, ONLY : $extends, WIPE_$extends\n";
-          $USE_SIZE .= "USE UTIL_${extends}_MOD, ONLY : $extends, SIZE_$extends\n";
+          $USE .= "USE UTIL_${extends}_MOD, ONLY : $extends, SAVE_$extends\n" if ($opts->{save});
+          $USE .= "USE UTIL_${extends}_MOD, ONLY : $extends, LOAD_$extends\n" if ($opts->{load});
+          $USE .= "USE UTIL_${extends}_MOD, ONLY : $extends, COPY_$extends\n" if ($opts->{copy});
+          $USE .= "USE UTIL_${extends}_MOD, ONLY : $extends, WIPE_$extends\n" if ($opts->{wipe});
+          $USE .= "USE UTIL_${extends}_MOD, ONLY : $extends, SIZE_$extends\n" if ($opts->{size});
         }
 
-      for ($USE_SAVE, $USE_SAVE, $USE_COPY, $USE_WIPE, $USE_SIZE, $DECL_SAVE, $DECL_LOAD)
+      for ($USE)
         {
           chomp ($_);
         }
   
-      my $type = $abstract ? 'CLASS' : 'TYPE';
+#     my $type = $abstract ? 'CLASS' : 'TYPE';
+      my $type = 'CLASS';
 
       $CONTAINS_SAVE .= << "EOF";
 SUBROUTINE SAVE_$name (KLUN, YD)
-$USE_SAVE
 IMPLICIT NONE
 INTEGER, INTENT (IN) :: KLUN
 $type ($name), INTENT (IN), TARGET :: YD
@@ -378,7 +373,6 @@ EOF
 
       $CONTAINS_LOAD .= << "EOF";
 SUBROUTINE LOAD_$name (KLUN, YD)
-$USE_LOAD
 IMPLICIT NONE
 INTEGER, INTENT (IN) :: KLUN
 $type ($name), INTENT (OUT), TARGET :: YD
@@ -386,7 +380,6 @@ EOF
 
       $CONTAINS_COPY .= << "EOF";
 SUBROUTINE COPY_$name (YD, LDCREATED)
-$USE_COPY
 IMPLICIT NONE
 $type ($name), INTENT (IN), TARGET :: YD
 LOGICAL, OPTIONAL, INTENT (IN) :: LDCREATED
@@ -394,7 +387,6 @@ EOF
 
       $CONTAINS_WIPE .= << "EOF";
 SUBROUTINE WIPE_$name (YD, LDDELETED)
-$USE_WIPE
 IMPLICIT NONE
 $type ($name), INTENT (IN), TARGET :: YD
 LOGICAL, OPTIONAL, INTENT (IN) :: LDDELETED
@@ -402,7 +394,6 @@ EOF
 
       $CONTAINS_SIZE .= << "EOF";
 INTEGER*8 FUNCTION SIZE_$name (YD, CDPATH, LDPRINT) RESULT (KSIZE)
-$USE_SIZE
 IMPLICIT NONE
 $type ($name),     INTENT (IN), TARGET :: YD
 CHARACTER(LEN=*), INTENT (IN) :: CDPATH
@@ -462,6 +453,7 @@ EOF
 MODULE UTIL_${name}_MOD
 
 USE $mod, ONLY : $name
+$USE
 
 $INTERFACE_SAVE
 $INTERFACE_LOAD
@@ -650,7 +642,7 @@ my $F90 = shift;
 
 my $doc = &Fxtran::fxtran (location => $F90, fopts => [qw (-line-length 800)], dir => $opts{tmp});
 
-if ($opts{load} || $opts{save} || $opts{size} || $opts{copy})
+if ($opts{load} || $opts{save} || $opts{size} || $opts{copy} || $opts{wipe})
   {
     &process_types ($doc, \%opts);
   }
