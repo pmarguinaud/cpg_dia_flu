@@ -143,8 +143,9 @@ arpifs/module/yophlc.F90                           \
 arpifs/module/yophnc.F90 
 do
   ./scripts/loadsave.pl \
+     --object-oriented \
      --skip-components TYPE_GFL_COMP%PREVIOUS,MODEL_PHYSICS_STOCHAST_TYPE%YR_RANDOM_STREAMS,TEPHY%YSURF,TRADIATION%RAD_CONFIG,TECUCONVCA%YD_RANDOM_STREAM_CA,GEOMETRY%YRCSGEOMAD_NB,GEOMETRY%YRGSGEOMAD_NB,TYPE_GFLD%YCRM_NL \
-     --dir support \
+     --dir compile.cpu_intel0 \
      --wipe --copy --save --load $(resolve $f)
 done
 

@@ -233,6 +233,8 @@ sub r
 sub w
 {
   my $f = shift;
+  print "w $f\n";
+
   my $t = &r ($f);
   return if ($t eq $_[0]);
   &mkpath (&dirname ($f));
