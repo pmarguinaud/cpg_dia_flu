@@ -85,6 +85,7 @@ sub removeJlonLoops
 sub removeJlonLoopsFieldAPI
 {
   my ($d, $s) = @_;
+  my %args = @_;
 
   my $TI = &FieldAPI::getTypeInfo ();
   my @T = sort keys (%$TI);

@@ -43,19 +43,33 @@ DONE:
   my ($pu) = &F ('./object/file/program-unit', $d);
 
   my ($ex1, $ex2);
-  if (my @drhook = &F ('./if-stmt/action-stmt/call-stmt[string(procedure-designator)="DR_HOOK"]', $pu))
+  if (my @drhook = &F ('./if-stmt[./action-stmt/call-stmt[string(procedure-designator)="DR_HOOK"]]', $pu))
     {
       ($ex1, $ex2) = ($drhook[0], $drhook[-1]);
     }
   else
     {
+      die;
       my @node = &F ('./node()', $pu);
       for my $node (@node)
         {
-
+          my $name = $node->nodeName;
+          next unless ($name =~ m/-stmt$/o);
+          print "$name\n";
         }
     }
 
+
+  my $body = &n ('<body/>');
+  $ex1->parentNode->insertBefore ($body, $ex1);
+
+  for my $node ($ex1, &F ('following-sibling::node()', $ex1))
+    {
+      $body->appendChild ($node);
+      last if ($ex2->unique_key eq $node->unique_key);
+    }
+
+  
 
 }
 

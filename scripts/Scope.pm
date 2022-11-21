@@ -3,6 +3,25 @@ package Scope;
 use strict;
 use Fxtran;
 
+sub getExec
+{
+  my $d = shift;
+ 
+  my ($exec) = grep { &Fxtran::stmt_is_executable ($_) } &F ('.//ANY-stmt', $d);
+
+  my @anc = &F ('ancestor::*', $exec);
+
+  for my $anc (reverse (@anc))
+    {
+      if ($anc->nodeName =~ m/-(?:construct|stmt)$/o)
+        {
+          $exec = $anc;
+        }
+    }
+
+  return $exec;
+}
+
 sub getNoExec
 {
   my $d = shift;

@@ -79,6 +79,15 @@ sub loopVector
   &insertDirective ($p, 'LOOP VECTOR', %c);
 }
 
+sub routineVector
+{
+  my $d = shift;
+  my ($pu) = &F ('./object/file/program-unit', $d);
+  my ($N) = &F ('./subroutine-stmt/subroutine-N', $pu, 1); 
+  $pu->insertAfter (&n ("<C>!\$acc routine ($N) vector</C>"), $pu->firstChild);
+  $pu->insertAfter (&t ("\n"), $pu->firstChild);
+}
+
 sub routineSeq
 {
   my $d = shift;

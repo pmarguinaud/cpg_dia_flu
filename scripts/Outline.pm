@@ -206,18 +206,27 @@ EOF
   
   # Insert section contents
 
-  for my $node (&F ('./node()', $s))
+  for my $node (reverse (&F ('./node()', $s)))
     {
       $C2->parentNode->insertAfter ($node, $C2);
     }
-  
+
   # Replace section by call statement in original subroutine
 
   my $call = "CALL $NAME (" . join (', ', map { $_ } grep { ! ($local{$_} || $param{$_}) } @N) . ')';
 
   $call = &s ($call);
 
-  $s->replaceNode ($call);
+  if ($args{keep_section})
+    {
+      $s->appendChild (&t ("\n"));
+      $s->appendChild ($call);
+      $s->appendChild (&t ("\n"));
+    }
+  else
+    {
+      $s->replaceNode ($call);
+    }
 
   my @decl;
 

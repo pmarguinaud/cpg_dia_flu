@@ -18,6 +18,7 @@ use Call;
 use Associate;
 use Directive;
 use Loop;
+use Outline;
 
 
 sub tsToArray
@@ -49,7 +50,11 @@ sub tsToArray
 
 sub wrapArrays
 {
-  my ($d, $suffix) = @_;
+  my $d = shift;
+  my %args = @_;
+
+  my $suffix = $args{suffix};
+  my $copywipe = $args{copyWipeTemporaries};
 
   my %args = map { ($_->textContent, $_) } &F ('.//subroutine-stmt/dummy-arg-LT/arg-N/N/n/text()', $d);
 
@@ -119,8 +124,20 @@ sub wrapArrays
       my $lbounds = (grep { $_ ne '1' } @lb) ? 'LBOUNDS=[' . join (',', @lb) . '], ' : '';
       my $ubounds =                            'UBOUNDS=[' . join (',', @ub) . ']';
 
+      if ($copywipe)
+        {
+          $noexec->parentNode->insertAfter (&s ("CALL COPY ($Y)"), $noexec);
+          $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
+        }
+ 
       $noexec->parentNode->insertAfter (&s ("CALL $Y%INIT ($lbounds$ubounds, PERSISTENT=.TRUE.)"), $noexec);
       $noexec->parentNode->insertAfter (&t ("\n"), $noexec);
+ 
+      if ($copywipe)
+        {
+          $lastst->parentNode->insertBefore (&s ("CALL WIPE ($Y)"), $lastst);
+          $lastst->parentNode->insertBefore (&t ("\n"), $lastst);
+        }
  
       $lastst->parentNode->insertBefore (&s ("CALL $Y%FINAL"), $lastst);
       $lastst->parentNode->insertBefore (&t ("\n"), $lastst);
@@ -404,9 +421,9 @@ sub makeSyncSection
   my $para1 = $para->cloneNode (1);
   $para->parentNode->insertBefore ($para1, $para);
   $para->parentNode->insertBefore (&t ("\n"), $para);
-  use Outline;
   my $oc = &Outline::outlineSection ($d, section => $para1, name => "$name\_PARALLEL_$i", local => \@private);
   my ($outline, $call, $include) = @$oc;
+  my ($outline1, $call1) = map { $_->cloneNode (1) } ($outline, $call);
   
   &FieldAPI::makeSync ($outline, what => $what);
   
@@ -431,6 +448,156 @@ sub makeSyncSection
       die $post;
     }
 
+  return [$outline1, $call1, $include];
+}
+
+sub makeSingleColumnFieldAPIOutlineSection
+{
+  my $d = shift;
+  my %args = @_;
+  my $para = $args{section};
+
+  my $what = lc ($para->getAttribute ('target') || 'host');
+  
+  my $outline = $args{outline}->cloneNode (1);
+  my $call = $args{call}->cloneNode (1);
+  my $include = $args{include};
+
+  &FieldAPI::pointers2FieldAPIPtr ($outline, what => $what);
+  
+  my ($stmt) = &F ('.//ANY-stmt', $para);
+  my $indent = ' ' x &Fxtran::getIndent ($stmt);
+  
+  my $loop_ibl = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+  if ($args{inline_update_bnds})
+    {
+      $loop_ibl .= "${indent}  YDCPG_BNDS%KBL    = IBL\n";
+      $loop_ibl .= "${indent}  YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
+      $loop_ibl .= "${indent}  YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
+    }
+  else
+    {
+      $loop_ibl .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+    }
+  $loop_ibl .= "${indent}ENDDO\n";
+  
+  ($loop_ibl) = &Fxtran::fxtran (fragment => $loop_ibl);
+
+  for my $node ($para->childNodes ())
+    {
+      $node->unbindNode ();
+    }
+
+  $para->appendChild (&t ("\n" . $indent));
+  $para->appendChild ($loop_ibl);
+  $para->appendChild (&t ("\n"));
+
+  my ($enddo) = &F ('./end-do-stmt', $loop_ibl);
+
+  $loop_ibl->insertBefore (&t ('  '), $enddo);
+  $loop_ibl->insertBefore ($call, $enddo);
+  $loop_ibl->insertBefore (&t ("\n" . $indent), $enddo);
+
+
+  my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
+  my $include1 = $include->cloneNode (1);
+  $include->parentNode->insertAfter ($include1, $include);
+  $include->parentNode->insertAfter (&t ("\n"), $include);
+
+  my ($filename) = &F ('./filename/text()', $include1);
+  $filename->setData (lc ($name) . '.intfb.h');
+
+  # Insert OpenMP directive
+
+  my $directive = lc ($para->getAttribute ('directive') || 'openmp');
+
+  if ($directive eq 'openmp')
+    {
+      &OpenMP::parallelDo ($loop_ibl, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS']);
+    }
+  elsif ($directive eq 'openacc')
+    {
+      &OpenACC::parallelLoopGang ($loop_ibl, PRIVATE => ['IBL'], FIRSTPRIVATE => ['YDCPG_BNDS']);
+    }
+  else
+    {
+      die $directive;
+    }
+
+
+  &Decl::declare ($outline, 'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+
+  for my $t (&F ('.//named-E[string(N)="YDCPG_BNDS"]/N/n/text()', $outline))
+    {
+      $t->setData ('YLCPG_BNDS');
+    }
+ 
+  my ($loop_jlon) = "DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
+  $loop_jlon .= "  YLCPG_BNDS = YDCPG_BNDS\n";
+  $loop_jlon .= "  YLCPG_BNDS%KIDIA = JLON\n";
+  $loop_jlon .= "  YLCPG_BNDS%KFDIA = JLON\n";
+  $loop_jlon .= "ENDDO\n";
+
+  ($loop_jlon) = &Fxtran::fxtran (fragment => $loop_jlon);
+
+  my ($enddo_jlon) = &F ('./end-do-stmt', $loop_jlon);
+
+  my ($exec) = &Scope::getExec ($outline);
+  
+  $exec->parentNode->insertBefore (&t ("\n"), $exec);
+  $exec->parentNode->insertBefore ($loop_jlon, $exec);
+
+  my @node = ($exec, &F ('following-sibling::node()', $exec));
+
+  pop (@node); # subroutine-stmt
+  while (@node && ($node[-1]->nodeName eq '#text'))
+    {
+      pop (@node);
+    }
+  push @node, &t ("\n");
+
+  for my $node (@node)
+    {
+      $loop_jlon->insertBefore ($node, $enddo_jlon);
+    }
+
+  &Loop::removeJlonConstructs ($loop_jlon);
+  &Loop::removeJlonLoopsFieldAPI ($outline, $loop_jlon);
+  
+  &Call::addSuffix ($outline, section => $loop_jlon, suffix => '_SINGLE_COLUMN_FIELD_API_' . uc ($what));
+  
+  my $PTR = $what eq 'device' ? 'DEVPTR' : 'PTR';
+
+  if ($args{stack})
+    {
+      for my $str ("YLSTACK%L = LOC (YDSTACK%F_P%$PTR (1,YDCPG_BNDS%KBL))", 
+                   "YLSTACK%U = YLSTACK%L + KIND (YDSTACK%F_P%$PTR) * SIZE (YDSTACK%F_P%$PTR (:,YDCPG_BNDS%KBL))")
+        {
+          $loop_jlon->parentNode->insertBefore (&s ($str), $loop_jlon); 
+          $loop_jlon->parentNode->insertBefore (&t ("\n"), $loop_jlon);
+        }
+    }
+
+  # Insert OpenMP directive
+
+  if ($directive eq 'openmp')
+    {
+    }
+  elsif ($directive eq 'openacc')
+    {
+      my @priv = &F ('.//a-stmt/E-1/named-E[not(.//component-R[string(ct)="?"])]/N|.//do-V/named-E/N', $PTR, $loop_jlon, 1);
+      &OpenACC::loopVector ($loop_jlon, PRIVATE => \@priv);
+      &OpenACC::routineVector ($outline);
+    }
+  else
+    {
+      die $directive;
+    }
+
+  &Stack::addStack ($outline, local => 1);
+  &Decl::declare ($outline, 'INTEGER (KIND=JPIM) :: JLON');
+
+  'FileHandle'->new ('>' . lc ($name) . '.F90')->print ($outline->textContent);
 }
 
 sub makeSingleColumnFieldAPISection
@@ -544,6 +711,8 @@ sub makeParallel
   my %args = @_;
   my $suffix = $args{suffix};
 
+  my $copywipe = 1;
+
   # Resolving ASSOCIATEs in parallel sections is mandatory
   &Associate::resolveAssociates ($d);
 
@@ -556,7 +725,8 @@ sub makeParallel
   &Construct::changeIfStatementsInIfConstructs ($d);
   &Inline::inlineContainedSubroutines ($d);
 
-  &wrapArrays ($d, $suffix);
+  &wrapArrays ($d, suffix => $suffix, copyWipeTemporaries => $copywipe);
+
 
   my @para = &F ('.//parallel-section', $d);
 
@@ -569,6 +739,11 @@ sub makeParallel
   my @array = &uniq (&F ('.//T-decl-stmt/_T-spec_/derived-T-spec/T-N[starts-with(string(.),"ARRAY_")]', $d, 1));
   &Decl::use ($d,
               'USE ARRAY_MOD, ONLY : ' . join (', ', @array));
+ 
+  if ($copywipe)
+    {
+      &Decl::use ($d, map ({ "USE UTIL_$_\_MOD" } @array));
+    }
 
   my $updatable = &getUpdatables ($d);
   &makeUpdatablesInout ($d, $updatable);
@@ -576,7 +751,8 @@ sub makeParallel
   my $i = 0;
   for my $para (@para)
     {
-      &makeSyncSection ($d, %args, section => $para, number => $i++);
+      my $oci = &makeSyncSection ($d, %args, section => $para, number => $i++);
+
       my $vector = lc ($para->getAttribute ('vector') || 'block');
       my $datalayout = lc ($para->getAttribute ('datalayout') || 'fieldapi');
 
@@ -584,7 +760,11 @@ sub makeParallel
         {
           if ($vector eq 'singlecolumn')
             {
-              &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1, inline_update_bnds => 1);
+#             &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1, inline_update_bnds => 1);
+              my ($outline, $call, $include) = @$oci;
+              &makeSingleColumnFieldAPIOutlineSection 
+                ($d, %args, section => $para, stack => 1, inline_update_bnds => 1, 
+                 outline => $outline, call => $call, include => $include);
             }
           elsif ($vector eq 'block')
             {
