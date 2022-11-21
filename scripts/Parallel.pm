@@ -813,6 +813,7 @@ sub makeParallel
   my $updatable = &getUpdatables ($d);
   &makeUpdatablesInout ($d, $updatable);
 
+
   my $i = 0;
   for my $para (@para)
     {
@@ -820,16 +821,24 @@ sub makeParallel
 
       my $vector = lc ($para->getAttribute ('vector') || 'block');
       my $datalayout = lc ($para->getAttribute ('datalayout') || 'fieldapi');
+      my $outlinecode = $para->getAttribute ('outline') || 0;
 
       if ($datalayout eq 'fieldapi')
         {
           if ($vector eq 'singlecolumn')
             {
-#             &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1, inline_update_bnds => 1);
-              my ($outline, $call, $include) = @$oci;
-              &makeSingleColumnFieldAPIOutlineSection 
-                ($d, %args, section => $para, stack => 1, inline_update_bnds => 1, 
-                 outline => $outline, call => $call, include => $include);
+              if ($outlinecode)
+                {
+                  my ($outline, $call, $include) = @$oci;
+                  &makeSingleColumnFieldAPIOutlineSection 
+                    ($d, %args, section => $para, stack => 1, inline_update_bnds => 1, 
+                     outline => $outline, call => $call, include => $include);
+                }
+              else
+                {
+                  &makeSingleColumnFieldAPISection ($d, %args, section => $para, stack => 1, inline_update_bnds => 1);
+                }
+   
             }
           elsif ($vector eq 'block')
             {
