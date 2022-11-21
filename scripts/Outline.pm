@@ -134,7 +134,7 @@ EOF
   for my $expr (@expr)
     {
       my ($n) = &F ('./N/n', $expr, 1);
-      next if (&Intrinsic::isIntrinsic ($n) || $PARKIND1{$n});
+      next if (&Intrinsic::isIntrinsic ($n) || $PARKIND{$n});
       if ($expr->parentNode->nodeName eq 'do-V')
         {
           $do{$n} = 1;
@@ -160,6 +160,7 @@ EOF
 
   my @N = &sortArgs ($d, grep { (! $do{$_}) && (! $sc{$_}) && (! $call{$_}) } keys (%N));
   
+  my %priv = map { ($_, 1) } @{ $args{local} || [] }; 
   my %local; # Local to outline (not used in original subroutine)
   my %param; # Parameters
 
@@ -187,10 +188,11 @@ EOF
         }
     }
   
-  for my $n (@{ $args{local} || [] })
+  for (keys (%priv))
     {
-      $local{$n} ||= 1;
+      $local{$_} = 1;
     }
+
 
   my %rank = map { ($N[$_], $_) } (0 .. $#N);
   
@@ -310,7 +312,7 @@ EOF
   
   for my $N (@N)
     {
-      next unless ($local{$N});
+      next unless ($local{$N} && (! $priv{$N}));
       my ($en_decl) = &F ('.//EN-decl[string(EN-N)="?"]', $N, $d);
       die $N unless ($en_decl);
       my $stmt = &Fxtran::stmt ($en_decl);
