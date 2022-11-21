@@ -453,36 +453,90 @@ sub makeSyncSection
 
 sub makeSingleColumnFieldAPIOutlineSection
 {
+  # Parallel section with vector JLON loop in a separate vector subroutine; workaround for PGI bug: 
+  # PROGRAM WRAP_CPG_DIA_FLU
+  #
+  # IMPLICIT NONE
+  #
+  # TYPE TA
+  #   REAL*8, POINTER :: PX (:,:)
+  # END TYPE
+  #
+  # TYPE TB
+  #   TYPE (TA), POINTER :: YA  
+  # END TYPE
+  #
+  # TYPE(TB) :: YLB 
+  #
+  #
+  # ALLOCATE (YLB%YA)
+  # ALLOCATE (YLB%YA%PX (10000, 32))
+  #
+  # !$acc enter data create (YLB)
+  # !#acc update device (YLB)
+  # !$acc enter data create (YLB%YA)
+  # !#acc update device (YLB%YA)
+  # !$acc enter data attach (YLB%YA)
+  # !$acc enter data create (YLB%YA%PX)
+  # !$acc enter data attach (YLB%YA%PX)
+  #
+  # !$acc serial default (present)
+  # CALL TOTO (YLB)                              !<-- Works
+  # PRINT *, " MAIN = ", YLB%YA%PX (1, 1)        !<-- Fails (data partially present on device)
+  # !$acc end serial
+  #
+  # CONTAINS
+  #
+  # SUBROUTINE TOTO (YDB)
+  # !$acc routine (TOTO) seq
+  #
+  # TYPE (TB) :: YDB 
+  #
+  # PRINT *, " TOTO = ", YDB%YA%PX (1, 1)
+  #
+  # END SUBROUTINE
+  #
+  # END PROGRAM
+  # 
+  # We will use makeSingleColumnFieldAPISection when the bug is fixed
+
   my $d = shift;
   my %args = @_;
   my $para = $args{section};
 
   my $what = lc ($para->getAttribute ('target') || 'host');
   
-  my $outline = $args{outline}->cloneNode (1);
-  my $call = $args{call}->cloneNode (1);
-  my $include = $args{include};
+  my $outline = $args{outline}->cloneNode (1);   # Body of the routine with calculations 
+  my $call = $args{call}->cloneNode (1);         # Call to outlined routine
+  my $include = $args{include};                  # Include
 
   &FieldAPI::pointers2FieldAPIPtr ($outline, what => $what);
   
   my ($stmt) = &F ('.//ANY-stmt', $para);
   my $indent = ' ' x &Fxtran::getIndent ($stmt);
-  
+
+  # Create a loop nest for blocks 
+
   my $loop_ibl = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
+
+  # Update YDCPG_BNDS
   if ($args{inline_update_bnds})
     {
+      # Directly
       $loop_ibl .= "${indent}  YDCPG_BNDS%KBL    = IBL\n";
       $loop_ibl .= "${indent}  YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
       $loop_ibl .= "${indent}  YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
     }
   else
     {
+      # With typebound methods
       $loop_ibl .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
     }
   $loop_ibl .= "${indent}ENDDO\n";
   
   ($loop_ibl) = &Fxtran::fxtran (fragment => $loop_ibl);
 
+  # Delete all children of parallel section, and replace them with the call to the outlined routine
   for my $node ($para->childNodes ())
     {
       $node->unbindNode ();
@@ -498,7 +552,7 @@ sub makeSingleColumnFieldAPIOutlineSection
   $loop_ibl->insertBefore ($call, $enddo);
   $loop_ibl->insertBefore (&t ("\n" . $indent), $enddo);
 
-
+  # Setup an include for the outlined routine
   my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
   my $include1 = $include->cloneNode (1);
   $include->parentNode->insertAfter ($include1, $include);
@@ -524,14 +578,19 @@ sub makeSingleColumnFieldAPIOutlineSection
       die $directive;
     }
 
-
-  &Decl::declare ($outline, 'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS');
+  # Replace YDCPG_BNDS by YLCPG_BNDS in the vector outlined routine (meant to be private, in order to select a single column)
+  &Decl::declare ($outline, 
+                  'TYPE (CPG_BNDS_TYPE) :: YLCPG_BNDS',
+                  'INTEGER (KIND=JPIM) :: JLON');
 
   for my $t (&F ('.//named-E[string(N)="YDCPG_BNDS"]/N/n/text()', $outline))
     {
       $t->setData ('YLCPG_BNDS');
     }
  
+
+  # Create a vector loop nest, with single column selection 
+  
   my ($loop_jlon) = "DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
   $loop_jlon .= "  YLCPG_BNDS = YDCPG_BNDS\n";
   $loop_jlon .= "  YLCPG_BNDS%KIDIA = JLON\n";
@@ -542,6 +601,8 @@ sub makeSingleColumnFieldAPIOutlineSection
 
   my ($enddo_jlon) = &F ('./end-do-stmt', $loop_jlon);
 
+  # Get first executable statement of vector routine, insert the loop & move all executable statements inside the loop
+
   my ($exec) = &Scope::getExec ($outline);
   
   $exec->parentNode->insertBefore (&t ("\n"), $exec);
@@ -550,6 +611,8 @@ sub makeSingleColumnFieldAPIOutlineSection
   my @node = ($exec, &F ('following-sibling::node()', $exec));
 
   pop (@node); # subroutine-stmt
+
+  # Trim trailing spaces
   while (@node && ($node[-1]->nodeName eq '#text'))
     {
       pop (@node);
@@ -561,13 +624,16 @@ sub makeSingleColumnFieldAPIOutlineSection
       $loop_jlon->insertBefore ($node, $enddo_jlon);
     }
 
+  # Make the code single column
   &Loop::removeJlonConstructs ($loop_jlon);
   &Loop::removeJlonLoopsFieldAPI ($outline, $loop_jlon);
   
+  # Use single column/Field API routines
   &Call::addSuffix ($outline, section => $loop_jlon, suffix => '_SINGLE_COLUMN_FIELD_API_' . uc ($what));
   
   my $PTR = $what eq 'device' ? 'DEVPTR' : 'PTR';
 
+  # Setup for stack object
   if ($args{stack})
     {
       for my $str ("YLSTACK%L = LOC (YDSTACK%F_P%$PTR (1,YDCPG_BNDS%KBL))", 
@@ -578,7 +644,7 @@ sub makeSingleColumnFieldAPIOutlineSection
         }
     }
 
-  # Insert OpenMP directive
+  # Insert OpenMP/OpenACC directives
 
   if ($directive eq 'openmp')
     {
@@ -595,7 +661,6 @@ sub makeSingleColumnFieldAPIOutlineSection
     }
 
   &Stack::addStack ($outline, local => 1);
-  &Decl::declare ($outline, 'INTEGER (KIND=JPIM) :: JLON');
 
   'FileHandle'->new ('>' . lc ($name) . '.F90')->print ($outline->textContent);
 }
