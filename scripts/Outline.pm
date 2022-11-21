@@ -6,6 +6,7 @@ use Associate;
 use Directive;
 use Decl;
 use Scope;
+use Intrinsic;
 
 use Data::Dumper;
 
@@ -76,9 +77,9 @@ sub renameVariables
 } 
 
 
-my @INTRINSIC = qw (SIGN MAX MIN MOD REAL EXP ASIN FOLH SQRT PRESENT 
+my @PARKIND = qw (SIGN MAX MIN MOD REAL EXP ASIN FOLH SQRT PRESENT 
                     ABS TINY SUM JPIM JPRB ATAN2 COS SIN);
-my %INTRINSIC = map { ($_, 1) } @INTRINSIC;
+my %PARKIND = map { ($_, 1) } @PARKIND;
 
 sub outlineSection
 {
@@ -133,7 +134,7 @@ EOF
   for my $expr (@expr)
     {
       my ($n) = &F ('./N/n', $expr, 1);
-      next if ($INTRINSIC{$n});
+      next if (&Intrinsic::isIntrinsic ($n) || $PARKIND1{$n});
       if ($expr->parentNode->nodeName eq 'do-V')
         {
           $do{$n} = 1;
