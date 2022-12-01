@@ -74,5 +74,87 @@ DONE:
 }
 
 
+sub indentCr
+{
+  my $e = shift;
+  my @cr = &F ('.//text()[contains(.,"?")]', "\n", $e); pop (@cr);
+  for my $cr (@cr)
+    {
+      (my $tt = $cr->data) =~ s/\n/\n  /goms;
+      $cr->setData ($tt);
+    }
+}
+
+sub indent
+{
+  my $d = shift;
+  my %args = @_;
+
+  $d = $d->cloneNode (1);
+
+  for (&F ('.//implicit-none-stmt/text()[string(.)="IMPLICITNONE"]', $d))
+    {
+      $_->replaceNode (&s ('IMPLICIT NONE'));
+    }
+
+# my $width = $args{width} || 100;
+  my $width = $args{width} || 80;
+  
+  for my $stmt (&F ('.//ANY-stmt', $d))
+    {
+      my $text = $stmt->textContent;
+      my @text;
+  
+      my $length = length ($text);
+  
+      if ($length < $width)
+        {
+          @text = ($text);
+        }
+      else
+        {
+          my $n = int (($length+$width-1) / $width);
+          my $w = 2 + int ($length / $n);
+          while (length (my $t = substr ($text, 0, $w, '')))
+            {
+              $w-- unless (@text);
+              push @text, $t;
+            }
+        }
+      $text = join ("&\n&", @text);
+      my $name = $stmt->nodeName;
+      my $t = &t ($text);
+      my $s = &n ("<$name/>");
+      $s->appendChild ($t);
+      $stmt->replaceNode ($s);
+    }
+  
+  for my $construct (&F ('.//ANY-construct', $d))
+    {
+      if (my @block = &F ('./ANY-block', $construct))
+        {
+          for my $i (0 .. $#block)
+            {
+              my $block = $block[$i];
+              &indentCr ($block);
+            }
+        }
+      else
+        {
+          &indentCr ($construct);
+        }
+      $construct->normalize ();
+      $construct->parentNode->insertAfter (&t ("\n"), $construct);
+      my $prev = $construct->previousSibling;
+      if ($prev->nodeName eq '#text')
+        {
+          (my $tt = $prev->data) =~ s/\n/\n\n/goms;
+          $prev->setData ($tt);
+        }
+    }
+
+  return $d->textContent;
+}
+
 
 1;

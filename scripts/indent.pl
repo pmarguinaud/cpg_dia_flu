@@ -1,0 +1,22 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+use FileHandle;
+use File::Basename;
+use FindBin qw ($Bin);
+
+use lib $Bin;
+
+use Common;
+use Canonic;
+use Fxtran;
+
+
+for my $f (@ARGV)
+  {
+    my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500 -canonic)]);
+    print "==> $f <==\n";
+    print &Canonic::indent ($d);
+  }
+

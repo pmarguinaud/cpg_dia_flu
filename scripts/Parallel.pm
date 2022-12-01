@@ -211,16 +211,15 @@ sub makeBlockViewSection
   my @N = &uniq (grep { $updatable->{$_} } &F ('.//named-E/N/n/text()',  $para, 1));
 
   my ($stmt) = &F ('.//ANY-stmt', $para);
-  my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
   # Insert loop nest
 
   my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
   for my $N (@N)
     {
-      $loop .= "${indent}  CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+      $loop .= "CALL $N%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
     }
-  $loop .= "${indent}ENDDO\n";
+  $loop .= "ENDDO\n";
 
   my ($loop) = &Fxtran::fxtran (fragment => $loop);
 
@@ -229,16 +228,10 @@ sub makeBlockViewSection
   
   for my $node ($para->childNodes ()) 
     {   
-      $p->insertBefore (&t (' ' x (2)), $enddo);
-      &Fxtran::reIndent ($node, 2); 
       $p->insertBefore ($node, $enddo);
     }   
-  $p->insertBefore (&t ($indent), $enddo);
 
   $para->appendChild ($loop);
-  $para->insertBefore (&t ($indent), $loop);
-
-  $para->parentNode->insertBefore (&t ("$indent"), $para);
 
   # Insert OpenMP directive
 
@@ -302,13 +295,12 @@ sub makeBlockFieldAPISection
   &FieldAPI::pointers2FieldAPIPtr ($d, what => $what, section => $para);
   
   my ($stmt) = &F ('.//ANY-stmt', $para);
-  my $indent = ' ' x &Fxtran::getIndent ($stmt);
   
   # Insert loop nest
   
   my $loop = "DO IBL = 1, YDCPG_OPTS%KGPBLKS\n";
-  $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
-  $loop .= "${indent}ENDDO\n";
+  $loop .= "CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+  $loop .= "ENDDO\n";
   
   my ($loop) = &Fxtran::fxtran (fragment => $loop);
   
@@ -317,15 +309,11 @@ sub makeBlockFieldAPISection
   
   for my $node ($para->childNodes ()) 
     {   
-      $p->insertBefore (&t (' ' x (2)), $enddo);
-      &Fxtran::reIndent ($node, 2); 
       $p->insertBefore ($node, $enddo);
     }   
-  $p->insertBefore (&t ($indent), $enddo);
   
   $para->appendChild (&t ("\n"));
   $para->appendChild ($loop);
-  $para->insertBefore (&t ($indent), $loop);
   
   &Call::addSuffix ($d, section => $para, suffix => '_FIELD_API_' . uc ($what));
   
@@ -387,9 +375,11 @@ sub makePostSyncSection
 
 sub saveFileWithSubroutineName
 {
+  use Canonic;
   my $body = shift;
+  $body = $body->cloneNode (1);
   my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $body, 1);
-  'FileHandle'->new ('>' . lc ($name) . ".F90")->print ($body->textContent);
+  'FileHandle'->new ('>' . lc ($name) . ".F90")->print (&Canonic::indent ($body));
   return $name;
 }
 
@@ -513,7 +503,6 @@ sub makeSingleColumnFieldAPIOutlineSection
   &FieldAPI::pointers2FieldAPIPtr ($outline, what => $what);
   
   my ($stmt) = &F ('.//ANY-stmt', $para);
-  my $indent = ' ' x &Fxtran::getIndent ($stmt);
 
   # Create a loop nest for blocks 
 
@@ -523,16 +512,16 @@ sub makeSingleColumnFieldAPIOutlineSection
   if ($args{inline_update_bnds})
     {
       # Directly
-      $loop_ibl .= "${indent}  YDCPG_BNDS%KBL    = IBL\n";
-      $loop_ibl .= "${indent}  YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
-      $loop_ibl .= "${indent}  YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
+      $loop_ibl .= "YDCPG_BNDS%KBL    = IBL\n";
+      $loop_ibl .= "YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
+      $loop_ibl .= "YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
     }
   else
     {
       # With typebound methods
-      $loop_ibl .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+      $loop_ibl .= "CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
     }
-  $loop_ibl .= "${indent}ENDDO\n";
+  $loop_ibl .= "ENDDO\n";
   
   ($loop_ibl) = &Fxtran::fxtran (fragment => $loop_ibl);
 
@@ -542,7 +531,7 @@ sub makeSingleColumnFieldAPIOutlineSection
       $node->unbindNode ();
     }
 
-  $para->appendChild (&t ("\n" . $indent));
+  $para->appendChild (&t ("\n"));
   $para->appendChild ($loop_ibl);
   $para->appendChild (&t ("\n"));
 
@@ -550,7 +539,7 @@ sub makeSingleColumnFieldAPIOutlineSection
 
   $loop_ibl->insertBefore (&t ('  '), $enddo);
   $loop_ibl->insertBefore ($call, $enddo);
-  $loop_ibl->insertBefore (&t ("\n" . $indent), $enddo);
+  $loop_ibl->insertBefore (&t ("\n"), $enddo);
 
   # Setup an include for the outlined routine
   my ($name) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $outline, 1);
@@ -662,7 +651,7 @@ sub makeSingleColumnFieldAPIOutlineSection
 
   &Stack::addStack ($outline, local => 1);
 
-  'FileHandle'->new ('>' . lc ($name) . '.F90')->print ($outline->textContent);
+  'FileHandle'->new ('>' . lc ($name) . '.F90')->print (&Canonic::indent ($outline));
 }
 
 sub makeSingleColumnFieldAPISection
@@ -678,7 +667,6 @@ sub makeSingleColumnFieldAPISection
   my $PTR = $what eq 'host' ? 'PTR' : 'DEVPTR';
 
   my ($stmt) = &F ('.//ANY-stmt', $para);
-  my $indent = ' ' x &Fxtran::getIndent ($stmt);
   
   # Insert loop nest
   
@@ -686,29 +674,27 @@ sub makeSingleColumnFieldAPISection
 
   if ($args{inline_update_bnds})
     {
-      $loop .= "${indent}  YDCPG_BNDS%KBL    = IBL\n";
-      $loop .= "${indent}  YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
-      $loop .= "${indent}  YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
+      $loop .= "YDCPG_BNDS%KBL    = IBL\n";
+      $loop .= "YDCPG_BNDS%KSTGLO = 1 + (IBL - 1) * YDCPG_BNDS%KLON\n";
+      $loop .= "YDCPG_BNDS%KFDIA  = MIN (YDCPG_BNDS%KLON, YDCPG_BNDS%KGPCOMP - YDCPG_BNDS%KSTGLO + 1)\n";
     }
   else
     {
-      $loop .= "${indent}  CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
+      $loop .= "CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
     }
   
   if ($args{stack})
     {
-      $loop .= "${indent}  ! Setup stack\n";
-      $loop .= "${indent}  YDSTACK%L = LOC (YDSTACK%F_P%$PTR (1,IBL))\n";
-      $loop .= "${indent}  YDSTACK%U = YDSTACK%L + KIND (YDSTACK%F_P%$PTR) * SIZE (YDSTACK%F_P%$PTR (:,IBL))\n";
+      $loop .= "YDSTACK%L = LOC (YDSTACK%F_P%$PTR (1,IBL))\n";
+      $loop .= "YDSTACK%U = YDSTACK%L + KIND (YDSTACK%F_P%$PTR) * SIZE (YDSTACK%F_P%$PTR (:,IBL))\n";
     }
   
-  $loop .= "${indent}  DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
-  $loop .= "${indent}    ! Select single column\n";
-  $loop .= "${indent}    YLCPG_BNDS = YDCPG_BNDS\n";
-  $loop .= "${indent}    YLCPG_BNDS%KIDIA = JLON\n";
-  $loop .= "${indent}    YLCPG_BNDS%KFDIA = JLON\n";
-  $loop .= "${indent}  ENDDO\n";
-  $loop .= "${indent}ENDDO\n";
+  $loop .= "DO JLON = YDCPG_BNDS%KIDIA, YDCPG_BNDS%KFDIA\n";
+  $loop .= "YLCPG_BNDS = YDCPG_BNDS\n";
+  $loop .= "YLCPG_BNDS%KIDIA = JLON\n";
+  $loop .= "YLCPG_BNDS%KFDIA = JLON\n";
+  $loop .= "ENDDO\n";
+  $loop .= "ENDDO\n";
   
   my ($loop) = &Fxtran::fxtran (fragment => $loop);
   my ($loop_jlon) = &F ('./do-construct', $loop);
@@ -723,15 +709,11 @@ sub makeSingleColumnFieldAPISection
   
   for my $node ($para->childNodes ()) 
     {   
-      $p->insertBefore (&t (' ' x (4)), $enddo);
-      &Fxtran::reIndent ($node, 4); 
       $p->insertBefore ($node, $enddo);
     }   
-  $p->insertBefore (&t ($indent . '  '), $enddo);
   
   $para->appendChild (&t ("\n"));
   $para->appendChild ($loop);
-  $para->insertBefore (&t ($indent), $loop);
   
   &Loop::removeJlonConstructs ($loop_jlon);
   &Loop::removeJlonLoopsFieldAPI ($d, $loop_jlon);

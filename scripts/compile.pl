@@ -13,7 +13,7 @@ use FindBin qw ($Bin);
 use lib $Bin;
 
 use Common;
-
+use Canonic;
 use Fxtran;
 
 my %opts;
@@ -72,12 +72,13 @@ sub saveSubroutine
   my $d = shift;
   my ($F90) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $d, 1);
   $F90 = lc ($F90) . '.F90';
-  'FileHandle'->new (">$F90")->print ($d->textContent);
+
+  'FileHandle'->new (">$F90")->print (&Canonic::indent ($d));
   &Fxtran::intfb ($F90);
   return $F90;
 }
 
-sub generateSyncHost
+sub generateSYNCHOST
 {
   shift;
   my $d = shift;
@@ -87,7 +88,7 @@ sub generateSyncHost
   &saveSubroutine ($d);
 }
 
-sub generateSyncDevice
+sub generateSYNCDEVICE
 {
   shift;
   my $d = shift;
@@ -97,7 +98,7 @@ sub generateSyncDevice
   &saveSubroutine ($d);
 }
 
-sub generateParallel
+sub generatePARALLEL
 {
   shift;
   use Parallel;
@@ -121,7 +122,7 @@ sub generateParallel
   &saveSubroutine ($d);
 }
 
-sub generateFieldAPIHost
+sub generateFIELDAPIHOST
 {
   shift;
   use Subroutine;
@@ -137,7 +138,7 @@ sub generateFieldAPIHost
   &saveSubroutine ($d);
 }
 
-sub generateSingleColumnFieldAPIHost
+sub generateSINGLECOLUMNFIELDAPIHOST
 {
   shift;
   use Subroutine;
@@ -170,7 +171,7 @@ sub generateSingleColumnFieldAPIHost
   &saveSubroutine ($d);
 }
 
-sub generateSingleColumnFieldAPIDevice
+sub generateSINGLECOLUMNFIELDAPIDEVICE
 {
   shift;
   use Subroutine;
@@ -222,9 +223,9 @@ sub preProcessIfNewer
 
       &Fxtran::intfb ($f2);
 
-      my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500)]);
+      my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500 -directive ACDC -canonic)]);
       
-      &Directive::parseDirectives ($d);
+      &Directive::parseDirectives ($d, name => 'ACDC');
 
       my @generate = &F ('.//generate', $d);
 

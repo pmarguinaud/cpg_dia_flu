@@ -8,20 +8,41 @@ sub parseDirectives
 # Add tags for each section
 
   my $d = shift;
+  my %args = @_;
+
+  my $name = $args{name};
+
+  for my $n (&F (".//$name", $d))
+    {
+      my $t = $n->nextSibling;
+      if (($t->nodeName eq '#text') && ($t->data =~ m/^\s+/o))
+        {
+          $t->unbindNode ();
+        }
+      $n->unbindNode ();
+    }
 
   my @e;
 
-  my @C = &F ('//C[starts-with(string (.),"!=")]', $d);
+  my @C = &F ("//$name-directive", $d);
   
   while (my $C  = shift (@C))
     {
-      (my $bdir = $C->textContent) =~ s/^!=\s*//o;
+      my $bdir = $C->textContent;
 
-      ($bdir, my $opts) = ($bdir =~ m/^(\S+)(?:\s+(\S.*\S)\s*)?$/goms);
+      my $noend = ! ($bdir =~ s/\s*{\s*$//o);
 
-      my $noend = $bdir =~ s/=$//o;
+      my @bdir = split (m/\s*,\s*/o, $bdir);
 
-      my %opts = $opts ? split (m/\s*[=,]\s*/o, $opts) : ();
+      $bdir = shift (@bdir);
+
+      my %opts;
+
+      for my $s (@bdir)
+        {
+          my ($k, $v) = split (m/\s*=\s*/o, $s);
+          $opts{$k} = $v;
+        }
 
       $bdir = lc ($bdir);
       my ($tag) = ($bdir =~ m/^(\w+)/o);
@@ -37,14 +58,12 @@ sub parseDirectives
           for (my $node = $C->nextSibling; ; $node = $node->nextSibling)
             {
               $node or die $C->textContent;
-              if (($node->nodeName eq 'C') && (index ($node->textContent, '!=') == 0))
+              if ($node->nodeName eq "$name-directive")
                 {
                   my $C = shift (@C);
-                  (my $edir = $C->textContent) =~ s/^!=\s*//o;
-                  $edir = lc ($edir);
-
-                  die unless ($edir =~ s/^end\s+//o);
-                  die unless ($edir eq $tag);
+                  die unless ($C->unique_key eq $node->unique_key);
+                  my $edir = $C->textContent;
+                  die unless ($edir =~ m/\s*}\s*/o);
 
                   $C->unbindNode ();
                   
