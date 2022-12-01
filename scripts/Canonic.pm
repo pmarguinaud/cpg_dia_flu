@@ -105,6 +105,8 @@ sub indent
 
       if ($name eq 'implicit-none-stmt')
         {
+          $stmt->parentNode->insertBefore (&t ("\n"), $stmt);
+          $stmt->parentNode->insertAfter (&t ("\n"), $stmt);
           $stmt->firstChild->setData ('IMPLICIT NONE');
         }
 
