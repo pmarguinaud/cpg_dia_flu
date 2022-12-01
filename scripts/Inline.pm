@@ -274,26 +274,18 @@ sub inlineContainedSubroutine
       pop (@node);
   
 
-      # Get indentation level of CALL statement
-
-      my $ci = &Fxtran::getIndent ($call);
-  
       # Insert statements from inlined routine + a few comments
   
       $call->parentNode->insertAfter (&t ("\n"), $call);
       if ($opts{comment})
         {
           $call->parentNode->insertAfter (&n ("<C>!----- END INLINE $n2</C>"), $call);
-          $call->parentNode->insertAfter (&t ("\n"  . (' ' x $ci)), $call);
+          $call->parentNode->insertAfter (&t ("\n"), $call);
         }
   
       for my $node (reverse @node)
         {
-          my $si = &Fxtran::getIndent ($node);
-          my $di = $ci - $si; $di = $di > 0 ? $di : 0;
           $call->parentNode->insertAfter ($node, $call);
-          &Fxtran::reIndent ($node, $di);
-          $call->parentNode->insertAfter (&t (' ' x $di), $call);
         }
   
       if ($opts{comment})
@@ -303,7 +295,7 @@ sub inlineContainedSubroutine
           for my $i (reverse (0 .. $#c))
             {
               my $c = $c[$i];
-              $c = (' ' x ($ci)) . "! $c";
+              $c = "! $c";
               $c = &t ($c);
               $c = $c->toString ();
               $call->parentNode->insertAfter (&t ("\n"), $call);
@@ -314,7 +306,7 @@ sub inlineContainedSubroutine
           $call->parentNode->insertAfter (&t ("\n"), $call);
 
           $call->parentNode->insertAfter (&n ("<C>!----- BEGIN INLINE $n2</C>"), $call);
-          $call->parentNode->insertAfter (&t ("\n"  . (' ' x $ci)), $call);
+          $call->parentNode->insertAfter (&t ("\n"), $call);
         }
   
 

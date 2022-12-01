@@ -92,16 +92,22 @@ sub indent
 
   $d = $d->cloneNode (1);
 
-  for (&F ('.//implicit-none-stmt/text()[string(.)="IMPLICITNONE"]', $d))
+  my $width = $args{width} || 100;
+  
+  for my $pu (&F ('.//program-unit', $d))
     {
-      $_->replaceNode (&s ('IMPLICIT NONE'));
+      $pu->parentNode->insertAfter (&t ("\n"), $pu);
     }
 
-# my $width = $args{width} || 100;
-  my $width = $args{width} || 80;
-  
   for my $stmt (&F ('.//ANY-stmt', $d))
     {
+      my $name = $stmt->nodeName;
+
+      if ($name eq 'implicit-none-stmt')
+        {
+          $stmt->firstChild->setData ('IMPLICIT NONE');
+        }
+
       my $text = $stmt->textContent;
       my @text;
   
@@ -118,6 +124,12 @@ sub indent
           while (length (my $t = substr ($text, 0, $w, '')))
             {
               $w-- unless (@text);
+             
+              while ($text && ($text =~ m/^\b/o))
+                {
+                  $t .= substr ($text, 0, 1, '');
+                }
+
               push @text, $t;
             }
         }

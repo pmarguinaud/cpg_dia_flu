@@ -425,8 +425,6 @@ sub makeSyncSection
   my ($proc) = &F ('./procedure-designator/named-E/N/n/text()', $call);
   $proc->setData ($name);
   
-  &Fxtran::fold ($call);
-
   my $post = lc ($para->getAttribute ('post') || '');
 
   if ($post eq 'synchost')
