@@ -112,7 +112,7 @@ sub outlineSection
   
   # Subroutine template
 
-  my $o = &Fxtran::fxtran (string => << "EOF");
+  my ($o) = &Fxtran::parse (string => << "EOF");
 SUBROUTINE $NAME ()
 
 USE PARKIND1, ONLY : JPIM, JPRB
@@ -309,7 +309,7 @@ EOF
 
   for my $v (sort keys (%do))
     {
-      $C2->parentNode->insertBefore (&Fxtran::fxtran (statement => "INTEGER (KIND=JPIM) :: $v"), $C2);
+      $C2->parentNode->insertBefore (&Fxtran::parse (statement => "INTEGER (KIND=JPIM) :: $v"), $C2);
       $C2->parentNode->insertBefore (&t ("\n"), $C2);
     }
   

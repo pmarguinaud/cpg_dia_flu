@@ -70,6 +70,7 @@ sub apply
 sub saveSubroutine
 {
   my $d = shift;
+
   my ($F90) = &F ('./object/file/program-unit/subroutine-stmt/subroutine-N/N/n/text()', $d, 1);
   $F90 = lc ($F90) . '.F90';
 
@@ -223,7 +224,7 @@ sub preProcessIfNewer
 
       &Fxtran::intfb ($f2);
 
-      my $d = &Fxtran::fxtran (location => $f1, fopts => [qw (-line-length 500 -directive ACDC -canonic)]);
+      my $d = &Fxtran::parse (location => $f1, fopts => [qw (-construct-tag -no-include -line-length 500 -directive ACDC -canonic)]);
       
       &Directive::parseDirectives ($d, name => 'ACDC');
 

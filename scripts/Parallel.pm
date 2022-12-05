@@ -221,7 +221,7 @@ sub makeBlockViewSection
     }
   $loop .= "ENDDO\n";
 
-  my ($loop) = &Fxtran::fxtran (fragment => $loop);
+  my ($loop) = &Fxtran::parse (fragment => $loop);
 
   my ($enddo) = &F ('.//end-do-stmt', $loop);
   my $p = $enddo->parentNode;
@@ -302,7 +302,7 @@ sub makeBlockFieldAPISection
   $loop .= "CALL YDCPG_BNDS%UPDATE_VIEW (BLOCK_INDEX=IBL)\n";
   $loop .= "ENDDO\n";
   
-  my ($loop) = &Fxtran::fxtran (fragment => $loop);
+  my ($loop) = &Fxtran::parse (fragment => $loop);
   
   my ($enddo) = &F ('.//end-do-stmt', $loop);
   my $p = $enddo->parentNode;
@@ -521,7 +521,7 @@ sub makeSingleColumnFieldAPIOutlineSection
     }
   $loop_ibl .= "ENDDO\n";
   
-  ($loop_ibl) = &Fxtran::fxtran (fragment => $loop_ibl);
+  ($loop_ibl) = &Fxtran::parse (fragment => $loop_ibl);
 
   # Delete all children of parallel section, and replace them with the call to the outlined routine
   for my $node ($para->childNodes ())
@@ -584,7 +584,7 @@ sub makeSingleColumnFieldAPIOutlineSection
   $loop_jlon .= "  YLCPG_BNDS%KFDIA = JLON\n";
   $loop_jlon .= "ENDDO\n";
 
-  ($loop_jlon) = &Fxtran::fxtran (fragment => $loop_jlon);
+  ($loop_jlon) = &Fxtran::parse (fragment => $loop_jlon);
 
   my ($enddo_jlon) = &F ('./end-do-stmt', $loop_jlon);
 
@@ -694,7 +694,7 @@ sub makeSingleColumnFieldAPISection
   $loop .= "ENDDO\n";
   $loop .= "ENDDO\n";
   
-  my ($loop) = &Fxtran::fxtran (fragment => $loop);
+  my ($loop) = &Fxtran::parse (fragment => $loop);
   my ($loop_jlon) = &F ('./do-construct', $loop);
   
   my ($enddo) = &F ('.//end-do-stmt', $loop);

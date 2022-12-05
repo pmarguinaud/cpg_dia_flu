@@ -17,7 +17,7 @@ use Stack;
 
 for my $f (@ARGV)
   {
-    my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+    my $d = &Fxtran::parse (location => $f, fopts => [qw (-line-length 500)]);
 
     &Parallel::makeParallelSingleColumnFieldAPI ($d, stack => 1);
     &Decl::changeIntent ($d, 'YDCPG_BNDS', 'INOUT');

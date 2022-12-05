@@ -15,7 +15,7 @@ use Fxtran;
 
 for my $f (@ARGV)
   {
-    my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 500)]);
+    my $d = &Fxtran::parse (location => $f, fopts => [qw (-line-length 500)]);
     'FileHandle'->new ('>' . &basename ($f) . '.xml')->print ($d->toString);
     &Canonic::makeCanonic ($d);
     'FileHandle'->new ('>canonic.' . &basename ($f) . '.xml')->print ($d->toString);

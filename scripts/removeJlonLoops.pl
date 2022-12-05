@@ -14,7 +14,7 @@ use Loop;
 
 my $f = shift;
 
-my $d = &Fxtran::fxtran (location => $f, fopts => [qw (-line-length 300)]);
+my $d = &Fxtran::parse (location => $f, fopts => [qw (-line-length 300)]);
 
 &Loop::removeJlonLoops ($d);
 

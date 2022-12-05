@@ -1174,11 +1174,6 @@ sub save_to_file
 } 
 
 
-sub fxtran
-{
-  return &parse (@_);
-}
-
 sub add_used_vars
 {
   my ($doc, $mod, @vars) = @_;
@@ -1362,7 +1357,7 @@ sub intfb
   
   $dir ||= '.';
 
-  my $doc = &Fxtran::fxtran (location => $F90, fopts => ['-line-length' => 500]);
+  my $doc = &Fxtran::parse (location => $F90, fopts => ['-construct-tag', '-no-include', '-line-length' => 500]);
   
   &intfb_body ($doc);
 

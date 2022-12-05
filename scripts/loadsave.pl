@@ -648,7 +648,7 @@ sub parseSkipOnly
 
 my $F90 = shift;
 
-my $doc = &Fxtran::fxtran (location => $F90, fopts => [qw (-line-length 800)], dir => $opts{tmp});
+my $doc = &Fxtran::parse (location => $F90, fopts => [qw (-line-length 800)], dir => $opts{tmp});
 
 if ($opts{load} || $opts{save} || $opts{size} || $opts{copy})
   {

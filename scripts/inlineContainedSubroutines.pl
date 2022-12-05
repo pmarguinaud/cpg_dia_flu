@@ -14,7 +14,7 @@ use Inline;
 
 my ($f) = @ARGV;
 
-my $d = &Fxtran::fxtran (location => $f);
+my $d = &Fxtran::parse (location => $f);
 
 &Inline::inlineContainedSubroutines ($d);
 
