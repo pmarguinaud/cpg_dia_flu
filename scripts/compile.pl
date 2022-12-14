@@ -226,6 +226,8 @@ sub preProcessIfNewer
 
       my $d = &Fxtran::parse (location => $f1, fopts => [qw (-construct-tag -no-include -line-length 500 -directive ACDC -canonic)]);
       
+      &Canonic::makeCanonic ($d);
+
       &Directive::parseDirectives ($d, name => 'ACDC');
 
       my @generate = &F ('.//generate', $d);

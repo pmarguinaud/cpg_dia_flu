@@ -6,7 +6,7 @@ use Data::Dumper;
 use Intrinsic;
 use Ref;
 
-sub makeCanonic
+sub makeCanonicReferences
 {
   my $d = shift;
 
@@ -39,6 +39,15 @@ DONE:
 
     }
 
+}
+
+sub makeCanonic
+{
+  my $d = shift;
+
+  &makeCanonicReferences ($d);
+
+  return;
 
   my ($pu) = &F ('./object/file/program-unit', $d);
 
