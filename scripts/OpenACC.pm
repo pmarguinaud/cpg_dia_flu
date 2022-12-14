@@ -38,8 +38,6 @@ sub insertDirective
             }
         }
     }
-
-
   
   for my $i (0 .. $#d)
     {
@@ -95,6 +93,14 @@ sub routineSeq
   my ($N) = &F ('./subroutine-stmt/subroutine-N', $pu, 1); 
   $pu->insertAfter (&n ("<C>!\$acc routine ($N) seq</C>"), $pu->firstChild);
   $pu->insertAfter (&t ("\n"), $pu->firstChild);
+}
+
+sub serial
+{
+  my ($p, %c) = @_;
+  &insertDirective ($p, 'SERIAL', %c);
+  $p->parentNode->insertAfter (&n ("<C>!\$ACC END SERIAL</C>"), $p);
+  $p->parentNode->insertAfter (&t ("\n"), $p);
 }
 
 1;
